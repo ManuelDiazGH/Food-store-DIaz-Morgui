@@ -250,4 +250,16 @@ Seguir **RFC 7807** (Problem Details for HTTP APIs):
 
 ---
 
-*Actualizado: 2026-04-28*
+## Skills Disponibles
+
+| Skill | Cuándo y cómo usar |
+|-------|-------------------|
+| `ui-ux-pro-max` | Diseño UI/UX React/Tailwind. Trigger: "diseñar UI", "componente frontend" |
+| `vercel-react-best-practices` | Optimización React/Vite. Trigger: "optimizar React", "rendimiento frontend" |
+| `issue-creation` | Crear issues GitHub siguiendo flujo del proyecto. Trigger: "crear issue", "reportar bug" |
+| `branch-pr` | Crear PRs siguiendo flujo del proyecto. Trigger: "crear PR", "abrir pull request" |
+| `skill-creator` | Crear nuevas skills para el agente. Trigger: "crear skill", "nueva habilidad" |
+| `find-skills` | Buscar skills instalables. Trigger: "buscar skill", "qué skills hay" |
+
+---
+*Actualizado: 2026-05-06*
