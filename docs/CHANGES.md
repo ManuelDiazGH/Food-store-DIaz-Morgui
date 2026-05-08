@@ -11,23 +11,41 @@
 | Épica | Historias | Prioridad | Sprint |
 |-------|-----------|-----------|--------|
 | 00 — Infraestructura y Setup | US-000, US-000a, US-000b, US-000c, US-000d, US-000e, US-068, US-074 | Alta | Sprint 0 |
+
 | 01 — Auth y Autorización | US-001 a US-006, US-073 | Alta | Sprint 1 |
+
 | 02 — Navegación y Layout Base | US-075, US-076, US-066, US-067 | Alta | Sprint 1 |
+
 | 03 — Categorías | US-007 a US-010 | Alta | Sprint 2 |
+
 | 04 — Ingredientes y Alérgenos | US-011 a US-014 | Alta | Sprint 2 |
+
 | 05 — Productos y Catálogo | US-015 a US-023 | Alta | Sprint 3 |
+
 | 06 — Perfil del Cliente | US-061, US-062, US-063 | Media | Sprint 3 |
+
 | 07 — Direcciones de Entrega | US-024 a US-028 | Alta | Sprint 4 |
+
 | 08 — Carrito de Compras | US-029 a US-034 | Alta | Sprint 4 |
+
 | 09 — Validaciones Pre-Checkout | US-069, US-070 | Alta/Media | Sprint 5 |
+
 | 10 — Creación de Pedidos | US-035 a US-038 | Alta | Sprint 5 |
+
 | 11 — Pagos MercadoPago | US-045 a US-048 | Alta | Sprint 6 |
+
 | 12 — FSM de Pedidos | US-039 a US-044 | Alta | Sprint 6 |
+
 | 13 — Visualización de Pedidos | US-049 a US-052 | Alta | Sprint 7 |
+
 | 14 — Notificaciones y Feedback UX | US-071, US-072 | Media/Alta | Sprint 7 |
+
 | 15 — Admin Usuarios | US-053 a US-055 | Alta/Media | Sprint 8 |
+
 | 16 — Catálogo Admin | US-064, US-065 | Media | Sprint 8 |
+
 | 17 — Métricas y Dashboard | US-056 a US-059 | Media | Sprint 8 |
+
 | 18 — Configuración del Sistema | US-060 | Baja | Sprint 8 |
 
 ---

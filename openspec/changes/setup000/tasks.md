@@ -1,6 +1,6 @@
 ## 1. Backend Structure and Configuration
 
-- [ ] 1.1 Create backend directory structure with `backend/app/modules/` for all modules (auth, usuarios, categorias, productos, pedidos, pagos, direcciones, admin, refreshtokens)
+- [x] 1.1 Create backend directory structure with `backend/app/modules/` for all modules (auth, usuarios, categorias, productos, pedidos, pagos, direcciones, admin, refreshtokens, ingredientes)
 - [ ] 1.2 Initialize Python virtual environment in `backend/.venv/` and create `requirements.txt` with: fastapi>=0.111, sqlmodel>=0.0.19, uvicorn[standard], python-jose[cryptography], passlib[bcrypt], slowapi>=0.1.9, alembic>=1.13, psycopg2-binary, python-dotenv, mercadopago>=2.3.0
 - [ ] 1.3 Create `backend/app/main.py` with FastAPI application factory, configure CORSMiddleware (allow origins: http://localhost:5173), and register module routers
 - [ ] 1.4 Create `backend/app/core/config.py` with Pydantic Settings loading from .env (DATABASE_URL, SECRET_KEY, ACCESS_TOKEN_EXPIRE_MINUTES=30, REFRESH_TOKEN_EXPIRE_DAYS=7)
@@ -46,7 +46,7 @@
 
 ## 7. Frontend Architecture - Feature-Sliced Design
 
-- [ ] 7.1 Create FSD layers in `frontend/src/`: app/ (providers, routing, global styles), pages/ (one per route), widgets/ (composed UI blocks), features/ (auth, cart, checkout, admin features), entities/ (domain models + API), shared/ (generic UI, utils, config)
+- [x] 7.1 Create FSD layers in `frontend/src/`: app/ (providers, routing, global styles), pages/ (one per route), widgets/ (composed UI blocks), features/ (auth, cart, checkout, admin features), entities/ (domain models + API), shared/ (generic UI, utils, config)
 - [ ] 7.2 Setup TanStack Query: create `frontend/src/entities/api/queryClient.ts` with QueryClient configuration, add QueryClientProvider in `frontend/src/app/providers.tsx`
 - [ ] 7.3 Setup Axios: create `frontend/src/entities/api/axios.ts` with interceptors that attach JWT from Zustand auth store, and handle 401 by calling refresh token endpoint
 - [ ] 7.4 Setup Zustand stores: create `frontend/src/features/auth/store/authStore.ts` (user, tokens, login/logout actions), `frontend/src/features/cart/store/cartStore.ts` (cart items with localStorage persistence)
