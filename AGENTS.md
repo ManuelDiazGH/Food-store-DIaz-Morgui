@@ -5,6 +5,35 @@
 **Stack**: FastAPI + SQLModel + PostgreSQL + React + TypeScript + Vite
 
 ---
+Engram — Git Sync (memorias compartidas)
+Este proyecto usa Engram como sistema de memoria persistente. Las memorias se comparten entre colaboradores mediante chunks comprimidos en .engram/chunks/.
+Protocolo post-pull (MANDATORIO)
+El plugin de Engram ejecuta engram sync --import solo al inicio de sesión. Si se hace git pull después, los chunks nuevos NO se cargan automáticamente.
+Siempre que hagas git pull, ejecutá inmediatamente:
+engram sync --import
+Esto importa los chunks nuevos que llegaron del remote al índice local de SQLite.
+Verificar estado de sync
+engram sync --status
+Muestra cuántos chunks existen localmente vs en el repo y si hay imports pendientes.
+Protocolo de cierre de sesión (AUTOMÁTICO)
+Cuando el usuario diga "cerrar sesión", "terminar", "done", "listo", "eso es todo" o similar, EJECUTÁ AUTOMÁTICAMENTE este flujo ANTES de llamar a mem_session_summary:
+# 1. Exportar memorias nuevas como chunks
+engram sync
+# 2. Stagear TODO: código + cambios de engram + cualquier archivo pendiente
+git add -A
+# 3. Ver qué va a entrar al commit
+git status
+# 4. Commitear todo junto (usar Conventional Commits si aplica, sino genérico)
+git commit -m "chore: end session — sync engram memories and pending changes"
+# 5. Pushear al remoto para que otros colaboradores reciban los cambios
+git push
+Esto asegura que todo lo trabajado en la sesión (código + memorias de Engram) se commitee Y se pushee automáticamente. Así otros colaboradores reciben tanto los cambios de código como las sesiones de Engram sin pasos intermedios.
+Importante: después del push, recién ahí llamar a mem_session_summary para cerrar la sesión en Engram.
+Fallback si el push falla
+Si git push falla (conflictos en remoto, sin acceso, etc.):
+Informar al usuario el error
+NO cerrar la sesión en Engram todavía
+Esperar indicaciones del usuario
 
 ## Fuente de verdad
 
