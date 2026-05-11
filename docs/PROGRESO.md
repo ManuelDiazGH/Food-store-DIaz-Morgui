@@ -1,6 +1,6 @@
 # Progreso del Proyecto — Food Store E-Commerce
 
-> **Actualizado**: 2026-05-08  
+> **Actualizado**: 2026-05-11  
 > **Épica activa**: 00 — Infraestructura y Setup (Sprint 0)
 
 ---
@@ -25,8 +25,8 @@
 | **Backend: Estructura base** | ✅ **Completada** | US-000 |
 | **Frontend: Estructura FSD** | ✅ **Completada** | US-000 |
 | Backend: Models SQLModel + DB | 🔲 Pendiente | — |
-| Backend: Config FastAPI + CORS | 🔲 Pendiente | — |
-| Backend: Auth JWT | 🔲 Pendiente | — |
+| **Backend: Config FastAPI + CORS** | ✅ **Completada** | US-000a |
+| Backend: Auth JWT (utilidades base) | ✅ Stubs + utils | US-000a |
 | Backend: Módulos funcionales | 🔲 Pendiente | — |
 | Frontend: Stores Zustand | 🔲 Pendiente | — |
 | Frontend: Componentes UI | 🔲 Pendiente | — |
@@ -66,15 +66,43 @@
 
 ---
 
+### US-000a — Configuración del entorno backend (FastAPI + dependencias) ✅
+
+**Estado**: Completada  
+**Commits**:
+- `f17aba4` — feat(backend): add FastAPI core infrastructure
+
+**Criterios de aceptación cumplidos**:
+
+| Criterio | Resultado |
+|----------|-----------|
+| `pip install -r requirements.txt` instala todas las dependencias | ✅ 50 paquetes instalados |
+| `uvicorn app.main:app --reload` arranca en puerto 8000 | ✅ Server start OK |
+| Swagger en `/docs` y ReDoc en `/redoc` | ✅ 200 OK |
+| `main.py` con CORS, rate limiting, routers `/api/v1` | ✅ Creado y verificado |
+| `core/` con `config.py`, `database.py`, `security.py` | ✅ Creados |
+| CORS permite `http://localhost:5173` | ✅ Configurado desde variable de entorno |
+
+**Creaciones**:
+- `backend/requirements.txt` — 50 dependencias Python instaladas
+- `backend/.venv/` — entorno virtual Python 3.13
+- `backend/app/main.py` — FastAPI factory con CORS, rate limiting, RFC 7807, 10 routers registrados
+- `backend/app/core/config.py` — Pydantic Settings (DATABASE_URL, SECRET_KEY, JWT expiraciones, CORS, MP keys)
+- `backend/app/core/database.py` — SQLAlchemy engine + session factory (pool_size=5, max_overflow=10)
+- `backend/app/core/security.py` — bcrypt hashing (cost=12), JWT HS256, UUID refresh tokens
+- Routers de módulos actualizados con APIRouter y prefijos `/api/v1/`
+
+---
+
 ## OPSX Changes
 
 ### `setup000` — Sprint 0: Infraestructura Base 🔄
 
-**Artefactos**: Proposal ✅ Design ✅ Specs ✅ Tasks (2/39 completadas)  
+**Artefactos**: Proposal ✅ Design ✅ Specs ✅ Tasks (5/39 completadas)  
 
 | Bloque | Progreso |
 |--------|----------|
-| 1. Backend Structure and Configuration | 🔄 1/5 tareas |
+| 1. Backend Structure and Configuration | ✅ 4/5 tareas |
 | 2. Database Setup with SQLModel + Alembic | 🔲 0/5 |
 | 3. BaseRepository[T] and Unit of Work | 🔲 0/3 |
 | 4. Auth Foundation — JWT and Refresh Tokens | 🔲 0/4 |
@@ -140,11 +168,11 @@ food-store/
 
 ## Próximos Pasos (Sprint 0)
 
-1. **US-000a** — Configuración del backend FastAPI (main.py, CORS, config.py, database.py, security.py)
-2. **US-000b** — Modelos SQLModel, migraciones Alembic y seed data
-3. **US-000c** — Configuración del frontend (Vite, Tailwind, TanStack Query, Axios)
-4. **US-000d** — Patrones base (BaseRepository, Unit of Work, get_current_user, require_role)
-5. **US-000e** — Stores de Zustand (authStore, cartStore, paymentStore, uiStore)
+1. ✅ ~~US-000a — Configuración del backend FastAPI~~
+2. 🔲 **US-000b** — Modelos SQLModel, migraciones Alembic y seed data
+3. 🔲 **US-000c** — Configuración del frontend (Vite, Tailwind, TanStack Query, Axios)
+4. 🔲 **US-000d** — Patrones base (BaseRepository, Unit of Work, get_current_user, require_role)
+5. 🔲 **US-000e** — Stores de Zustand (authStore, cartStore, paymentStore, uiStore)
 
 ---
 
