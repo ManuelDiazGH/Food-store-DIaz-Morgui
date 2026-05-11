@@ -1,7 +1,8 @@
 # Progreso del Proyecto — Food Store E-Commerce
 
 > **Actualizado**: 2026-05-11  
-> **Épica activa**: 00 — Infraestructura y Setup (Sprint 0)
+> **Épica activa**: 00 — Infraestructura y Setup (Sprint 0)  
+> **Setup000**: 10/39 tareas completadas
 
 ---
 
@@ -27,6 +28,7 @@
 | Backend: Models SQLModel + DB | 🔲 Pendiente | — |
 | **Backend: Config FastAPI + CORS** | ✅ **Completada** | US-000a |
 | Backend: Auth JWT (utilidades base) | ✅ Stubs + utils | US-000a |
+| **Backend: Modelos + DB + Migraciones** | ✅ **Completada** | US-000b |
 | Backend: Módulos funcionales | 🔲 Pendiente | — |
 | Frontend: Stores Zustand | 🔲 Pendiente | — |
 | Frontend: Componentes UI | 🔲 Pendiente | — |
@@ -72,6 +74,36 @@
 **Commits**:
 - `f17aba4` — feat(backend): add FastAPI core infrastructure
 
+---
+
+### US-000b — Configuración de PostgreSQL, migraciones y seed data ✅
+
+**Estado**: Completada  
+**Commits**:
+- `28c3a01` — feat(backend): add 16 SQLModel entities + Alembic migrations + seed data
+
+**Criterios de aceptación cumplidos**:
+
+| Criterio | Resultado |
+|----------|-----------|
+| `alembic upgrade head` crea las 16 tablas del ERD v5 | ✅ Migración generada con 16 tablas |
+| Campos de auditoría (creado_en, actualizado_en) | ✅ En todas las tablas principales |
+| Soft delete (eliminado_en timestamp nullable) | ✅ En Usuario, Producto, Categoria, Ingrediente, DireccionEntrega |
+| Tipos correctos: DECIMAL, INTEGER[], email UNIQUE | ✅ Precios NUMERIC(10,2), personalización INTEGER[] |
+| FK y restricciones de integridad | ✅ ForeignKeyConstraints con ON DELETE SET NULL |
+| Categoria.padre_id FK autoreferencial nullable | ✅ Definido con ondelete="SET NULL" |
+| UsuarioRol UNIQUE compuesta (usuario_id, rol_codigo) | ✅ PK compuesta |
+| Seed: 4 Roles, 6 Estados, Formas de pago, Admin | ✅ Script idempotente con ON CONFLICT DO NOTHING |
+| Migraciones reversibles | ✅ `downgrade()` incluida en la migración |
+| Seed idempotente | ✅ Verifica existencia antes de INSERT |
+
+**Creaciones**:
+- `backend/app/models/all_models.py` — 16 modelos SQLModel con 336 líneas
+- `backend/alembic.ini` — Configuración de Alembic
+- `backend/alembic/env.py` — Entorno con autogenerate + conexión desde Settings
+- `backend/alembic/versions/1b0f96613ef5_initial.py` — Migración inicial
+- `backend/app/db/seed.py` — Seed idempotente
+
 **Criterios de aceptación cumplidos**:
 
 | Criterio | Resultado |
@@ -98,11 +130,12 @@
 
 ### `setup000` — Sprint 0: Infraestructura Base 🔄
 
-**Artefactos**: Proposal ✅ Design ✅ Specs ✅ Tasks (5/39 completadas)  
+**Artefactos**: Proposal ✅ Design ✅ Specs ✅ Tasks (10/39 completadas)  
 
 | Bloque | Progreso |
 |--------|----------|
 | 1. Backend Structure and Configuration | ✅ 4/5 tareas |
+| 2. Database Setup with SQLModel + Alembic | ✅ 5/5 tareas |
 | 2. Database Setup with SQLModel + Alembic | 🔲 0/5 |
 | 3. BaseRepository[T] and Unit of Work | 🔲 0/3 |
 | 4. Auth Foundation — JWT and Refresh Tokens | 🔲 0/4 |
@@ -169,7 +202,7 @@ food-store/
 ## Próximos Pasos (Sprint 0)
 
 1. ✅ ~~US-000a — Configuración del backend FastAPI~~
-2. 🔲 **US-000b** — Modelos SQLModel, migraciones Alembic y seed data
+2. ✅ ~~US-000b — Modelos SQLModel, migraciones Alembic y seed data~~
 3. 🔲 **US-000c** — Configuración del frontend (Vite, Tailwind, TanStack Query, Axios)
 4. 🔲 **US-000d** — Patrones base (BaseRepository, Unit of Work, get_current_user, require_role)
 5. 🔲 **US-000e** — Stores de Zustand (authStore, cartStore, paymentStore, uiStore)

@@ -8,11 +8,11 @@
 
 ## 2. Database Setup with SQLModel and Alembic
 
-- [ ] 2.1 Create `backend/app/models/` with base SQLModel classes for all entities: Usuario, Rol, UsuarioRol, RefreshToken, DireccionEntrega, Categoria, Producto, Ingrediente, ProductoCategoria, ProductoIngrediente, EstadoPedido, Pedido, DetallePedido, HistorialEstadoPedido, FormaPago, Pago
-- [ ] 2.2 Configure SQLModel with PostgreSQL connection using DATABASE_URL from config
-- [ ] 2.3 Initialize Alembic in `backend/alembic/` with `alembic.ini` configured for SQLModel/SQLAlchemy
-- [ ] 2.4 Create `backend/alembic/env.py` configured to autogenerate migrations from SQLModel models
-- [ ] 2.5 Create `backend/app/db/seed.py` script that creates: 4 roles (ADMIN, STOCK, PEDIDOS, CLIENT), 6 order states (PENDIENTE, CONFIRMADO, EN_PREPARACION, EN_CAMINO, ENTREGADO, CANCELADO), 3 payment methods (MERCADOPAGO, RAPIPAGO, PAGOFACIL), and admin user (admin@foodstore.com / admin123)
+- [x] 2.1 Create `backend/app/models/all_models.py` with all 16 SQLModel classes: Usuario, Rol, UsuarioRol, RefreshToken, DireccionEntrega, Categoria, Producto, Ingrediente, ProductoCategoria, ProductoIngrediente, EstadoPedido, Pedido, DetallePedido, HistorialEstadoPedido, FormaPago, Pago
+- [x] 2.2 Configure SQLModel with PostgreSQL connection using DATABASE_URL from config (via `app.core.database`)
+- [x] 2.3 Initialize Alembic in `backend/alembic/` with `alembic.ini` configured for SQLModel/SQLAlchemy
+- [x] 2.4 Create `backend/alembic/env.py` configured to autogenerate migrations from SQLModel models — initial migration generated (1b0f96613ef5)
+- [x] 2.5 Create `backend/app/db/seed.py` script that creates: 4 roles (ADMIN, STOCK, PEDIDOS, CLIENT), 6 order states (PENDIENTE, CONFIRMADO, EN_PREPARACION, EN_CAMINO, ENTREGADO, CANCELADO), 3 payment methods (MERCADOPAGO, RAPIPAGO, PAGOFACIL), and admin user (admin@foodstore.com / admin123)
 
 ## 3. BaseRepository[T] and Unit of Work Pattern
 
