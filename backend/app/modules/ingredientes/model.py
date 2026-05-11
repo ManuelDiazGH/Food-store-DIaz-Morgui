@@ -1,2 +1,4 @@
-"""Modelo de ingredientes para Food Store."""
-from sqlmodel import SQLModel
+"""Modelo de Ingrediente — Import centralizado."""
+from app.models.all_models import Ingrediente
+
+__all__ = ["Ingrediente"]

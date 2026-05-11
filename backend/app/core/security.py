@@ -5,28 +5,39 @@ Provee:
 - ``create_access_token()`` con JWT HS256
 - ``create_refresh_token()`` que genera UUID v4
 - ``decode_token()`` para validación interna
+
+Nota: Se usa bcrypt directamente en vez de passlib para evitar
+incompatibilidades con versiones nuevas de bcrypt (≥4.1).
 """
 import uuid
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
 # ── Password hashing ───────────────────────────────────────────────
-_pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 BCRYPT_ROUNDS = 12
 
 
 def hash_password(password: str) -> str:
-    """Retorna el hash bcrypt de *password* (cost = 12)."""
-    return _pwd.hash(password, rounds=BCRYPT_ROUNDS)
+    """Retorna el hash bcrypt de *password* (cost = 12).
+
+    Usa bcrypt directamente para evitar problemas de compatibilidad
+    con passlib y bcrypt >= 4.1.
+    """
+    salt = bcrypt.gensalt(rounds=BCRYPT_ROUNDS)
+    hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
+    return hashed.decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Compara *plain_password* contra su hash."""
-    return _pwd.verify(plain_password, hashed_password)
+    """Compara *plain_password* contra su hash bcrypt."""
+    return bcrypt.checkpw(
+        plain_password.encode("utf-8"),
+        hashed_password.encode("utf-8"),
+    )
 
 
 # ── JWT ───────────────────────────────────────────────────────────

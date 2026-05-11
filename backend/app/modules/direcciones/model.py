@@ -1,2 +1,4 @@
-"""Modelo de direcciones para Food Store."""
-from sqlmodel import SQLModel
+"""Modelo de DireccionEntrega — Import centralizado."""
+from app.models.all_models import DireccionEntrega
+
+__all__ = ["DireccionEntrega"]

@@ -47,7 +47,10 @@ class Usuario(SQLModel, table=True):
         default=None, sa_column=Column(DateTime(timezone=True), nullable=True),
     )
 
-    roles: list["UsuarioRol"] = Relationship(back_populates="usuario")
+    roles: list["UsuarioRol"] = Relationship(
+        back_populates="usuario",
+        sa_relationship_kwargs={"foreign_keys": "[UsuarioRol.usuario_id]"},
+    )
     refresh_tokens: list["RefreshToken"] = Relationship(back_populates="usuario")
     direcciones: list["DireccionEntrega"] = Relationship(back_populates="usuario")
     pedidos: list["Pedido"] = Relationship(back_populates="usuario")
@@ -64,7 +67,10 @@ class UsuarioRol(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), server_default=func.now()),
     )
 
-    usuario: "Usuario" = Relationship(back_populates="roles")
+    usuario: "Usuario" = Relationship(
+        back_populates="roles",
+        sa_relationship_kwargs={"foreign_keys": "[UsuarioRol.usuario_id]"},
+    )
     rol: "Rol" = Relationship(back_populates="usuarios")
 
 
