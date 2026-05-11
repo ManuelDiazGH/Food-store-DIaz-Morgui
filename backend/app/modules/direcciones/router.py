@@ -1,1 +1,4 @@
 """Router de direcciones para Food Store."""
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/api/v1/direcciones", tags=["Direcciones"])
