@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import { Navbar } from '@widgets/Navbar'
+import { CartDrawer } from '@features/cart'
 
 export function Layout() {
   return (
@@ -11,6 +12,7 @@ export function Layout() {
       <footer className="border-t border-gray-200 py-4 text-center text-sm text-gray-500">
         &copy; 2026 Food Store &mdash; E-commerce de alimentos
       </footer>
+      <CartDrawer />
     </div>
   )
 }

@@ -24,6 +24,13 @@ class PagoRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class IniciarPagoResponse(BaseModel):
+    """Respuesta al iniciar un pago con MercadoPago."""
+    pago: PagoRead
+    init_point: str
+    mp_payment_id: Optional[int] = None
+
+
 class WebhookMPRequest(BaseModel):
     """Webhook payload de MercadoPago IPN."""
     action: str = Field(default="")

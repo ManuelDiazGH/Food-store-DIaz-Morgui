@@ -14,7 +14,7 @@ from decimal import Decimal
 
 from app.core.uow import UnitOfWork
 from app.modules.pedidos.schemas import CrearPedidoRequest, EstadoUpdateRequest
-from app.models.all_models import Pedido, DetallePedido, HistorialEstadoPedido
+from app.models.all_models import Pedido, DetallePedido, HistorialEstadoPedido, DireccionEntrega
 
 # ── FSM transitions ──────────────────────────────────────────────
 VALID_TRANSITIONS: dict[str, set[str]] = {
@@ -70,6 +70,17 @@ class PedidoService:
             direccion_id=data.direccion_id,
             notas=data.notas,
         )
+
+        # Address snapshot (RN-PE03)
+        if data.direccion_id is not None:
+            direccion = uow.direcciones.get_by_id(data.direccion_id)
+            if direccion is not None:
+                pedido.direccion_snapshot_alias = direccion.alias
+                pedido.direccion_snapshot_linea1 = direccion.linea1
+                pedido.direccion_snapshot_linea2 = direccion.linea2
+                pedido.direccion_snapshot_ciudad = direccion.ciudad
+                pedido.direccion_snapshot_cp = direccion.cp
+
         uow.pedidos.create(pedido)
         uow.session.flush()  # Obtener pedido.id
 
@@ -90,6 +101,70 @@ class PedidoService:
         return pedido
 
     @staticmethod
+    def validar_items(uow: UnitOfWork, items_data: list[dict]) -> dict:
+        """Valida items antes de crear el pedido (EPIC 09).
+
+        Returns:
+            dict with 'valido', 'items' (list of validated item dicts), 'errores' (list of str).
+        """
+        resultados = []
+        errores: list[str] = []
+        valido = True
+
+        for item in items_data:
+            producto_id = item["producto_id"]
+            cantidad = item["cantidad"]
+            precio_original = item.get("precio_original", 0)
+
+            producto = uow.productos.get_by_id(producto_id)
+
+            if producto is None or producto.eliminado_en is not None:
+                errores.append(f"Producto ID {producto_id} no encontrado o eliminado")
+                resultados.append({
+                    "producto_id": producto_id,
+                    "nombre": "?",
+                    "disponible": False,
+                    "hay_stock": False,
+                    "stock_disponible": 0,
+                    "precio_actual": Decimal("0"),
+                    "precio_original": Decimal(str(precio_original)),
+                    "hubo_cambio_precio": False,
+                })
+                valido = False
+                continue
+
+            sin_stock = producto.stock_cantidad < cantidad
+            if sin_stock:
+                errores.append(
+                    f"Stock insuficiente para '{producto.nombre}': "
+                    f"solicitado {cantidad}, disponible {producto.stock_cantidad}"
+                )
+                valido = False
+
+            precio_actual = producto.precio_base
+            hubo_cambio = Decimal(str(precio_original)) != precio_actual
+
+            if hubo_cambio:
+                errores.append(
+                    f"El precio de '{producto.nombre}' cambió: "
+                    f"${float(precio_original):.2f} → ${float(precio_actual):.2f}"
+                )
+                valido = False
+
+            resultados.append({
+                "producto_id": producto.id,
+                "nombre": producto.nombre,
+                "disponible": producto.disponible and producto.eliminado_en is None,
+                "hay_stock": not sin_stock,
+                "stock_disponible": producto.stock_cantidad,
+                "precio_actual": precio_actual,
+                "precio_original": Decimal(str(precio_original)),
+                "hubo_cambio_precio": hubo_cambio,
+            })
+
+        return {"valido": valido, "items": resultados, "errores": errores}
+
+    @staticmethod
     def get_by_id(uow: UnitOfWork, id: int) -> Pedido:
         pedido = uow.pedidos.get_by_id(id)
         if pedido is None:
@@ -103,6 +178,14 @@ class PedidoService:
     @staticmethod
     def get_all(uow: UnitOfWork, offset: int = 0, limit: int = 100) -> list[Pedido]:
         return uow.pedidos.get_all(offset=offset, limit=limit)
+
+    @staticmethod
+    def get_historial(uow: UnitOfWork, pedido_id: int) -> list[HistorialEstadoPedido]:
+        """Retorna el historial de estados de un pedido (append-only audit trail)."""
+        pedido = uow.pedidos.get_by_id(pedido_id)
+        if pedido is None:
+            raise ValueError("Pedido no encontrado")
+        return list(pedido.historial)
 
     @staticmethod
     def transicionar_estado(

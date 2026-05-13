@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@features/auth/store/authStore'
 import { useLogout } from '@entities/api/authApi'
+import { useCartStore } from '@features/cart/store/cartStore'
 import { NavItem } from './NavItem'
 import { ROUTES } from '@shared/config/routes'
 import type { RolCodigo } from '@entities/types'
@@ -88,6 +89,9 @@ export function Navbar() {
   const roles: RolCodigo[] = (user?.roles as RolCodigo[]) ?? []
   const menuItems = getMenuItems(roles)
 
+  // Reactive cart count (only re-renders when items array changes)
+  const cartItemCount = useCartStore((s) => s.items.reduce((sum, i) => sum + i.cantidad, 0))
+
   useEffect(() => {
     setMobileOpen(false)
   }, [location.pathname])
@@ -128,7 +132,14 @@ export function Navbar() {
             {isAuthenticated
               ? menuItems.map((item) => (
                   <NavItem key={item.to} to={item.to} icon={item.icon}>
-                    {item.label}
+                    <span className="relative inline-flex items-center">
+                      {item.label}
+                      {item.to === ROUTES.CART && cartItemCount > 0 ? (
+                        <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-orange-600 rounded-full">
+                          {cartItemCount > 99 ? '99+' : cartItemCount}
+                        </span>
+                      ) : null}
+                    </span>
                   </NavItem>
                 ))
               : UNAUTH_ITEMS.map((item) => (
@@ -222,7 +233,14 @@ export function Navbar() {
           {isAuthenticated
             ? menuItems.map((item) => (
                 <NavItem key={item.to} to={item.to} icon={item.icon}>
-                  {item.label}
+                  <span className="relative inline-flex items-center">
+                    {item.label}
+                    {item.to === ROUTES.CART && cartItemCount > 0 ? (
+                      <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-orange-600 rounded-full">
+                        {cartItemCount > 99 ? '99+' : cartItemCount}
+                      </span>
+                    ) : null}
+                  </span>
                 </NavItem>
               ))
             : UNAUTH_ITEMS.map((item) => (

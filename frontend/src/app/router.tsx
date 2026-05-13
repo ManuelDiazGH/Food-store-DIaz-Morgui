@@ -14,7 +14,9 @@ const RegisterPage = lazy(() => import('@pages/auth/RegisterPage'))
 const DashboardPage = lazy(() => import('@pages/DashboardPage'))
 const ProfilePage = lazy(() => import('@pages/ProfilePage'))
 const CartPage = lazy(() => import('@pages/CartPage'))
+const CheckoutPage = lazy(() => import('@pages/CheckoutPage'))
 const OrdersPage = lazy(() => import('@pages/OrdersPage'))
+const OrderDetailPage = lazy(() => import('@pages/OrderDetailPage'))
 const AddressesPage = lazy(() => import('@pages/AddressesPage'))
 const AdminUsersPage = lazy(() => import('@pages/admin/AdminUsersPage'))
 const AdminDashboardPage = lazy(() => import('@pages/admin/AdminDashboardPage'))
@@ -50,7 +52,9 @@ export const router = createBrowserRouter([
           { path: ROUTES.DASHBOARD, element: <Suspense fallback={<PageLoader />}><DashboardPage /></Suspense> },
           { path: ROUTES.PROFILE, element: <Suspense fallback={<PageLoader />}><ProfilePage /></Suspense> },
           { path: ROUTES.CART, element: <Suspense fallback={<PageLoader />}><CartPage /></Suspense> },
+          { path: '/checkout', element: <Suspense fallback={<PageLoader />}><CheckoutPage /></Suspense> },
           { path: ROUTES.ORDERS, element: <Suspense fallback={<PageLoader />}><OrdersPage /></Suspense> },
+          { path: '/orders/:id', element: <Suspense fallback={<PageLoader />}><OrderDetailPage /></Suspense> },
           { path: ROUTES.ADDRESSES, element: <Suspense fallback={<PageLoader />}><AddressesPage /></Suspense> },
         ],
       },

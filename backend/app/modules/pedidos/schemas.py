@@ -55,12 +55,51 @@ class PedidoRead(BaseModel):
     costo_envio: Decimal = Decimal("50.00")
     forma_pago_codigo: str
     direccion_id: Optional[int] = None
+    # Address snapshot (RN-PE03)
+    direccion_snapshot_alias: Optional[str] = None
+    direccion_snapshot_linea1: Optional[str] = None
+    direccion_snapshot_linea2: Optional[str] = None
+    direccion_snapshot_ciudad: Optional[str] = None
+    direccion_snapshot_cp: Optional[str] = None
     notas: Optional[str] = None
     created_at: datetime
     detalles: list[DetallePedidoRead] = []
     historial: list[HistorialEstadoRead] = []
 
     model_config = {"from_attributes": True}
+
+
+# ── Validación pre-checkout (EPIC 09) ────────────────────────────
+
+class ValidarItemRequest(BaseModel):
+    """Item a validar durante pre-checkout."""
+    producto_id: int
+    cantidad: int = Field(ge=1)
+    precio_original: Decimal = Field(max_digits=10, decimal_places=2)
+
+
+class ValidarItemsRequest(BaseModel):
+    """Request body para validar items antes de crear pedido."""
+    items: list[ValidarItemRequest] = Field(min_length=1)
+
+
+class ItemValidado(BaseModel):
+    """Resultado de validación de un item."""
+    producto_id: int
+    nombre: str
+    disponible: bool
+    hay_stock: bool
+    stock_disponible: int = 0
+    precio_actual: Decimal
+    precio_original: Decimal
+    hubo_cambio_precio: bool
+
+
+class ValidarItemsResponse(BaseModel):
+    """Respuesta de validación pre-checkout."""
+    valido: bool
+    items: list[ItemValidado]
+    errores: list[str] = []
 
 
 # ── Transición de estado ─────────────────────────────────────────

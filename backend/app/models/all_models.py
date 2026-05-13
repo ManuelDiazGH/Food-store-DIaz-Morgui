@@ -262,6 +262,12 @@ class Pedido(SQLModel, table=True):
         default=None,
         sa_column=Column(Integer, ForeignKey("direccionentrega.id", ondelete="SET NULL")),
     )
+    # ── Address snapshot (RN-PE03) ────────────────────────────
+    direccion_snapshot_alias: Optional[str] = Field(default=None, max_length=50)
+    direccion_snapshot_linea1: Optional[str] = Field(default=None, max_length=255)
+    direccion_snapshot_linea2: Optional[str] = Field(default=None, max_length=255)
+    direccion_snapshot_ciudad: Optional[str] = Field(default=None, max_length=100)
+    direccion_snapshot_cp: Optional[str] = Field(default=None, max_length=20)
     notas: Optional[str] = Field(max_length=1000, default=None)
     created_at: datetime = Field(
         default_factory=datetime.now,

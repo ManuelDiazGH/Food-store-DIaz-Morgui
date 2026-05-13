@@ -5,7 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.uow import UnitOfWork
 from app.core.dependencies import get_current_user, require_role
-from app.modules.pedidos.schemas import CrearPedidoRequest, PedidoRead, EstadoUpdateRequest
+from app.modules.pedidos.schemas import (
+    CrearPedidoRequest, PedidoRead, EstadoUpdateRequest,
+    ValidarItemsRequest, ValidarItemsResponse, HistorialEstadoRead,
+)
 from app.modules.pedidos.service import PedidoService
 from app.models.all_models import Usuario
 
@@ -23,6 +26,28 @@ def list_pedidos(
         if usuario_id:
             return PedidoService.get_by_usuario(uow, usuario_id, offset=offset, limit=limit)
         return PedidoService.get_all(uow, offset=offset, limit=limit)
+
+
+@router.post("/validar", response_model=ValidarItemsResponse)
+def validar_items(body: ValidarItemsRequest):
+    """Valida disponibilidad y precios de items antes de crear el pedido (EPIC 09)."""
+    with UnitOfWork() as uow:
+        items_data = [
+            {"producto_id": i.producto_id, "cantidad": i.cantidad, "precio_original": str(i.precio_original)}
+            for i in body.items
+        ]
+        result = PedidoService.validar_items(uow, items_data)
+        return result
+
+
+@router.get("/{id}/historial", response_model=list[HistorialEstadoRead])
+def get_historial_pedido(id: int):
+    """Retorna el historial de estados de un pedido (audit trail append-only)."""
+    with UnitOfWork() as uow:
+        try:
+            return PedidoService.get_historial(uow, id)
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.get("/{id}", response_model=PedidoRead)
