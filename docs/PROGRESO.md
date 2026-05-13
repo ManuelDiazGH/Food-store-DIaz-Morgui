@@ -1,9 +1,10 @@
 # Progreso del Proyecto — Food Store E-Commerce
 
-> **Actualizado**: 2026-05-11  
-> **Épica activa**: 00 — Infraestructura y Setup (Sprint 0)  
+> **Actualizado**: 2026-05-12  
+> **Épica activa**: 01 — Auth y Navegación (Sprint 1)  
 > **Setup000**: ✅ 38/39 tareas completadas (solo faltan pruebas E2E con PostgreSQL)  
-> **Sprint 0**: ✅ CERRADO
+> **Sprint 0**: ✅ CERRADO  
+> **Sprint 1**: ✅ COMPLETADO
 
 ---
 
@@ -35,7 +36,11 @@
 | **Backend: Módulos funcionales (10 módulos)** | ✅ **Completada** | US-000f |
 | **Frontend: Setup (Vite + React + TS + Tailwind)** | ✅ **Completada** | US-000c |
 | **Frontend: Architecture (TanStack Query, Axios, Zustand)** | ✅ **Completada** | US-000e |
-| Frontend: Componentes UI | 🔲 Pendiente | — |
+| Frontend: Componentes UI (Sprint 1) | ✅ Completada | US-075, US-076 |
+| Frontend: Auth pages (Sprint 1) | ✅ Completada | US-001, US-002, US-004 |
+| Frontend: RBAC Admin (Sprint 1) | ✅ Completada | US-005 |
+| Frontend: Error handling + Toast (Sprint 1) | ✅ Completada | US-067, US-073 |
+| Frontend: Routing + Guards (Sprint 1) | ✅ Completada | US-006, US-076 |
 | Integration and Verification | 🔲 Pendiente | — |
 
 ---
@@ -438,8 +443,97 @@ food-store/
 7. ✅ ~~US-000f — Módulos funcionales (10 módulos con CRUD + FSM)~~
 8. ✅ ~~Integration check: 48 API routes, all imports OK, bcrypt+JWT OK, frontend build OK~~
 9. ✅ ~~Ingrediente module completo (schemas + service + router)~~
-10. 🔲 **Pruebas E2E con PostgreSQL** — alembic upgrade head, seed, auth flow (8.2, 8.3)
-11. 🔲 **Sprint 1** — Historias de usuario US-001+ (Registro, Login, Catálogo, etc.)
+10. ✅ **Pruebas E2E con PostgreSQL** — alembic upgrade head, seed, auth flow
+    - PostgreSQL 16 (Homebrew) en localhost:5432, database `foodstore`, user `postgres`
+    - 17 tablas creadas con Alembic migration
+    - Seed: 4 Roles, 6 Estados, 3 Formas de pago, 1 Admin user
+    - E2E tests passed: register, login, refresh, me, logout, RBAC (403), duplicate (409), wrong password (401)
+    - Bug fix: DetachedInstanceError → all Relationship fields use `lazy="selectin"` + `expire_on_commit=False`
+    - Bug fix: UsuarioRead schema → `from_usuario()` helper para extraer roles como strings
+11. ✅ **Sprint 1** — Auth y Navegación completado
+
+---
+
+## Sprint 1 — Auth y Navegación ✅
+
+**Estado**: Completado  
+**Commits**: Pendiente
+
+### Historias de usuario implementadas
+
+| Historia | Nombre | Estado |
+|----------|--------|--------|
+| US-001 | Registro de cliente | ✅ RegisterForm + RegisterPage |
+| US-002 | Login de usuario | ✅ LoginForm + LoginPage + rate limiting 429 |
+| US-003 | Refresh de token | ✅ Axios interceptor con refresh queue (ya existía, verificado) |
+| US-004 | Logout | ✅ Navbar logout button + useLogout mutation |
+| US-005 | Gestión de roles (RBAC) | ✅ AdminUsersPage + AssignRoleDialog + RoleBadge |
+| US-006 | Protección de rutas por rol | ✅ ProtectedRoute + RoleGuard + RBAC dependencies |
+| US-066 | Token expirado | ✅ Axios interceptor con refresh automático + cola de requests (ya existía) |
+| US-067 | Errores global frontend | ✅ Toast system + ErrorBoundary + errorHandler + api-error events |
+| US-073 | Rate limiting feedback | ✅ 429 handling en LoginForm + toast via api-error events |
+| US-075 | Navegación por rol | ✅ Navbar responsive con menú por rol (CLIENT, STOCK, PEDIDOS, ADMIN, público) |
+| US-076 | Protección rutas frontend | ✅ React Router guards + redirect a /login + RoleGuard 403 |
+
+### Archivos creados/modificados
+
+**Infraestructura Frontend:**
+- `frontend/src/app/router.tsx` — createBrowserRouter con rutas públicas, protegidas y por rol
+- `frontend/src/app/Layout.tsx` — Layout con Navbar + Outlet + Footer
+- `frontend/src/app/providers.tsx` — QueryClientProvider + ToastProvider + ApiErrorListener
+- `frontend/src/app/error-boundary.tsx` — ErrorBoundary global con retry
+- `frontend/src/App.tsx` — RouterProvider + ErrorBoundary + AppProviders
+
+**UI Components (`shared/ui/`):**
+- `Button.tsx` — primary/secondary/danger, sizes, loading, fullWidth
+- `Input.tsx` — label, error, icon, types
+- `Spinner.tsx` — sm/md/lg, orange/white/gray
+- `Toast.tsx` — Toast + ToastProvider + useToast + ApiErrorListener
+
+**Auth (`features/auth/`):**
+- `components/LoginForm.tsx` — formulario completo con validación y manejo de errores
+- `components/RegisterForm.tsx` — formulario con nombre/email/password/confirm/teléfono
+- `guards/ProtectedRoute.tsx` — verifica isAuthenticated, redirect a /login con ?redirect
+- `guards/RoleGuard.tsx` — verifica roles, muestra 403 o renderiza children/outlet
+
+**API (`entities/api/`):**
+- `authApi.ts` — useLogin, useRegister, useLogout, useMe (TanStack Query mutations/queries)
+- `userApi.ts` — useUsers, useUser, useUpdateUser, useDeleteUser, useAssignRole
+- `axios.ts` — actualizado con dispatchApiError para 403/404/429/500
+
+**Admin (`features/admin/`):**
+- `hooks/useUserMutations.ts` — useAssignRole, useRemoveUser
+- `components/RoleBadge.tsx` — badges por color de rol (ADMIN=red, STOCK=blue, etc.)
+- `components/AssignRoleDialog.tsx` — modal para asignar roles
+
+**Pages (`pages/`):**
+- `auth/LoginPage.tsx` — página de login con LoginForm
+- `auth/RegisterPage.tsx` — página de registro con RegisterForm
+- `HomePage.tsx` — landing con hero + categorías placeholder
+- `DashboardPage.tsx` — dashboard con bienvenida + cards placeholder
+- `NotFoundPage.tsx` — 404
+- `ForbiddenPage.tsx` — 403
+- `admin/AdminUsersPage.tsx` — tabla completa con búsqueda, paginación, asignar roles, eliminar
+- `admin/AdminDashboardPage.tsx` — placeholder
+- + placeholders para Profile, Cart, Orders, Addresses, Products, Categories, Ingredients, Stock, OrdersPanel
+
+**Navbar (`widgets/Navbar/`):**
+- `Navbar.tsx` — responsive con menú por rol, logout, hamburger mobile
+- `NavItem.tsx` — NavLink con icono y active state
+- `index.ts` — barrel exports
+
+**Config/Utils:**
+- `shared/config/routes.ts` — constantes de rutas
+- `shared/utils/errorHandler.ts` — getErrorMessage, getErrorStatus
+- `index.css` — animaciones slide-in/slide-out para Toast
+
+### Verificación
+
+- ✅ `npm run build` exitoso — 187 módulos, 0 errores TypeScript
+- ✅ 21 chunks con code-split via lazy loading
+- ✅ Bundle principal: 319KB JS (105KB gzip)
+- ✅ Toast con animaciones y auto-dismiss
+- ✅ Navbar responsive (desktop + mobile hamburger)
 
 ---
 

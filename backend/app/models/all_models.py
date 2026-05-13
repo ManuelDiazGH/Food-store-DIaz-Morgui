@@ -24,7 +24,7 @@ class Rol(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now()),
     )
 
-    usuarios: list["UsuarioRol"] = Relationship(back_populates="rol")
+    usuarios: list["UsuarioRol"] = Relationship(back_populates="rol", sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class Usuario(SQLModel, table=True):
@@ -49,11 +49,11 @@ class Usuario(SQLModel, table=True):
 
     roles: list["UsuarioRol"] = Relationship(
         back_populates="usuario",
-        sa_relationship_kwargs={"foreign_keys": "[UsuarioRol.usuario_id]"},
+        sa_relationship_kwargs={"foreign_keys": "[UsuarioRol.usuario_id]", "lazy": "selectin"},
     )
-    refresh_tokens: list["RefreshToken"] = Relationship(back_populates="usuario")
-    direcciones: list["DireccionEntrega"] = Relationship(back_populates="usuario")
-    pedidos: list["Pedido"] = Relationship(back_populates="usuario")
+    refresh_tokens: list["RefreshToken"] = Relationship(back_populates="usuario", sa_relationship_kwargs={"lazy": "selectin"})
+    direcciones: list["DireccionEntrega"] = Relationship(back_populates="usuario", sa_relationship_kwargs={"lazy": "selectin"})
+    pedidos: list["Pedido"] = Relationship(back_populates="usuario", sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class UsuarioRol(SQLModel, table=True):
@@ -69,9 +69,9 @@ class UsuarioRol(SQLModel, table=True):
 
     usuario: "Usuario" = Relationship(
         back_populates="roles",
-        sa_relationship_kwargs={"foreign_keys": "[UsuarioRol.usuario_id]"},
+        sa_relationship_kwargs={"foreign_keys": "[UsuarioRol.usuario_id]", "lazy": "selectin"},
     )
-    rol: "Rol" = Relationship(back_populates="usuarios")
+    rol: "Rol" = Relationship(back_populates="usuarios", sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class RefreshToken(SQLModel, table=True):
@@ -92,7 +92,7 @@ class RefreshToken(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), server_default=func.now()),
     )
 
-    usuario: "Usuario" = Relationship(back_populates="refresh_tokens")
+    usuario: "Usuario" = Relationship(back_populates="refresh_tokens", sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class DireccionEntrega(SQLModel, table=True):
@@ -118,7 +118,7 @@ class DireccionEntrega(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now()),
     )
 
-    usuario: "Usuario" = Relationship(back_populates="direcciones")
+    usuario: "Usuario" = Relationship(back_populates="direcciones", sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class Categoria(SQLModel, table=True):
@@ -145,11 +145,11 @@ class Categoria(SQLModel, table=True):
 
     subcategorias: list["Categoria"] = Relationship(
         back_populates="parent",
-        sa_relationship_kwargs={"foreign_keys": "Categoria.padre_id"},
+        sa_relationship_kwargs={"foreign_keys": "Categoria.padre_id", "lazy": "selectin"},
     )
     parent: Optional["Categoria"] = Relationship(
         back_populates="subcategorias",
-        sa_relationship_kwargs={"remote_side": "Categoria.id"},
+        sa_relationship_kwargs={"remote_side": "Categoria.id", "lazy": "selectin"},
     )
 
 
@@ -178,8 +178,8 @@ class Producto(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now()),
     )
 
-    categorias: list["ProductoCategoria"] = Relationship(back_populates="producto")
-    ingredientes: list["ProductoIngrediente"] = Relationship(back_populates="producto")
+    categorias: list["ProductoCategoria"] = Relationship(back_populates="producto", sa_relationship_kwargs={"lazy": "selectin"})
+    ingredientes: list["ProductoIngrediente"] = Relationship(back_populates="producto", sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class Ingrediente(SQLModel, table=True):
@@ -208,8 +208,8 @@ class ProductoCategoria(SQLModel, table=True):
     categoria_id: int = Field(foreign_key="categoria.id", primary_key=True)
     es_principal: bool = Field(default=False)
 
-    producto: "Producto" = Relationship(back_populates="categorias")
-    categoria: "Categoria" = Relationship()
+    producto: "Producto" = Relationship(back_populates="categorias", sa_relationship_kwargs={"lazy": "selectin"})
+    categoria: "Categoria" = Relationship(sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class ProductoIngrediente(SQLModel, table=True):
@@ -219,8 +219,8 @@ class ProductoIngrediente(SQLModel, table=True):
     ingrediente_id: int = Field(foreign_key="ingrediente.id", primary_key=True)
     es_removible: bool = Field(default=True)
 
-    producto: "Producto" = Relationship(back_populates="ingredientes")
-    ingrediente: "Ingrediente" = Relationship()
+    producto: "Producto" = Relationship(back_populates="ingredientes", sa_relationship_kwargs={"lazy": "selectin"})
+    ingrediente: "Ingrediente" = Relationship(sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class FormaPago(SQLModel, table=True):
@@ -272,10 +272,10 @@ class Pedido(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now()),
     )
 
-    usuario: "Usuario" = Relationship(back_populates="pedidos")
-    detalles: list["DetallePedido"] = Relationship(back_populates="pedido")
-    historial: list["HistorialEstadoPedido"] = Relationship(back_populates="pedido")
-    pagos: list["Pago"] = Relationship(back_populates="pedido")
+    usuario: "Usuario" = Relationship(back_populates="pedidos", sa_relationship_kwargs={"lazy": "selectin"})
+    detalles: list["DetallePedido"] = Relationship(back_populates="pedido", sa_relationship_kwargs={"lazy": "selectin"})
+    historial: list["HistorialEstadoPedido"] = Relationship(back_populates="pedido", sa_relationship_kwargs={"lazy": "selectin"})
+    pagos: list["Pago"] = Relationship(back_populates="pedido", sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class DetallePedido(SQLModel, table=True):
@@ -294,8 +294,8 @@ class DetallePedido(SQLModel, table=True):
         default=None, sa_column=Column(ARRAY(Integer)),
     )
 
-    pedido: "Pedido" = Relationship(back_populates="detalles")
-    producto: "Producto" = Relationship()
+    pedido: "Pedido" = Relationship(back_populates="detalles", sa_relationship_kwargs={"lazy": "selectin"})
+    producto: "Producto" = Relationship(sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class HistorialEstadoPedido(SQLModel, table=True):
@@ -318,7 +318,7 @@ class HistorialEstadoPedido(SQLModel, table=True):
     observacion: Optional[str] = Field(max_length=500, default=None)
     motivo: Optional[str] = Field(max_length=500, default=None)
 
-    pedido: "Pedido" = Relationship(back_populates="historial")
+    pedido: "Pedido" = Relationship(back_populates="historial", sa_relationship_kwargs={"lazy": "selectin"})
 
 
 class Pago(SQLModel, table=True):
@@ -339,4 +339,4 @@ class Pago(SQLModel, table=True):
         sa_column=Column(DateTime(timezone=True), onupdate=func.now()),
     )
 
-    pedido: "Pedido" = Relationship(back_populates="pagos")
+    pedido: "Pedido" = Relationship(back_populates="pagos", sa_relationship_kwargs={"lazy": "selectin"})

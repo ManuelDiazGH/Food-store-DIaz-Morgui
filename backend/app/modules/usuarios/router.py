@@ -19,7 +19,8 @@ def list_usuarios(
 ):
     """Lista todos los usuarios activos (soft delete filtrado)."""
     with UnitOfWork() as uow:
-        return UsuarioService.get_all(uow, offset=offset, limit=limit)
+        usuarios = UsuarioService.get_all(uow, offset=offset, limit=limit)
+        return [UsuarioRead.from_usuario(u) for u in usuarios]
 
 
 @router.get("/{id}", response_model=UsuarioRead)
@@ -27,7 +28,8 @@ def get_usuario(id: int):
     """Obtiene un usuario por ID."""
     with UnitOfWork() as uow:
         try:
-            return UsuarioService.get_by_id(uow, id)
+            usuario = UsuarioService.get_by_id(uow, id)
+            return UsuarioRead.from_usuario(usuario)
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 

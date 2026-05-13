@@ -1,6 +1,7 @@
 /** Axios instance with JWT interceptor and refresh token handling. */
 import axios from 'axios'
 import { useAuthStore } from '@features/auth/store/authStore'
+import { getErrorMessage } from '@shared/utils/errorHandler'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -41,15 +42,20 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = []
 }
 
+function dispatchApiError(status: number, error: unknown) {
+  const message = getErrorMessage(error)
+  window.dispatchEvent(
+    new CustomEvent('api-error', { detail: { status, message } }),
+  )
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
 
-    // Si es 401 y no estamos ya refrescando
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        // Encolar request hasta que el refresh termine
         return new Promise<string>((resolve, reject) => {
           failedQueue.push({ resolve, reject })
         }).then((token) => {
@@ -87,6 +93,13 @@ api.interceptors.response.use(
       } finally {
         isRefreshing = false
       }
+    }
+
+    const status = error.response?.status
+    if (status && status !== 401) {
+      dispatchApiError(status, error)
+    } else if (!error.response) {
+      dispatchApiError(0, error)
     }
 
     return Promise.reject(error)

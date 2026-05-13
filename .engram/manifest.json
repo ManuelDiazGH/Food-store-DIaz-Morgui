@@ -16,6 +16,14 @@
       "sessions": 2,
       "memories": 4,
       "prompts": 25
+    },
+    {
+      "id": "dd27a95e",
+      "created_by": "mateomorgui",
+      "created_at": "2026-05-13T00:11:02Z",
+      "sessions": 1,
+      "memories": 7,
+      "prompts": 14
     }
   ]
 }

@@ -23,7 +23,7 @@ class UnitOfWork:
     """
 
     def __init__(self):
-        self.session: Session = Session(engine)
+        self.session: Session = Session(engine, expire_on_commit=False)
         self._committed: bool = False
 
     def __enter__(self) -> "UnitOfWork":

@@ -19,6 +19,24 @@ engine = create_engine(
 
 
 def get_session() -> Generator[Session, None, None]:
+    """Generador de sesión SQLModel (compatible con FastAPI Depends).
+
+    La sesión se mantiene abierta durante toda la request, incluyendo
+    la serialización de la respuesta. Se hace commit automático al
+    finalizar, o rollback si hay error.
+    """
+    session = Session(engine, expire_on_commit=False)
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+def get_session() -> Generator[Session, None, None]:
     """Generador de sesión SQLModel (compatible con FastAPI Depends)."""
     with Session(engine) as session:
         yield session
