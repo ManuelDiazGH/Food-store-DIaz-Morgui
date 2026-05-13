@@ -1,10 +1,15 @@
 # Progreso del Proyecto — Food Store E-Commerce
 
-> **Actualizado**: 2026-05-12  
-> **Épica activa**: 01 — Auth y Navegación (Sprint 1)  
-> **Setup000**: ✅ 38/39 tareas completadas (solo faltan pruebas E2E con PostgreSQL)  
+> **Actualizado**: 2026-05-13  
+> **Último commit**: `642f3cc` — feat: sprints 4, 5 y 6 — direcciones frontend, checkout, pedidos, pagos MP y panel FSM  
+> **Setup000**: ✅ ARCHIVADO  
 > **Sprint 0**: ✅ CERRADO  
-> **Sprint 1**: ✅ COMPLETADO
+> **Sprint 1**: ✅ COMPLETADO  
+> **Sprint 2**: ✅ COMPLETADO  
+> **Sprint 3**: ✅ COMPLETADO  
+> **Sprint 4**: ✅ COMPLETADO  
+> **Sprint 5**: ✅ COMPLETADO  
+> **Sprint 6**: ✅ COMPLETADO  
 
 ---
 
@@ -29,19 +34,21 @@
 | **Frontend: Estructura FSD** | ✅ **Completada** | US-000 |
 | **Backend: Models SQLModel + DB** | ✅ **Completada** | US-000b |
 | **Backend: Config FastAPI + CORS** | ✅ **Completada** | US-000a |
-| Backend: Auth JWT (utilidades base) | ✅ Stubs + utils | US-000a |
-| **Backend: Modelos + DB + Migraciones** | ✅ **Completada** | US-000b |
+| **Backend: Auth JWT + RBAC + Refresh Tokens** | ✅ **Completada** | US-000d |
 | **Backend: Patrones base (BaseRepository, UoW, Soft Delete)** | ✅ **Completada** | US-000d |
-| **Backend: Auth Foundation (JWT, RBAC)** | ✅ **Completada** | US-000d |
-| **Backend: Módulos funcionales (10 módulos)** | ✅ **Completada** | US-000f |
+| **Backend: 11 módulos feature-first** | ✅ **Completada** | US-000f + Sprints |
+| **Backend: Integración MercadoPago** | ✅ **Completada** | Sprint 6 |
+| **Backend: Validación pre-checkout** | ✅ **Completada** | Sprint 5 |
+| **Backend: Snapshot de dirección en pedidos** | ✅ **Completada** | Sprint 5 |
 | **Frontend: Setup (Vite + React + TS + Tailwind)** | ✅ **Completada** | US-000c |
 | **Frontend: Architecture (TanStack Query, Axios, Zustand)** | ✅ **Completada** | US-000e |
-| Frontend: Componentes UI (Sprint 1) | ✅ Completada | US-075, US-076 |
-| Frontend: Auth pages (Sprint 1) | ✅ Completada | US-001, US-002, US-004 |
-| Frontend: RBAC Admin (Sprint 1) | ✅ Completada | US-005 |
-| Frontend: Error handling + Toast (Sprint 1) | ✅ Completada | US-067, US-073 |
-| Frontend: Routing + Guards (Sprint 1) | ✅ Completada | US-006, US-076 |
-| Integration and Verification | 🔲 Pendiente | — |
+| **Frontend: Auth pages + Navbar + Routing** | ✅ **Completada** | Sprint 1 |
+| **Frontend: Admin Categorías + Ingredientes** | ✅ **Completada** | Sprint 2 |
+| **Frontend: Catálogo de productos + Perfil** | ✅ **Completada** | Sprint 3 |
+| **Frontend: Carrito de compras + Direcciones** | ✅ **Completada** | Sprint 4 |
+| **Frontend: Checkout + Historial de pedidos** | ✅ **Completada** | Sprint 5 |
+| **Frontend: Pagos MP + Panel FSM (Gestión pedidos)** | ✅ **Completada** | Sprint 6 |
+| **Frontend: Admin/Stock CRUD de productos** | 🔲 Pendiente | — |
 
 ---
 
@@ -194,29 +201,13 @@
 
 **Creaciones**:
 - `backend/app/core/base_repository.py` — BaseRepository[T] genérico (146 líneas)
-  - `create()`, `get_by_id()`, `get_all()` con soft delete automático, `update()`, `delete()` (soft), `hard_delete()`
 - `backend/app/core/uow.py` — UnitOfWork (119 líneas)
-  - Context manager (`with UnitOfWork() as uow:`), auto-commit/rollback
-  - 15+ repositorios lazy-loaded como propiedades
 - `backend/app/core/dependencies.py` — FastAPI dependencies (74 líneas)
-  - `get_current_user()` — Extrae JWT del header Authorization
-  - `require_role(*roles)` — Factory RBAC checker
 - `backend/app/modules/auth/schemas.py` — Pydantic v2 schemas (51 líneas)
-  - `RegisterRequest`, `LoginRequest`, `RefreshRequest`, `TokenResponse`, `UserResponse`, `RefreshTokenResponse`
 - `backend/app/modules/auth/service.py` — AuthService (177 líneas)
-  - `register()` — Crea usuario + asigna rol CLIENT (RN-AU07)
-  - `login()` — Verifica credenciales sin revelar existencia (RN-AU08)
-  - `refresh()` — Rotación de tokens con detección de replay (RN-AU04, AU05)
-  - `logout()` — Revoca refresh token
-  - `get_current_user()` — Carga usuario desde BD
 - `backend/app/modules/auth/router.py` — Auth endpoints (97 líneas)
-  - `POST /api/v1/auth/register` — Registro con asignación automática de rol
-  - `POST /api/v1/auth/login` — Login con rate limiting 5/15min
-  - `POST /api/v1/auth/refresh` — Renovación con rotación
-  - `POST /api/v1/auth/logout` — Revocación de refresh token
-  - `GET /api/v1/auth/me` — Datos del usuario autenticado
 
-**Repositorios implementados** (cada módulo):
+**Repositorios implementados**:
 
 | Módulo | Repository | Métodos específicos |
 |--------|-----------|---------------------|
@@ -251,25 +242,10 @@
 
 **Creaciones**:
 - `frontend/src/entities/api/queryClient.ts` — QueryClient config (staleTime 5min, gcTime 10min)
-- `frontend/src/entities/api/axios.ts` — Axios instance con:
-  - Request interceptor: adjunta JWT del authStore
-  - Response interceptor: maneja 401 → refresh automático con cola de requests pendientes
-- `frontend/src/entities/types/index.ts` — TypeScript interfaces:
-  - Auth: `LoginRequest`, `RegisterRequest`, `TokenResponse`, `UserResponse`
-  - Domain: `Usuario`, `Categoria`, `Producto`, `ProductoCategoria`, `ProductoIngrediente`
-  - Pedidos: `Pedido`, `DetallePedido`, `HistorialEstadoPedido`, `EstadoPedidoCodigo`
-  - Direcciones: `DireccionEntrega`
-  - Pagos: `Pago`, `FormaPago`
-  - Roles: `RolCodigo`
-- `frontend/src/features/auth/store/authStore.ts` — Zustand store con:
-  - State: `accessToken`, `refreshToken`, `user`, `isAuthenticated`
-  - Actions: `setTokens()`, `setUser()`, `clearAuth()`
-  - Persist: localStorage con key `auth-storage`
-- `frontend/src/features/cart/store/cartStore.ts` — Zustand store con:
-  - State: `items`, `isOpen`
-  - Computed: `totalItems()`, `totalPrice()`
-  - Actions: `addItem()`, `removeItem()`, `updateQuantity()`, `clearCart()`, `toggleCart()`
-  - Persist: localStorage con key `cart-storage`
+- `frontend/src/entities/api/axios.ts` — Axios instance con interceptors JWT + refresh queue
+- `frontend/src/entities/types/index.ts` — TypeScript interfaces (25+)
+- `frontend/src/features/auth/store/authStore.ts` — Zustand auth con persist
+- `frontend/src/features/cart/store/cartStore.ts` — Zustand cart con persist
 - `frontend/src/app/providers.tsx` — AppProviders con QueryClientProvider
 
 ---
@@ -281,71 +257,256 @@
 **Módulos implementados con schemas + service + router completos**:
 
 #### Módulo: Usuarios
-- **schemas.py**: `UsuarioCreate` (nombre, email EmailStr, password min 8, telefono), `UsuarioUpdate` (partial), `UsuarioRead` (con roles), `UsuarioRolCreate`
+- **schemas.py**: `UsuarioCreate`, `UsuarioUpdate`, `UsuarioRead` (con roles), `UsuarioRolCreate`
 - **service.py**: `UsuarioService` — create, get_by_id, get_all, update, delete (soft), assign_role
-- **router.py**: `GET /api/v1/usuarios` (list), `GET /{id}`, `POST /` (ADMIN), `PUT /{id}` (ADMIN o propio usuario), `DELETE /{id}` (ADMIN), `POST /{id}/roles` (ADMIN)
+- **router.py**: CRUD completo con RBAC
 
 #### Módulo: Categorías
-- **schemas.py**: `CategoriaCreate` (nombre, descripcion, padre_id), `CategoriaUpdate`, `CategoriaRead`
-- **service.py**: `CategoriaService` — create (valida nombre único), get_by_id, get_all, get_subcategorias, update, delete (valida sin productos)
-- **router.py**: `GET /api/v1/categorias` (list), `GET /{id}`, `GET /{id}/subcategorias`, `POST /` (ADMIN), `PUT /{id}` (ADMIN), `DELETE /{id}` (ADMIN)
+- **schemas.py**: `CategoriaCreate`, `CategoriaUpdate`, `CategoriaRead`, `CategoriaTreeNode` (Sprint 2)
+- **service.py**: `CategoriaService` — incluye CTE recursivo para árbol + detección de ciclos
+- **router.py**: CRUD + `GET /tree` público (Sprint 2)
 
 #### Módulo: Productos
-- **schemas.py**: `ProductoCreate` (nombre, descripcion, precio_base Decimal>0, stock_cantidad≥0, disponible, imagen), `ProductoUpdate`, `ProductoRead`
-- **service.py**: `ProductoService` — create, get_by_id, get_all, get_disponibles, update, toggle_disponibilidad (STOCK role), delete
-- **router.py**: `GET /api/v1/productos` (?disponible=true filter), `GET /{id}`, `POST /` (ADMIN/STOCK), `PUT /{id}` (ADMIN/STOCK), `PATCH /{id}/disponibilidad` (STOCK/ADMIN), `DELETE /{id}` (ADMIN)
+- **schemas.py**: `ProductoCreate`, `ProductoUpdate`, `ProductoRead`, `ProductoCatalogoRead`, `ProductoDetalleRead`, `ProductoListResponse`, `StockUpdate`
+- **service.py**: CRUD + asociación M2M (categorías/ingredientes) + catálogo paginado con filtros + `update_stock_atomic`
+- **router.py**: CRUD + catálogo público + stock update
 
 #### Módulo: Pedidos (FSM)
-- **schemas.py**: `CrearPedidoRequest` (forma_pago_codigo, direccion_id, notas, items[]), `DetalleItem`, `EstadoUpdateRequest`, `PedidoRead` (con detalles + historial)
-- **service.py**: `PedidoService` — create (valida stock, calcula total con snapshots), transicionar_estado (valida FSM)
-  - **FSM válida**: PENDIENTE → CONFIRMADO → EN_PREPARACION → EN_CAMINO → ENTREGADO (terminal)
-  - **Rama cancelación**: CONFIRMADO → CANCELADO (terminal)
-  - **Audit trail**: HistorialEstadoPedido append-only con cada transición
-  - **Costo de envío**: $50.00 fijo
-- **router.py**: `GET /api/v1/pedidos` (?usuario_id filter), `GET /{id}`, `POST /` (auth required), `PATCH /{id}/estado`
+- **schemas.py**: `CrearPedidoRequest`, `DetalleItem`, `EstadoUpdateRequest`, `PedidoRead`, `ValidarItemsRequest/Response`, `ItemValidado`
+- **service.py**: `PedidoService` — create con snapshot de dirección y precios, `transicionar_estado` (FSM), `validar_items` (stock + precio)
+- **FSM**: PENDIENTE → CONFIRMADO → EN_PREPARACION → EN_CAMINO → ENTREGADO / CANCELADO
+- **router.py**: CRUD + `POST /validar` + `GET /{id}/historial`
 
 #### Módulo: Pagos
-- **schemas.py**: `CrearPagoRequest` (pedido_id, forma_pago_codigo), `PagoRead`, `WebhookMPRequest`
-- **service.py**: `PagoService` — crear_pago (genera idempotency_key + external_reference), process_webhook (MP IPN)
-- **router.py**: `POST /api/v1/pagos/crear`, `POST /api/v1/pagos/webhook`, `GET /api/v1/pagos/pedido/{pedido_id}`
+- **schemas.py**: `CrearPagoRequest`, `PagoRead`, `WebhookMPRequest`
+- **core/mp.py**: SDK MercadoPago singleton (creado en Sprint 6)
+- **service.py**: `PagoService` — crear_pago con MP SDK, webhook con mapeo de estados
+- **router.py**: `POST /crear`, `POST /webhook`, `GET /pedido/{pedido_id}`
 
 #### Módulo: Direcciones
-- **schemas.py**: `DireccionCreate` (alias, linea1, linea2, ciudad, cp, es_principal), `DireccionUpdate`, `DireccionRead`
-- **service.py**: `DireccionService` — create (desactiva principal anterior), get_by_id, get_by_usuario, update, set_principal, delete
-- **router.py**: `GET /api/v1/direcciones/usuario/{usuario_id}`, `GET /{id}`, `POST /`, `PUT /{id}`, `PATCH /{id}/principal`, `DELETE /{id}`
+- **schemas.py**: `DireccionCreate`, `DireccionUpdate`, `DireccionRead`
+- **service.py**: CRUD + toggle dirección principal
+- **router.py**: CRUD + `PATCH /{id}/principal`
 
-#### Módulo: Refreshtokens
-- **schemas.py**: `RefreshTokenRead` (minimal)
-- **service.py**: `RefreshTokenService` — revoke_all_for_user (admin)
-- **router.py**: `DELETE /api/v1/refreshtokens/user/{usuario_id}` (ADMIN only)
+#### Módulo: Perfil (creado en Sprint 3)
+- **schemas.py**: `PerfilRead`, `PerfilUpdate`, `PasswordChangeRequest`
+- **service.py**: `PerfilService` — ver perfil, editar perfil, cambiar password (revoca refresh tokens)
+- **router.py**: `GET /perfil`, `PUT /perfil`, `PUT /perfil/password`
 
-#### Módulo: Admin
-- **schemas.py**: `DashboardStats` (total_usuarios, total_pedidos, total_productos, productos_disponibles, pedidos_pendientes, pedidos_entregados)
-- **service.py**: `AdminService` — get_dashboard_stats (SQLAlchemy func.count queries)
-- **router.py**: `GET /api/v1/admin/dashboard` (ADMIN only)
+#### Módulos restantes
+- **Refreshtokens**: Admin revocation
+- **Admin**: Dashboard stats
+- **Auth**: JWT completo con 5 endpoints
 
-#### Módulo: Ingredientes
-- **repository.py**: `IngredienteRepository` — get_by_nombre(), get_alergenos()
-- *(Schemas, service y router pendientes de implementación completa)*
+---
+
+## Sprints Completados
+
+### Sprint 1 — Auth y Navegación ✅
+
+**Estado**: Completado  
+**Commits**: `9133c29`
+
+**Historias implementadas**:
+
+| Historia | Nombre | Estado |
+|----------|--------|--------|
+| US-001 | Registro de cliente | ✅ RegisterForm + RegisterPage |
+| US-002 | Login de usuario | ✅ LoginForm + LoginPage + rate limiting 429 |
+| US-003 | Refresh de token | ✅ Axios interceptor con refresh queue |
+| US-004 | Logout | ✅ Navbar logout button + useLogout mutation |
+| US-005 | Gestión de roles (RBAC) | ✅ AdminUsersPage + AssignRoleDialog + RoleBadge |
+| US-006 | Protección de rutas por rol | ✅ ProtectedRoute + RoleGuard |
+| US-066 | Token expirado | ✅ Axios interceptor con refresh automático |
+| US-067 | Errores global frontend | ✅ Toast system + ErrorBoundary + errorHandler |
+| US-073 | Rate limiting feedback | ✅ 429 handling en LoginForm |
+| US-075 | Navegación por rol | ✅ Navbar responsive con menú por rol |
+| US-076 | Protección rutas frontend | ✅ React Router guards + 403 RoleGuard |
+
+**Archivos clave**:
+- `frontend/src/app/router.tsx` — routing completo
+- `frontend/src/app/Layout.tsx` — Layout global con Navbar + Outlet + Footer
+- `frontend/src/features/auth/guards/ProtectedRoute.tsx`, `RoleGuard.tsx`
+- `frontend/src/pages/auth/LoginPage.tsx`, `RegisterPage.tsx`
+- `frontend/src/pages/admin/AdminUsersPage.tsx`
+- `frontend/src/widgets/Navbar/Navbar.tsx`, `NavItem.tsx`
+- `frontend/src/shared/ui/Button.tsx`, `Input.tsx`, `Spinner.tsx`, `Toast.tsx`
+- `frontend/src/entities/api/authApi.ts`, `userApi.ts`
+
+---
+
+### Sprint 2 — Categorías e Ingredientes ✅
+
+**Estado**: Completado  
+**Commits**: `9487557`
+
+**Historias implementadas**:
+
+| Historia | Nombre |
+|----------|--------|
+| US-008 | Árbol de categorías (CTE recursivo) |
+| US-009 | Detección de ciclos en categorías |
+| US-010 | Soft delete con subcategorías |
+| — | RBAC: STOCK puede gestionar catálogo (RN-RB06) |
+
+**Backend**:
+- `GET /api/v1/categorias/tree` — endpoint público con CTE recursivo
+- Detección de ciclos vía `has_cycle()` en repository
+- Permisos cambiados de ADMIN-only a ADMIN+STOCK para categorías e ingredientes
+
+**Frontend**:
+- `DataTable` reutilizable con paginación
+- `ConfirmDialog` para acciones destructivas
+- `FormField` (text/select/checkbox)
+- Admin pages: `CategoriesAdmin` (árbol colapsable) + `IngredientsAdmin` (tabla con filtro alérgenos)
+- API hooks con TanStack Query
+
+---
+
+### Sprint 3 — Productos + Perfil del Cliente ✅
+
+**Estado**: Completado  
+**Commits**: `069e780`, `f405d49`, `4d98487`
+
+**Historias implementadas**:
+
+| Historia | Nombre |
+|----------|--------|
+| US-015 a US-023 | Productos: catálogo, M2M categorías/ingredientes, stock, filtros, detalle |
+| US-061 a US-063 | Perfil: ver, editar, cambiar contraseña |
+
+**Backend**:
+- Módulo `perfil/` creado (schemas + service + router)
+- Productos: catálogo paginado con filtros (categoría, búsqueda ILIKE, excluir alérgenos)
+- `update_stock_atomic()` con guard `WHERE stock + delta >= 0`
+- Asociación M2M con categorías e ingredientes
+- Soft delete de productos (ADMIN-only)
+
+**Frontend**:
+- `ProductCard`, `ProductGrid`, `ProductFilters`, `AllergenFilter`, `ProductDetail`
+- `CatalogPage` + `ProductDetailPage`
+- `ProfilePage` + `ProfileEditForm` + `PasswordChangeForm`
+- Validación de teléfono en frontend (US-062)
+
+---
+
+### Sprint 4 — Direcciones de Entrega + Carrito de Compras ✅
+
+**Estado**: Completado  
+**Commits**: incluido en `642f3cc`
+
+**Historias implementadas**:
+
+| Historia | Nombre |
+|----------|--------|
+| US-024 | Crear dirección de entrega |
+| US-025 | Listar direcciones |
+| US-026 | Editar dirección |
+| US-027 | Eliminar dirección |
+| US-028 | Marcar dirección como principal |
+| US-029 | Agregar producto al carrito |
+| US-030 | Excluir ingredientes removibles |
+| US-031 | Modificar cantidades |
+| US-032 | Eliminar items del carrito |
+| US-033 | Ver resumen del carrito |
+| US-034 | Vaciar carrito |
+
+**Frontend**:
+- `DireccionCard` (con badge de principal, acciones editar/eliminar/principal)
+- `DireccionForm` (modal create/update)
+- `DireccionesPage` — lista completa con modales
+- `CartDrawer` — drawer lateral con overlay, items, total, link a carrito
+- `CartPage` — página completa con items, resumen, vaciar carrito
+- `ProductDetail` actualizado con selector de cantidad + exclusión de ingredientes
+
+---
+
+### Sprint 5 — Checkout y Creación de Pedidos ✅
+
+**Estado**: Completado  
+**Commits**: incluido en `642f3cc`
+
+**Historias implementadas**:
+
+| Historia | Nombre |
+|----------|--------|
+| US-035 | Crear pedido |
+| US-036 | Resumen del pedido |
+| US-037 | Decrementar stock al crear pedido |
+| US-038 | Snapshot de dirección en pedido |
+| US-044 | Historial de estados del pedido |
+| US-049 | Listar mis pedidos |
+| US-050 | Ver detalle del pedido |
+| US-069 | Validación pre-checkout |
+| US-070 | Detección de cambios de precio |
+| US-071 | Confirmación de pedido |
+
+**Backend**:
+- 5 campos snapshot de dirección en modelo `Pedido` + migración Alembic
+- `POST /api/pedidos/validar` — valida stock, disponibilidad, precios
+- `GET /api/pedidos/{id}/historial` — historial append-only
+
+**Frontend**:
+- `CheckoutPage` — resumen del carrito, selección de dirección, crear pedido
+- `OrdersPage` — lista de pedidos con filtro por estado
+- `OrderDetailPage` — items con snapshot, dirección, historial de estados
+- API hooks en `pedidosApi.ts`
+
+---
+
+### Sprint 6 — Pagos con MercadoPago + Panel FSM ✅
+
+**Estado**: Completado  
+**Commits**: incluido en `642f3cc`
+
+**Historias implementadas**:
+
+| Historia | Nombre |
+|----------|--------|
+| US-039 | Confirmar pedido (transición PENDIENTE → CONFIRMADO) |
+| US-040 | Iniciar preparación (CONFIRMADO → EN_PREPARACIÓN) |
+| US-041 | Marcar en camino (EN_PREPARACIÓN → EN_CAMINO) |
+| US-042 | Marcar entregado (EN_CAMINO → ENTREGADO) |
+| US-043 | Cancelar pedido con motivo (CONFIRMADO → CANCELADO) |
+| US-044 | Historial de estados |
+| US-045 | Pago con MercadoPago |
+| US-046 | Redirección a MercadoPago |
+| US-047 | Estado del pago |
+| US-048 | Reintentar pago |
+| US-072 | Callback de pago |
+
+**Backend**:
+- `core/mp.py` — SDK singleton de MercadoPago
+- `crear_pago()` genera preference en MP, devuelve `init_point`
+- Webhook mapea estados MP (approved → CONFIRMADO, rejected → PENDIENTE)
+- Idempotency key evita transiciones duplicadas
+
+**Frontend**:
+- `CheckoutPage` — integra pago: inicia pago, redirige a MP, maneja callback
+- `OrderDetailPage` — muestra estado del pago + botón reintentar
+- `OrdersPanelPage` — panel FSM para roles PEDIDOS/ADMIN
+- `StateTransitionButton` + `TransitionModal` (razón requerida para cancelar)
+- `OrderTable` con badge de estado + acciones disponibles
 
 ---
 
 ## OPSX Changes
 
-### `setup000` — Sprint 0: Infraestructura Base 🔄
+Todos los cambios están **archivados**. No hay cambios activos.
 
-**Artefactos**: Proposal ✅ Design ✅ Specs ✅ Tasks (35/39 completadas)  
+| Change | Sprint | Estado |
+|--------|--------|--------|
+| `setup000` | Sprint 0 — Infraestructura Base | ✅ Archivado |
+| `sprint1` | Sprint 1 — Auth y Navegación | ✅ Archivado |
+| `sprint2-categorias-ingredientes` | Sprint 2 — Categorías e Ingredientes | ✅ Archivado |
+| `sprint3` | Sprint 3 — Productos y Perfil | ✅ Archivado |
+| `sprint4` | Sprint 4 — Direcciones y Carrito | ✅ Archivado |
+| `sprint5` | Sprint 5 — Checkout y Pedidos | ✅ Archivado |
+| `sprint6` | Sprint 6 — Pagos MP y Panel FSM | ✅ Archivado |
 
-| Bloque | Progreso |
-|--------|----------|
-| 1. Backend Structure and Configuration | ✅ 5/5 tareas |
-| 2. Database Setup with SQLModel + Alembic | ✅ 5/5 tareas |
-| 3. BaseRepository[T] and Unit of Work | ✅ 3/3 tareas |
-| 4. Auth Foundation — JWT and Refresh Tokens | ✅ 4/4 tareas |
-| 5. Module Structure — Feature-First | ✅ 6/6 tareas |
-| 6. Frontend Setup (Vite + React + TS) | ✅ 5/5 tareas |
-| 7. Frontend Architecture — FSD | ✅ 5/5 tareas |
-| 8. Integration and Verification | 🔄 5/6 (8.2 y 8.3 requieren PostgreSQL) |
+### Cambios activos
+
+"Cambios activos" se refiere a cambios de OPSX que están en progreso (no archivados). Cuando usás el flujo OPSX (`/opsx:propose` → `/opsx:apply` → `/opsx:archive`), mientras un cambio está siendo implementado, figura como activo en `openspec list`. Hoy **no hay ninguno activo** — todo está archivado.
 
 ---
 
@@ -357,31 +518,36 @@ food-store/
 │   ├── .env.example                      ← Variables de entorno (9 vars)
 │   ├── alembic.ini                       ← Config migraciones
 │   ├── alembic/                          ← Migraciones versionadas
+│   │   └── versions/
+│   │       ├── 1b0f96613ef5_initial.py   ← 16 tablas iniciales
+│   │       └── 37879993625a_*.py         ← Address snapshot fields
 │   ├── requirements.txt                  ← 50 dependencias
 │   └── app/
 │       ├── __init__.py
-│       ├── main.py                       ← FastAPI factory (43 rutas)
+│       ├── main.py                       ← FastAPI factory (43+ rutas)
 │       ├── core/
 │       │   ├── config.py                 ← Pydantic Settings
 │       │   ├── database.py               ← SQLAlchemy engine + session
 │       │   ├── security.py               ← bcrypt, JWT, UUID refresh
 │       │   ├── base_repository.py        ← BaseRepository[T] genérico
 │       │   ├── uow.py                    ← UnitOfWork (15 repos)
-│       │   └── dependencies.py           ← get_current_user, require_role RBAC
+│       │   ├── dependencies.py           ← get_current_user, require_role RBAC
+│       │   ├── mp.py                     ← MercadoPago SDK singleton (Sprint 6)
+│       │   └── validators.py            ← Validadores compartidos (Sprint 5/6)
 │       ├── db/
 │       │   └── seed.py                   ← Seed idempotente
 │       ├── models/
-│       │   ├── __init__.py
 │       │   └── all_models.py             ← 16 modelos SQLModel
 │       └── modules/
-│           ├── admin/                    ← Dashboard stats (schema+service+router)
+│           ├── admin/                    ← Dashboard stats
 │           ├── auth/                     ← JWT auth completo (5 endpoints)
-│           ├── categorias/               ← CRUD jerárquico
+│           ├── categorias/               ← CRUD + CTE tree + cycle detection
 │           ├── direcciones/              ← CRUD + dirección principal
-│           ├── ingredientes/             ← Repository (service/router pendiente)
+│           ├── ingredientes/             ← CRUD + alérgenos
 │           ├── pagos/                    ← MP integration + webhook
-│           ├── pedidos/                  ← FSM + audit trail + snapshots
-│           ├── productos/                ← CRUD + toggle disponibilidad
+│           ├── pedidos/                  ← FSM + audit trail + snapshots + validación
+│           ├── perfil/                   ← Ver/editar perfil + cambiar password
+│           ├── productos/                ← CRUD + catálogo + stock atómico + M2M
 │           ├── refreshtokens/            ← Admin revocation
 │           └── usuarios/                ← CRUD + RBAC + soft delete
 ├── frontend/                             ← React + Vite + TypeScript
@@ -391,32 +557,66 @@ food-store/
 │   ├── tailwind.config.js               ← Tailwind scan config
 │   ├── postcss.config.js                ← PostCSS + Autoprefixer
 │   ├── index.html                       ← Entry point
-│   ├── .gitignore
 │   └── src/
 │       ├── main.tsx                     ← React DOM + AppProviders
-│       ├── App.tsx                      ← Root component
-│       ├── index.css                    ← Tailwind directives
-│       ├── vite-env.d.ts
+│       ├── App.tsx                      ← RouterProvider + ErrorBoundary
+│       ├── index.css                    ← Tailwind directives + Toast animations
 │       ├── app/
-│       │   └── providers.tsx            ← QueryClientProvider
+│       │   ├── providers.tsx            ← AppProviders globales
+│       │   ├── router.tsx               ← createBrowserRouter con guards
+│       │   ├── Layout.tsx               ← Navbar + Outlet + CartDrawer
+│       │   └── error-boundary.tsx       ← ErrorBoundary global
 │       ├── entities/
 │       │   ├── api/
 │       │   │   ├── queryClient.ts       ← TanStack Query config
-│       │   │   └── axios.ts             ← JWT interceptor + refresh queue
+│       │   │   ├── axios.ts             ← JWT interceptor + refresh queue
+│       │   │   ├── authApi.ts           ← Hooks auth (login, register, logout, me)
+│       │   │   ├── userApi.ts           ← Hooks usuarios CRUD
+│       │   │   ├── categorias.ts        ← Hooks categorías
+│       │   │   ├── ingredientes.ts      ← Hooks ingredientes
+│       │   │   ├── productosApi.ts      ← Hooks productos + catálogo
+│       │   │   ├── perfilApi.ts         ← Hooks perfil
+│       │   │   ├── direccionesApi.ts    ← Hooks direcciones
+│       │   │   └── pedidosApi.ts        ← Hooks pedidos + pagos
 │       │   └── types/
 │       │       └── index.ts            ← 25+ TS interfaces
 │       ├── features/
-│       │   ├── auth/store/
-│       │   │   └── authStore.ts         ← Zustand + persist
-│       │   └── cart/store/
-│       │       └── cartStore.ts         ← Zustand + persist
-│       ├── pages/                        ← .gitkeep
-│       ├── widgets/                      ← .gitkeep
-│       ├── shared/
-│       │   ├── config/                  ← .gitkeep
-│       │   ├── ui/                      ← .gitkeep
-│       │   └── utils/                   ← .gitkeep
-│       └── assets/                      ← .gitkeep
+│       │   ├── admin/                   ← Admin users, hooks
+│       │   ├── auth/                    ← Auth guards, stores
+│       │   ├── cart/                    ← CartDrawer, store
+│       │   ├── catalogo/                ← ProductCard, ProductGrid, filters
+│       │   ├── direcciones/             ← DireccionCard, DireccionForm
+│       │   ├── pedidos/                 ← OrderTable, StateTransitionButton, TransitionModal
+│       │   └── profile/                 ← ProfileEditForm, PasswordChangeForm
+│       ├── pages/
+│       │   ├── auth/LoginPage.tsx
+│       │   ├── auth/RegisterPage.tsx
+│       │   ├── admin/AdminUsersPage.tsx
+│       │   ├── admin/AdminDashboardPage.tsx
+│       │   ├── admin/CategoriesAdmin.tsx
+│       │   ├── admin/IngredientsAdmin.tsx
+│       │   ├── pedidos/OrdersPanelPage.tsx  ← Panel FSM (Sprint 6)
+│       │   ├── HomePage.tsx
+│       │   ├── CatalogPage.tsx
+│       │   ├── ProductDetailPage.tsx
+│       │   ├── CartPage.tsx
+│       │   ├── CheckoutPage.tsx
+│       │   ├── OrdersPage.tsx
+│       │   ├── OrderDetailPage.tsx
+│       │   ├── DireccionesPage.tsx
+│       │   ├── ProfilePage.tsx
+│       │   ├── DashboardPage.tsx
+│       │   ├── NotFoundPage.tsx
+│       │   └── ForbiddenPage.tsx
+│       ├── widgets/
+│       │   ├── Navbar/                  ← Navbar responsive + NavItem
+│       │   └── admin/                   ← CategoryTree, IngredientTable, etc.
+│       └── shared/
+│           ├── config/routes.ts         ← Constantes de rutas
+│           ├── ui/                      ← Button, Input, Spinner, Toast, DataTable, etc.
+│           └── utils/
+│               ├── errorHandler.ts      ← Mapeo de errores HTTP
+│               └── validators.ts        ← Validación de formularios
 ├── docs/
 │   ├── CHANGES.md
 │   ├── Descripcion.txt
@@ -424,15 +624,44 @@ food-store/
 │   ├── Integrador.txt
 │   └── PROGRESO.md                      ← Este archivo
 ├── openspec/
-│   ├── changes/setup000/
-│   └── specs/
+│   ├── changes/archive/                 ← 7 cambios archivados
+│   │   ├── 2026-05-13-setup000/
+│   │   ├── 2026-05-13-sprint1/
+│   │   ├── 2026-05-12-sprint2-categorias-ingredientes/
+│   │   ├── 2026-05-13-sprint3/
+│   │   ├── 2026-05-13-sprint4/
+│   │   ├── 2026-05-13-sprint5/
+│   │   └── 2026-05-13-sprint6/
+│   └── specs/                           ← 22 spec artifacts
+│       ├── auth-foundation/
+│       ├── backend-setup/
+│       ├── categorias-backend/
+│       ├── categorias-crud-frontend/
+│       ├── categorias-tree/
+│       ├── checkout-frontend/
+│       ├── database-setup/
+│       ├── delivery-addresses-frontend/
+│       ├── frontend-setup/
+│       ├── ingredientes-backend/
+│       ├── ingredientes-crud-frontend/
+│       ├── order-creation-backend/
+│       ├── order-history-frontend/
+│       ├── order-management-frontend/
+│       ├── payment-integration/
+│       ├── perfil-backend/
+│       ├── perfil-frontend/
+│       ├── pre-checkout-validation/
+│       ├── productos-backend/
+│       ├── productos-catalogo-frontend/
+│       ├── shared-admin-ui/
+│       └── shopping-cart-frontend/
 ├── AGENTS.md
 └── README.md
 ```
 
 ---
 
-## Próximos Pasos (Sprint 1+)
+## Próximos Pasos
 
 1. ✅ ~~US-000a — Configuración del backend FastAPI~~
 2. ✅ ~~US-000b — Modelos SQLModel, migraciones Alembic y seed data~~
@@ -441,100 +670,47 @@ food-store/
 5. ✅ ~~US-000d — Auth Foundation (JWT, RBAC, refresh tokens)~~
 6. ✅ ~~US-000e — Frontend Architecture (TanStack Query, Axios, Zustand)~~
 7. ✅ ~~US-000f — Módulos funcionales (10 módulos con CRUD + FSM)~~
-8. ✅ ~~Integration check: 48 API routes, all imports OK, bcrypt+JWT OK, frontend build OK~~
-9. ✅ ~~Ingrediente module completo (schemas + service + router)~~
-10. ✅ **Pruebas E2E con PostgreSQL** — alembic upgrade head, seed, auth flow
-    - PostgreSQL 16 (Homebrew) en localhost:5432, database `foodstore`, user `postgres`
-    - 17 tablas creadas con Alembic migration
-    - Seed: 4 Roles, 6 Estados, 3 Formas de pago, 1 Admin user
-    - E2E tests passed: register, login, refresh, me, logout, RBAC (403), duplicate (409), wrong password (401)
-    - Bug fix: DetachedInstanceError → all Relationship fields use `lazy="selectin"` + `expire_on_commit=False`
-    - Bug fix: UsuarioRead schema → `from_usuario()` helper para extraer roles como strings
-11. ✅ **Sprint 1** — Auth y Navegación completado
+8. ✅ ~~Sprint 1 — Auth y Navegación frontend~~
+9. ✅ ~~Sprint 2 — Categorías (CTE tree) + Ingredientes (CRUD admin)~~
+10. ✅ ~~Sprint 3 — Catálogo de productos + Perfil del cliente~~
+11. ✅ ~~Sprint 4 — Direcciones de entrega + Carrito de compras~~
+12. ✅ ~~Sprint 5 — Checkout + Creación de pedidos + Validación~~
+13. ✅ ~~Sprint 6 — Pagos MercadoPago + Panel FSM de gestión~~
+
+### Pendiente
+- 🔲 Frontend Admin/Stock: CRUD de productos (ProductForm, ProductListPage, StockManager, etc.)
+- 🔲 Tests unitarios y de integración
+- 🔲 Verificaciones E2E completas
 
 ---
 
-## Sprint 1 — Auth y Navegación ✅
+## Especificaciones OPSX (22 artifacts)
 
-**Estado**: Completado  
-**Commits**: Pendiente
-
-### Historias de usuario implementadas
-
-| Historia | Nombre | Estado |
-|----------|--------|--------|
-| US-001 | Registro de cliente | ✅ RegisterForm + RegisterPage |
-| US-002 | Login de usuario | ✅ LoginForm + LoginPage + rate limiting 429 |
-| US-003 | Refresh de token | ✅ Axios interceptor con refresh queue (ya existía, verificado) |
-| US-004 | Logout | ✅ Navbar logout button + useLogout mutation |
-| US-005 | Gestión de roles (RBAC) | ✅ AdminUsersPage + AssignRoleDialog + RoleBadge |
-| US-006 | Protección de rutas por rol | ✅ ProtectedRoute + RoleGuard + RBAC dependencies |
-| US-066 | Token expirado | ✅ Axios interceptor con refresh automático + cola de requests (ya existía) |
-| US-067 | Errores global frontend | ✅ Toast system + ErrorBoundary + errorHandler + api-error events |
-| US-073 | Rate limiting feedback | ✅ 429 handling en LoginForm + toast via api-error events |
-| US-075 | Navegación por rol | ✅ Navbar responsive con menú por rol (CLIENT, STOCK, PEDIDOS, ADMIN, público) |
-| US-076 | Protección rutas frontend | ✅ React Router guards + redirect a /login + RoleGuard 403 |
-
-### Archivos creados/modificados
-
-**Infraestructura Frontend:**
-- `frontend/src/app/router.tsx` — createBrowserRouter con rutas públicas, protegidas y por rol
-- `frontend/src/app/Layout.tsx` — Layout con Navbar + Outlet + Footer
-- `frontend/src/app/providers.tsx` — QueryClientProvider + ToastProvider + ApiErrorListener
-- `frontend/src/app/error-boundary.tsx` — ErrorBoundary global con retry
-- `frontend/src/App.tsx` — RouterProvider + ErrorBoundary + AppProviders
-
-**UI Components (`shared/ui/`):**
-- `Button.tsx` — primary/secondary/danger, sizes, loading, fullWidth
-- `Input.tsx` — label, error, icon, types
-- `Spinner.tsx` — sm/md/lg, orange/white/gray
-- `Toast.tsx` — Toast + ToastProvider + useToast + ApiErrorListener
-
-**Auth (`features/auth/`):**
-- `components/LoginForm.tsx` — formulario completo con validación y manejo de errores
-- `components/RegisterForm.tsx` — formulario con nombre/email/password/confirm/teléfono
-- `guards/ProtectedRoute.tsx` — verifica isAuthenticated, redirect a /login con ?redirect
-- `guards/RoleGuard.tsx` — verifica roles, muestra 403 o renderiza children/outlet
-
-**API (`entities/api/`):**
-- `authApi.ts` — useLogin, useRegister, useLogout, useMe (TanStack Query mutations/queries)
-- `userApi.ts` — useUsers, useUser, useUpdateUser, useDeleteUser, useAssignRole
-- `axios.ts` — actualizado con dispatchApiError para 403/404/429/500
-
-**Admin (`features/admin/`):**
-- `hooks/useUserMutations.ts` — useAssignRole, useRemoveUser
-- `components/RoleBadge.tsx` — badges por color de rol (ADMIN=red, STOCK=blue, etc.)
-- `components/AssignRoleDialog.tsx` — modal para asignar roles
-
-**Pages (`pages/`):**
-- `auth/LoginPage.tsx` — página de login con LoginForm
-- `auth/RegisterPage.tsx` — página de registro con RegisterForm
-- `HomePage.tsx` — landing con hero + categorías placeholder
-- `DashboardPage.tsx` — dashboard con bienvenida + cards placeholder
-- `NotFoundPage.tsx` — 404
-- `ForbiddenPage.tsx` — 403
-- `admin/AdminUsersPage.tsx` — tabla completa con búsqueda, paginación, asignar roles, eliminar
-- `admin/AdminDashboardPage.tsx` — placeholder
-- + placeholders para Profile, Cart, Orders, Addresses, Products, Categories, Ingredients, Stock, OrdersPanel
-
-**Navbar (`widgets/Navbar/`):**
-- `Navbar.tsx` — responsive con menú por rol, logout, hamburger mobile
-- `NavItem.tsx` — NavLink con icono y active state
-- `index.ts` — barrel exports
-
-**Config/Utils:**
-- `shared/config/routes.ts` — constantes de rutas
-- `shared/utils/errorHandler.ts` — getErrorMessage, getErrorStatus
-- `index.css` — animaciones slide-in/slide-out para Toast
-
-### Verificación
-
-- ✅ `npm run build` exitoso — 187 módulos, 0 errores TypeScript
-- ✅ 21 chunks con code-split via lazy loading
-- ✅ Bundle principal: 319KB JS (105KB gzip)
-- ✅ Toast con animaciones y auto-dismiss
-- ✅ Navbar responsive (desktop + mobile hamburger)
+| Spec | Tipo | Sprint |
+|------|------|--------|
+| auth-foundation | Foundation | setup000 |
+| backend-setup | Foundation | setup000 |
+| database-setup | Foundation | setup000 |
+| frontend-setup | Foundation | setup000 |
+| categorias-backend | Backend | Sprint 2 |
+| categorias-crud-frontend | Frontend | Sprint 2 |
+| categorias-tree | Frontend | Sprint 2 |
+| shared-admin-ui | Frontend | Sprint 2 |
+| ingredientes-backend | Backend | Sprint 2 |
+| ingredientes-crud-frontend | Frontend | Sprint 2 |
+| productos-backend | Backend | Sprint 3 |
+| productos-catalogo-frontend | Frontend | Sprint 3 |
+| perfil-backend | Backend | Sprint 3 |
+| perfil-frontend | Frontend | Sprint 3 |
+| delivery-addresses-frontend | Frontend | Sprint 4 |
+| shopping-cart-frontend | Frontend | Sprint 4 |
+| checkout-frontend | Frontend | Sprint 5 |
+| order-creation-backend | Backend | Sprint 5 |
+| pre-checkout-validation | Backend | Sprint 5 |
+| order-history-frontend | Frontend | Sprint 5 |
+| payment-integration | Backend | Sprint 6 |
+| order-management-frontend | Frontend | Sprint 6 |
 
 ---
 
-*Este archivo se actualiza manualmente al completar cada historia de usuario o cambio significativo.*
+*Este archivo se actualiza manualmente al completar cada hito significativo.*

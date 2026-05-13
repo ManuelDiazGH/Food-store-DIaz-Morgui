@@ -108,3 +108,13 @@ class EstadoUpdateRequest(BaseModel):
     """Request body para transicionar estado de un pedido."""
     estado_hasta: str = Field(max_length=20)
     observacion: Optional[str] = Field(default=None, max_length=500)
+
+
+# ── List response (Sprint 7) ─────────────────────────────────────
+
+class PedidoListResponse(BaseModel):
+    """Respuesta paginada de listado de pedidos."""
+    items: list[PedidoRead]
+    total: int
+    page: int
+    limit: int

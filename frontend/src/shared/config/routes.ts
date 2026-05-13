@@ -18,6 +18,7 @@ export const ROUTES = {
   CATEGORIES: '/stock/categorias',
   INGREDIENTS: '/stock/ingredientes',
   STOCK: '/stock',
+  ORDERS_PANEL_DETAIL: '/orders-panel/:id',
 } as const
 
 export type RouteKey = keyof typeof ROUTES

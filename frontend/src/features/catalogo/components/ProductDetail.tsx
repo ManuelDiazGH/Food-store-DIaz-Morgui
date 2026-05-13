@@ -32,7 +32,6 @@ export function ProductDetail({ productId }: ProductDetailProps) {
   }
 
   const canAddToCart = product.hay_stock && product.disponible
-  const removibles = product.ingredientes.filter((i) => i.es_removible)
 
   function toggleExclusion(ingrId: number) {
     setExclusiones((prev) =>
@@ -41,7 +40,7 @@ export function ProductDetail({ productId }: ProductDetailProps) {
   }
 
   function handleAddToCart() {
-    if (!canAddToCart) return
+    if (!product || !canAddToCart) return
     addItem(
       {
         id: product.id,

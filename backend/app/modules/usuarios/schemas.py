@@ -23,6 +23,7 @@ class UsuarioCreate(BaseModel):
 class UsuarioUpdate(BaseModel):
     """Request body para actualizar un usuario. Todos los campos opcionales."""
     nombre: Optional[str] = Field(default=None, min_length=2, max_length=100)
+    email: Optional[EmailStr] = Field(default=None)
     telefono: Optional[str] = Field(default=None, max_length=20)
 
     @field_validator('telefono')
@@ -38,6 +39,7 @@ class UsuarioRead(BaseModel):
     nombre: str
     telefono: Optional[str] = None
     roles: list[str] = Field(default_factory=list)
+    activo: bool = True
     created_at: datetime
     eliminado_en: Optional[datetime] = None
 
@@ -50,6 +52,7 @@ class UsuarioRead(BaseModel):
             nombre=usuario.nombre,
             telefono=usuario.telefono,
             roles=[ur.rol_codigo for ur in usuario.roles],
+            activo=usuario.activo,
             created_at=usuario.created_at,
             eliminado_en=usuario.eliminado_en,
         )
@@ -60,3 +63,8 @@ class UsuarioRead(BaseModel):
 class UsuarioRolCreate(BaseModel):
     """Request body para asignar un rol a un usuario."""
     rol_codigo: str = Field(max_length=20)
+
+
+class ToggleActivoRequest(BaseModel):
+    """Request body para activar/desactivar un usuario."""
+    activo: bool

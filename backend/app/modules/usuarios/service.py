@@ -45,10 +45,31 @@ class UsuarioService:
 
         if data.nombre is not None:
             usuario.nombre = data.nombre
+        if data.email is not None:
+            existing = uow.usuarios.get_by_email(data.email)
+            if existing is not None and existing.id != id:
+                raise ValueError("El email ya está registrado")
+            usuario.email = data.email
         if data.telefono is not None:
             usuario.telefono = data.telefono
 
         return uow.usuarios.update(usuario)
+
+    @staticmethod
+    def toggle_activo(uow: UnitOfWork, usuario_id: int, activo: bool) -> Usuario:
+        """Activa o desactiva un usuario. Si se desactiva, invalida sus refresh tokens."""
+        usuario = uow.usuarios.get_by_id(usuario_id)
+        if usuario is None or usuario.eliminado_en is not None:
+            raise ValueError("Usuario no encontrado")
+
+        usuario.activo = activo
+        result = uow.usuarios.update(usuario)
+
+        if not activo:
+            from app.models.all_models import RefreshToken
+            uow.refreshtokens.revoke_all_for_user(usuario_id)
+
+        return result
 
     @staticmethod
     def delete(uow: UnitOfWork, id: int) -> bool:

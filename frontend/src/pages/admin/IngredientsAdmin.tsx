@@ -1,7 +1,7 @@
 /** IngredientsAdmin — Admin page for managing ingredients. */
 import { useState } from 'react'
 import { ProtectedRoute } from '@shared/utils/ProtectedRoute'
-import { ToastContainer } from '@shared/ui/Toast'
+import { ZustandToastContainer } from '@shared/ui/Toast'
 import { IngredientTable } from '@widgets/admin/IngredientTable'
 import { IngredientForm } from '@widgets/admin/IngredientForm'
 import { IngredientDeleteConfirm } from '@widgets/admin/IngredientDeleteConfirm'
@@ -53,7 +53,7 @@ function IngredientsAdminInner() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <ToastContainer />
+      <ZustandToastContainer />
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Ingredientes</h1>

@@ -20,11 +20,14 @@ const OrderDetailPage = lazy(() => import('@pages/OrderDetailPage'))
 const AddressesPage = lazy(() => import('@pages/AddressesPage'))
 const AdminUsersPage = lazy(() => import('@pages/admin/AdminUsersPage'))
 const AdminDashboardPage = lazy(() => import('@pages/admin/AdminDashboardPage'))
-const ProductsPage = lazy(() => import('@pages/stock/ProductsPage'))
+const ProductListPage = lazy(() => import('@pages/stock/ProductListPage'))
+const ProductCreatePage = lazy(() => import('@pages/stock/ProductCreatePage'))
+const ProductEditPage = lazy(() => import('@pages/stock/ProductEditPage'))
 const CategoriesPage = lazy(() => import('@pages/stock/CategoriesPage'))
 const IngredientsPage = lazy(() => import('@pages/stock/IngredientsPage'))
 const StockPage = lazy(() => import('@pages/stock/StockPage'))
 const OrdersPanelPage = lazy(() => import('@pages/pedidos/OrdersPanelPage'))
+const OrderDetailPanelPage = lazy(() => import('@pages/pedidos/OrderDetailPanelPage'))
 const NotFoundPage = lazy(() => import('@pages/NotFoundPage'))
 const ForbiddenPage = lazy(() => import('@pages/ForbiddenPage'))
 
@@ -70,7 +73,9 @@ export const router = createBrowserRouter([
       {
         element: <RoleGuard allowedRoles={['STOCK', 'ADMIN']} />,
         children: [
-          { path: ROUTES.PRODUCTS, element: <Suspense fallback={<PageLoader />}><ProductsPage /></Suspense> },
+          { path: ROUTES.PRODUCTS, element: <Suspense fallback={<PageLoader />}><ProductListPage /></Suspense> },
+          { path: ROUTES.PRODUCT_CREATE, element: <Suspense fallback={<PageLoader />}><ProductCreatePage /></Suspense> },
+          { path: ROUTES.PRODUCT_EDIT, element: <Suspense fallback={<PageLoader />}><ProductEditPage /></Suspense> },
           { path: ROUTES.CATEGORIES, element: <Suspense fallback={<PageLoader />}><CategoriesPage /></Suspense> },
           { path: ROUTES.INGREDIENTS, element: <Suspense fallback={<PageLoader />}><IngredientsPage /></Suspense> },
           { path: ROUTES.STOCK, element: <Suspense fallback={<PageLoader />}><StockPage /></Suspense> },
@@ -81,6 +86,7 @@ export const router = createBrowserRouter([
         element: <RoleGuard allowedRoles={['PEDIDOS', 'ADMIN']} />,
         children: [
           { path: ROUTES.ORDERS_PANEL, element: <Suspense fallback={<PageLoader />}><OrdersPanelPage /></Suspense> },
+          { path: ROUTES.ORDERS_PANEL_DETAIL, element: <Suspense fallback={<PageLoader />}><OrderDetailPanelPage /></Suspense> },
         ],
       },
 

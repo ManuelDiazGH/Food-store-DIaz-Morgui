@@ -1,7 +1,7 @@
 /** CategoriesAdmin — Admin page for managing category hierarchy. */
 import { useState, useCallback } from 'react'
 import { ProtectedRoute } from '@shared/utils/ProtectedRoute'
-import { ToastContainer } from '@shared/ui/Toast'
+import { ZustandToastContainer } from '@shared/ui/Toast'
 import { CategoryTree } from '@widgets/admin/CategoryTree'
 import { CategoryForm } from '@widgets/admin/CategoryForm'
 import { CategoryDeleteConfirm } from '@widgets/admin/CategoryDeleteConfirm'
@@ -95,7 +95,7 @@ function CategoriesAdminInner() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <ToastContainer />
+      <ZustandToastContainer />
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Categorías</h1>

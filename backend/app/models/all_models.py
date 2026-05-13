@@ -46,6 +46,7 @@ class Usuario(SQLModel, table=True):
     eliminado_en: Optional[datetime] = Field(
         default=None, sa_column=Column(DateTime(timezone=True), nullable=True),
     )
+    activo: bool = Field(default=True)
 
     roles: list["UsuarioRol"] = Relationship(
         back_populates="usuario",

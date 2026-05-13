@@ -180,6 +180,19 @@ class PedidoService:
         return uow.pedidos.get_all(offset=offset, limit=limit)
 
     @staticmethod
+    def listar_pedidos(
+        uow: UnitOfWork,
+        q: str | None = None,
+        estado: str | None = None,
+        desde: str | None = None,
+        hasta: str | None = None,
+        page: int = 1,
+        limit: int = 20,
+    ) -> tuple[list[Pedido], int]:
+        """Lista pedidos con filtros y paginación server-side."""
+        return uow.pedidos.search(q=q, estado=estado, desde=desde, hasta=hasta, page=page, limit=limit)
+
+    @staticmethod
     def get_historial(uow: UnitOfWork, pedido_id: int) -> list[HistorialEstadoPedido]:
         """Retorna el historial de estados de un pedido (append-only audit trail)."""
         pedido = uow.pedidos.get_by_id(pedido_id)

@@ -36,8 +36,37 @@ export interface Usuario {
   nombre: string
   telefono?: string
   roles: string[]
+  activo?: boolean
   created_at: string
   eliminado_en?: string
+}
+
+// ── Admin Dashboard ────────────────────────────────────────────
+export interface VentaPorPeriodo {
+  periodo: string
+  monto: number
+  cantidad: number
+}
+
+export interface TopProducto {
+  nombre: string
+  cantidad_vendida: number
+  ingreso_total: number
+}
+
+export interface PedidoPorEstado {
+  estado: string
+  cantidad: number
+}
+
+export interface MetricasCompletas {
+  total_usuarios: number
+  total_pedidos: number
+  total_productos: number
+  total_ventas: number
+  ventas_por_periodo: VentaPorPeriodo[]
+  top_productos: TopProducto[]
+  pedidos_por_estado: PedidoPorEstado[]
 }
 
 // ── Categoria ──────────────────────────────────────────────────
@@ -179,6 +208,7 @@ export type EstadoPedidoCodigo =
 export interface Pedido {
   id: number
   usuario_id: number
+  usuario?: { id: number; nombre: string }
   estado_codigo: EstadoPedidoCodigo
   total: number
   costo_envio: number
@@ -188,6 +218,12 @@ export interface Pedido {
   created_at: string
   detalles?: DetallePedido[]
   historial?: HistorialEstadoPedido[]
+  // Snapshot fields (set at order creation)
+  direccion_snapshot_alias?: string
+  direccion_snapshot_linea1?: string
+  direccion_snapshot_linea2?: string
+  direccion_snapshot_ciudad?: string
+  direccion_snapshot_cp?: string
 }
 
 export interface DetallePedido {
@@ -231,6 +267,7 @@ export interface Pago {
   mp_status: string
   external_reference: string
   idempotency_key: string
+  created_at: string
 }
 
 export interface FormaPago {
@@ -240,4 +277,12 @@ export interface FormaPago {
 }
 
 // ── Rol ─────────────────────────────────────────────────────────
+// ── Paginated response (Sprint 7) ───────────────────────────────
+export interface PedidoListResponse {
+  items: Pedido[]
+  total: number
+  page: number
+  limit: number
+}
+
 export type RolCodigo = 'ADMIN' | 'STOCK' | 'PEDIDOS' | 'CLIENT'

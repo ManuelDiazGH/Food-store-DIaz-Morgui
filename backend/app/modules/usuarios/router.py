@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.uow import UnitOfWork
 from app.core.dependencies import get_current_user, require_role
-from app.modules.usuarios.schemas import UsuarioCreate, UsuarioUpdate, UsuarioRead, UsuarioRolCreate
+from app.modules.usuarios.schemas import UsuarioCreate, UsuarioUpdate, UsuarioRead, UsuarioRolCreate, ToggleActivoRequest
 from app.modules.usuarios.service import UsuarioService
 from app.models.all_models import Usuario
 
@@ -88,3 +88,16 @@ def assign_role(id: int, body: UsuarioRolCreate):
             return {"usuario_id": ur.usuario_id, "rol_codigo": ur.rol_codigo}
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+
+
+@router.patch("/{id}/estado", response_model=UsuarioRead,
+              dependencies=[Depends(require_role("ADMIN"))])
+def toggle_usuario_estado(id: int, body: ToggleActivoRequest):
+    """Activa o desactiva un usuario. Solo ADMIN."""
+    with UnitOfWork() as uow:
+        try:
+            usuario = UsuarioService.toggle_activo(uow, id, body.activo)
+            uow.commit()
+            return UsuarioRead.from_usuario(usuario)
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

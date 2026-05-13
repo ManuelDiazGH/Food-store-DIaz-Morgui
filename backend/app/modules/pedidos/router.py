@@ -8,6 +8,7 @@ from app.core.dependencies import get_current_user, require_role
 from app.modules.pedidos.schemas import (
     CrearPedidoRequest, PedidoRead, EstadoUpdateRequest,
     ValidarItemsRequest, ValidarItemsResponse, HistorialEstadoRead,
+    PedidoListResponse,
 )
 from app.modules.pedidos.service import PedidoService
 from app.models.all_models import Usuario
@@ -15,17 +16,28 @@ from app.models.all_models import Usuario
 router = APIRouter(prefix="/api/v1/pedidos", tags=["Pedidos"])
 
 
-@router.get("", response_model=list[PedidoRead])
+@router.get("", response_model=PedidoListResponse)
 def list_pedidos(
-    usuario_id: Optional[int] = None,
-    offset: int = Query(default=0, ge=0),
-    limit: int = Query(default=100, ge=1, le=100),
+    q: Optional[str] = Query(default=None, description="Buscar por #pedido o nombre de cliente"),
+    estado: Optional[str] = Query(default=None, description="Filtrar por estado_codigo"),
+    desde: Optional[str] = Query(default=None, description="Fecha desde (ISO)"),
+    hasta: Optional[str] = Query(default=None, description="Fecha hasta (ISO)"),
+    page: int = Query(default=1, ge=1, description="Número de página"),
+    limit: int = Query(default=20, ge=1, le=100, description="Items por página"),
+    usuario_id: Optional[int] = Query(default=None),
 ):
-    """Lista pedidos. Filtra por usuario si se pasa ?usuario_id=."""
+    """Lista pedidos con filtros y paginación server-side.
+
+    Si se pasa ?usuario_id=, filtra por usuario (retrocompatibilidad).
+    """
     with UnitOfWork() as uow:
         if usuario_id:
-            return PedidoService.get_by_usuario(uow, usuario_id, offset=offset, limit=limit)
-        return PedidoService.get_all(uow, offset=offset, limit=limit)
+            items = PedidoService.get_by_usuario(uow, usuario_id, offset=(page - 1) * limit, limit=limit)
+            return PedidoListResponse(items=items, total=len(items), page=page, limit=limit)
+        items, total = PedidoService.listar_pedidos(
+            uow, q=q, estado=estado, desde=desde, hasta=hasta, page=page, limit=limit,
+        )
+        return PedidoListResponse(items=items, total=total, page=page, limit=limit)
 
 
 @router.post("/validar", response_model=ValidarItemsResponse)

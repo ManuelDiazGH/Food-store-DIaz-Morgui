@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@entities/api/axios'
 import { useAuthStore } from '@features/auth/store/authStore'
 import { useCartStore } from '@features/cart/store/cartStore'
-import type { Pedido, Pago, HistorialEstadoPedido } from '@entities/types'
+import type { Pedido, Pago, HistorialEstadoPedido, PedidoListResponse } from '@entities/types'
 
 interface CrearPedidoRequest {
   forma_pago_codigo: string
@@ -147,6 +147,34 @@ export function usePagoByPedido(pedidoId: number) {
   })
 }
 
+// ── Paginated list (Sprint 7) ────────────────────────────────────
+
+export interface OrderFilters {
+  q?: string
+  estado?: string
+  desde?: string
+  hasta?: string
+  page?: number
+  limit?: number
+}
+
+export function useAllPedidosPaginated(filters: OrderFilters = {}) {
+  return useQuery<PedidoListResponse>({
+    queryKey: ['pedidos', 'all', filters],
+    queryFn: async () => {
+      const params: Record<string, string | number> = {}
+      if (filters.q) params.q = filters.q
+      if (filters.estado) params.estado = filters.estado
+      if (filters.desde) params.desde = filters.desde
+      if (filters.hasta) params.hasta = filters.hasta
+      if (filters.page) params.page = filters.page
+      if (filters.limit) params.limit = filters.limit
+      const { data } = await api.get<PedidoListResponse>('/api/v1/pedidos', { params })
+      return data
+    },
+  })
+}
+
 // ── Admin / Gestor hooks ────────────────────────────────────────
 
 export function useAllPedidos() {
@@ -179,4 +207,4 @@ export function useTransicionarEstado(pedidoId: number) {
   })
 }
 
-export type { CrearPedidoRequest, ValidarItemsRequest, ValidarItemsResponse, ItemValidado, IniciarPagoResponse }
+export type { CrearPedidoRequest, ValidarItemsRequest, ValidarItemsResponse, ItemValidado, IniciarPagoResponse, EstadoUpdateRequest }

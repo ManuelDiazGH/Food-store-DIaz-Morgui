@@ -1,4 +1,4 @@
-/** Productos API — TanStack Query hooks for product endpoints. */
+/** Productos API — Raw functions and TanStack Query hooks for product endpoints. */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@entities/api/axios'
 import type {
@@ -130,4 +130,78 @@ export function useUpdateStock() {
       queryClient.invalidateQueries({ queryKey: ['productos'] })
     },
   })
+}
+
+// ── Stock product list item ──────────────────────────────────────────
+
+export interface ProductoStockItem {
+  id: number
+  nombre: string
+  precio_base: number
+  stock_cantidad: number
+  disponible: boolean
+  imagen?: string
+  categorias: string[]
+  created_at: string
+  eliminado_en?: string
+}
+
+export interface ProductoStockListResponse {
+  items: ProductoStockItem[]
+  total: number
+  page: number
+  limit: number
+}
+
+// ── Raw API functions (for feature hooks with toast) ─────────────────
+
+export async function getProductosStock(
+  params?: ProductFilters,
+): Promise<ProductoStockListResponse> {
+  const queryParams: Record<string, string | number> = {}
+  if (params?.categoria) queryParams.categoria = params.categoria
+  if (params?.busqueda) queryParams.busqueda = params.busqueda
+  if (params?.excluir_alergenos?.length) queryParams.excluir_alergenos = params.excluir_alergenos.join(',')
+  if (params?.page) queryParams.page = params.page
+  if (params?.limit) queryParams.limit = params.limit
+  if (params?.incluir_eliminados) queryParams.incluir_eliminados = 'true'
+  const { data } = await api.get<ProductoStockListResponse>('/api/v1/productos', { params: queryParams })
+  return data
+}
+
+export async function getProductoById(id: number): Promise<ProductoDetalleRead> {
+  const { data } = await api.get<ProductoDetalleRead>(`/api/v1/productos/${id}`)
+  return data
+}
+
+export async function createProducto(payload: ProductoCreate): Promise<unknown> {
+  const { data } = await api.post('/api/v1/productos', payload)
+  return data
+}
+
+export async function updateProducto(id: number, payload: ProductoUpdate): Promise<unknown> {
+  const { data } = await api.put(`/api/v1/productos/${id}`, payload)
+  return data
+}
+
+export async function deleteProducto(id: number): Promise<void> {
+  await api.delete(`/api/v1/productos/${id}`)
+}
+
+export async function associateProductoCategorias(id: number, categoria_ids: number[]): Promise<unknown> {
+  const { data } = await api.put(`/api/v1/productos/${id}/categorias`, { categoria_ids })
+  return data
+}
+
+export async function associateProductoIngredientes(
+  id: number,
+  ingredientes: Array<{ ingrediente_id: number; es_removible: boolean }>,
+): Promise<unknown> {
+  const { data } = await api.put(`/api/v1/productos/${id}/ingredientes`, { ingredientes })
+  return data
+}
+
+export async function updateProductoStock(id: number, stockData: StockUpdate): Promise<unknown> {
+  const { data } = await api.patch(`/api/v1/productos/${id}/stock`, stockData)
+  return data
 }

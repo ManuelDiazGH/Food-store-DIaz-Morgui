@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useCartStore } from '@features/cart/store/cartStore'
 import { useDirecciones } from '@entities/api/direccionesApi'
 import { useCreatePedido, useIniciarPago } from '@entities/api/pedidosApi'
 import { ROUTES } from '@shared/config/routes'
 
 export default function CheckoutPage() {
-  const navigate = useNavigate()
   const { items, totalPrice } = useCartStore()
   const { data: direcciones, isLoading: loadingDir } = useDirecciones()
   const createPedido = useCreatePedido()
@@ -124,7 +123,7 @@ export default function CheckoutPage() {
               // Redirect to MP
               window.location.href = res.init_point
             },
-            onError: (err) => {
+            onError: (_err) => {
               setError('Pedido creado, pero no se pudo iniciar el pago. Podés pagar desde Mis Pedidos.')
               setPagoLoading(false)
             },
