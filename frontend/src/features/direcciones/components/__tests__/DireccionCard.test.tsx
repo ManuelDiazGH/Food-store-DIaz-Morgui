@@ -12,7 +12,6 @@ const mockDireccion: DireccionEntrega = {
   ciudad: 'Buenos Aires',
   cp: '1425',
   es_principal: false,
-  created_at: '2024-01-01T00:00:00Z',
   usuario_id: 1,
 }
 

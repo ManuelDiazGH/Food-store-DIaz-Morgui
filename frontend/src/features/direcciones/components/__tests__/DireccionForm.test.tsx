@@ -86,7 +86,6 @@ describe('DireccionForm', () => {
       ciudad: 'Buenos Aires',
       cp: '1425',
       es_principal: true,
-      created_at: '2024-01-01T00:00:00Z',
       usuario_id: 1,
     }
     render(<DireccionForm initialData={mockDireccion} onSubmit={vi.fn()} onCancel={vi.fn()} />)
@@ -104,7 +103,6 @@ describe('DireccionForm', () => {
       ciudad: 'Buenos Aires',
       cp: '1425',
       es_principal: true,
-      created_at: '2024-01-01T00:00:00Z',
       usuario_id: 1,
     }
     render(<DireccionForm initialData={mockDireccion} onSubmit={vi.fn()} onCancel={vi.fn()} />)

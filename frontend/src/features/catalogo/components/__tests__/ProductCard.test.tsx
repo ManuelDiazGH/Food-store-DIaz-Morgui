@@ -12,7 +12,7 @@ const mockProduct: ProductoCatalogoRead = {
   stock_cantidad: 10,
   hay_stock: true,
   disponible: true,
-  imagen: null,
+  imagen: undefined,
   categorias: ['Pizzas'],
   ingredientes: [],
   created_at: '2024-01-01T00:00:00Z',

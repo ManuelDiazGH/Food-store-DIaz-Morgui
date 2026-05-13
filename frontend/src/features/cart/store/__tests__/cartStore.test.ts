@@ -10,10 +10,10 @@ const mockProducto: Producto = {
   precio_base: 1500,
   stock_cantidad: 10,
   disponible: true,
-  imagen: null,
+  imagen: undefined,
   created_at: '2024-01-01T00:00:00Z',
-  categorias: [{ producto_id: 1, categoria_id: 1, es_principal: true, id: 1, nombre: 'Pizzas', padre_id: null }],
-  ingredientes: [{ producto_id: 1, ingrediente_id: 1, es_removible: true, id: 1, nombre: 'Queso', es_alergeno: false }],
+  categorias: [{ producto_id: 1, categoria_id: 1, es_principal: true }],
+  ingredientes: [{ producto_id: 1, ingrediente_id: 1, es_removible: true }],
 }
 
 const mockProducto2: Producto = {

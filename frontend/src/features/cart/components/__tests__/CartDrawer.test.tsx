@@ -1,21 +1,16 @@
 /** Tests para CartDrawer component. */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import { CartDrawer } from '../CartDrawer'
-import { useCartStore, type CartItem } from '@features/cart/store/cartStore'
+import { useCartStore } from '@features/cart/store/cartStore'
 
 const mockProducto = {
   id: 1,
   nombre: 'Pizza Mozzarella',
-  descripcion: 'Pizza clásica',
   precio_base: 1500,
   stock_cantidad: 10,
   disponible: true,
-  imagen: null,
-  created_at: '2024-01-01T00:00:00Z',
-  categorias: [],
-  ingredientes: [],
 }
 
 const mockProducto2 = {
