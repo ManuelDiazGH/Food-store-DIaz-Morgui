@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProductos } from '@entities/api/productosApi'
 import { ROUTES } from '@shared/config/routes'
@@ -13,7 +14,14 @@ interface ProductGridProps {
 
 export function ProductGrid({ filters = {} }: ProductGridProps) {
   const navigate = useNavigate()
-  const { data, isLoading, error } = useProductos({ ...filters, limit: 20 })
+  const [currentPage, setCurrentPage] = useState(1)
+
+  // Reset page when filters change (e.g., category or search)
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters.categoria, filters.busqueda, filters.excluir_alergenos])
+
+  const { data, isLoading, error } = useProductos({ ...filters, page: currentPage, limit: 20 })
 
   if (isLoading) {
     return <div className="text-center py-12 text-gray-400">Cargando productos...</div>
@@ -45,6 +53,7 @@ export function ProductGrid({ filters = {} }: ProductGridProps) {
             <button
               key={page}
               className={`px-3 py-1 rounded ${page === data.page ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              onClick={() => setCurrentPage(page)}
             >
               {page}
             </button>

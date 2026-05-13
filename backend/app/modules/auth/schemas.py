@@ -5,10 +5,10 @@ Provee schemas para registro, login, refresh y respuesta de tokens.
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
+from app.core.validators import validate_phone
 
-# ── Request schemas ────────────────────────────────────────────────
 
 class RegisterRequest(BaseModel):
     """Request body para registro de nuevo cliente."""
@@ -16,6 +16,11 @@ class RegisterRequest(BaseModel):
     email: EmailStr = Field(description="Email válido RFC 5322")
     password: str = Field(min_length=8, max_length=128, description="Contraseña mínimo 8 caracteres")
     telefono: Optional[str] = Field(default=None, max_length=20, description="Teléfono opcional")
+
+    @field_validator('telefono')
+    @classmethod
+    def validate_phone_format(cls, v: Optional[str]) -> Optional[str]:
+        return validate_phone(v)
 
 
 class LoginRequest(BaseModel):
