@@ -15,6 +15,7 @@ engine = create_engine(
     echo=False,
     pool_size=5,
     max_overflow=10,
+    connect_args={"client_encoding": "utf8"},
 )
 
 
