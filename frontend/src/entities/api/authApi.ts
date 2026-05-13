@@ -57,11 +57,12 @@ export function useMe() {
 
 export function useLogout() {
   const clearAuth = useAuthStore((s) => s.clearAuth)
+  const refreshToken = useAuthStore((s) => s.refreshToken)
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async () => {
-      await api.post('/api/v1/auth/logout')
+      await api.post('/api/v1/auth/logout', { refresh_token: refreshToken })
     },
     onSuccess: () => {
       clearAuth()
