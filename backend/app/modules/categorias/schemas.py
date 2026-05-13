@@ -14,6 +14,7 @@ class CategoriaCreate(BaseModel):
 class CategoriaUpdate(BaseModel):
     nombre: Optional[str] = Field(default=None, min_length=2, max_length=100)
     descripcion: Optional[str] = Field(default=None, max_length=500)
+    padre_id: Optional[int] = None
 
 
 class CategoriaRead(BaseModel):
@@ -23,5 +24,16 @@ class CategoriaRead(BaseModel):
     padre_id: Optional[int] = None
     created_at: datetime
     eliminado_en: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
+class CategoriaTreeNode(BaseModel):
+    """Nodo de árbol jerárquico de categorías con subcategorias recursivas."""
+    id: int
+    nombre: str
+    descripcion: Optional[str] = None
+    padre_id: Optional[int] = None
+    subcategorias: list["CategoriaTreeNode"] = []
 
     model_config = {"from_attributes": True}

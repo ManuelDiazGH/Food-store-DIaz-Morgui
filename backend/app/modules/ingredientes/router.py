@@ -34,7 +34,7 @@ def get_ingrediente(id: int):
 
 
 @router.post("", response_model=IngredienteRead, status_code=status.HTTP_201_CREATED,
-              dependencies=[Depends(require_role("ADMIN"))])
+              dependencies=[Depends(require_role("ADMIN", "STOCK"))])
 def create_ingrediente(body: IngredienteCreate):
     with UnitOfWork() as uow:
         try:
@@ -45,7 +45,7 @@ def create_ingrediente(body: IngredienteCreate):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.put("/{id}", response_model=IngredienteRead, dependencies=[Depends(require_role("ADMIN"))])
+@router.put("/{id}", response_model=IngredienteRead, dependencies=[Depends(require_role("ADMIN", "STOCK"))])
 def update_ingrediente(id: int, body: IngredienteUpdate):
     with UnitOfWork() as uow:
         try:
@@ -57,7 +57,7 @@ def update_ingrediente(id: int, body: IngredienteUpdate):
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT,
-               dependencies=[Depends(require_role("ADMIN"))])
+                dependencies=[Depends(require_role("ADMIN", "STOCK"))])
 def delete_ingrediente(id: int):
     with UnitOfWork() as uow:
         deleted = IngredienteService.delete(uow, id)

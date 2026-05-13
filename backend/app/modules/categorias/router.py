@@ -3,10 +3,23 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.uow import UnitOfWork
 from app.core.dependencies import require_role
-from app.modules.categorias.schemas import CategoriaCreate, CategoriaUpdate, CategoriaRead
+from app.modules.categorias.schemas import (
+    CategoriaCreate, CategoriaUpdate, CategoriaRead, CategoriaTreeNode,
+)
 from app.modules.categorias.service import CategoriaService
 
 router = APIRouter(prefix="/api/v1/categorias", tags=["Categorías"])
+
+
+@router.get("/tree", response_model=list[CategoriaTreeNode])
+def get_categoria_tree():
+    """Retorna la jerarquía completa de categorías como árbol anidado.
+
+    Endpoint público — no requiere autenticación.
+    Solo incluye categorías activas (eliminado_en IS NULL).
+    """
+    with UnitOfWork() as uow:
+        return CategoriaService.get_tree(uow)
 
 
 @router.get("", response_model=list[CategoriaRead])
@@ -31,7 +44,7 @@ def get_subcategorias(id: int):
 
 
 @router.post("", response_model=CategoriaRead, status_code=status.HTTP_201_CREATED,
-              dependencies=[Depends(require_role("ADMIN"))])
+              dependencies=[Depends(require_role("ADMIN", "STOCK"))])
 def create_categoria(body: CategoriaCreate):
     with UnitOfWork() as uow:
         try:
@@ -42,7 +55,7 @@ def create_categoria(body: CategoriaCreate):
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
 
-@router.put("/{id}", response_model=CategoriaRead, dependencies=[Depends(require_role("ADMIN"))])
+@router.put("/{id}", response_model=CategoriaRead, dependencies=[Depends(require_role("ADMIN", "STOCK"))])
 def update_categoria(id: int, body: CategoriaUpdate):
     with UnitOfWork() as uow:
         try:
@@ -50,11 +63,13 @@ def update_categoria(id: int, body: CategoriaUpdate):
             uow.commit()
             return categoria
         except ValueError as e:
+            if "ciclo" in str(e):
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT,
-               dependencies=[Depends(require_role("ADMIN"))])
+                dependencies=[Depends(require_role("ADMIN", "STOCK"))])
 def delete_categoria(id: int):
     with UnitOfWork() as uow:
         try:
@@ -63,4 +78,6 @@ def delete_categoria(id: int):
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Categoría no encontrada")
             uow.commit()
         except ValueError as e:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+            if "subcategorías" in str(e):
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
