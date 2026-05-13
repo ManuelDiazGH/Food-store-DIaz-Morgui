@@ -91,7 +91,7 @@ export function ProductDetail({ productId }: ProductDetailProps) {
           {product.descripcion && <p className="text-gray-600 mt-2">{product.descripcion}</p>}
 
           <div className="mt-4 flex items-center gap-4">
-            <span className="text-3xl font-bold text-orange-600">${product.precio_base.toFixed(2)}</span>
+            <span className="text-3xl font-bold text-orange-600">${Number(product.precio_base).toFixed(2)}</span>
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${
                 product.hay_stock ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'

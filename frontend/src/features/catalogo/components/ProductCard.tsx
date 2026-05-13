@@ -22,7 +22,7 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
           <p className="text-xs text-gray-400 mt-1">{product.categorias.join(', ')}</p>
         )}
         <div className="flex items-center justify-between mt-3">
-          <span className="text-xl font-bold text-orange-600">${product.precio_base.toFixed(2)}</span>
+          <span className="text-xl font-bold text-orange-600">${Number(product.precio_base).toFixed(2)}</span>
           <span
             className={`text-xs px-2 py-1 rounded-full ${
               product.disponible ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'

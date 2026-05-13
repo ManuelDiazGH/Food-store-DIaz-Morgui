@@ -63,7 +63,7 @@ export default function CartPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-base font-semibold text-gray-900">{item.producto.nombre}</h3>
-                    <p className="text-sm text-gray-500">${item.producto.precio_base.toFixed(2)} c/u</p>
+                    <p className="text-sm text-gray-500">${Number(item.producto.precio_base).toFixed(2)} c/u</p>
                     {formatExclusions(item) && (
                       <p className="text-xs text-red-500 mt-1">{formatExclusions(item)}</p>
                     )}

@@ -37,7 +37,7 @@ export function ProductTable({
       key: 'precio_base',
       label: 'Precio',
       render: (row) => (
-        <span>${row.precio_base.toFixed(2)}</span>
+        <span>${Number(row.precio_base).toFixed(2)}</span>
       ),
     },
     {
