@@ -1,7 +1,7 @@
 # Progreso del Proyecto — Food Store E-Commerce
 
 > **Actualizado**: 2026-05-13  
-> **Último commit**: `642f3cc` — feat: sprints 4, 5 y 6 — direcciones frontend, checkout, pedidos, pagos MP y panel FSM  
+> **Último commit**: `70298e5` — feat: admin product CRUD, order visualization, admin metrics  
 > **Setup000**: ✅ ARCHIVADO  
 > **Sprint 0**: ✅ CERRADO  
 > **Sprint 1**: ✅ COMPLETADO  
@@ -10,6 +10,8 @@
 > **Sprint 4**: ✅ COMPLETADO  
 > **Sprint 5**: ✅ COMPLETADO  
 > **Sprint 6**: ✅ COMPLETADO  
+> **Sprint 7**: ✅ COMPLETADO  
+> **Sprint 8**: ✅ COMPLETADO  
 
 ---
 
@@ -48,7 +50,9 @@
 | **Frontend: Carrito de compras + Direcciones** | ✅ **Completada** | Sprint 4 |
 | **Frontend: Checkout + Historial de pedidos** | ✅ **Completada** | Sprint 5 |
 | **Frontend: Pagos MP + Panel FSM (Gestión pedidos)** | ✅ **Completada** | Sprint 6 |
-| **Frontend: Admin/Stock CRUD de productos** | 🔲 Pendiente | — |
+| **Frontend: Admin/Stock CRUD de productos** | ✅ **Completada** | Sprint 8 — admin-product-crud |
+| **Backend: Admin usuarios + Dashboard metrics** | ✅ **Completada** | Sprint 8 — admin-metrics |
+| **Frontend: Visualización pedidos backend** | ✅ **Completada** | Sprint 7 — order-visualization |
 
 ---
 
@@ -503,6 +507,9 @@ Todos los cambios están **archivados**. No hay cambios activos.
 | `sprint4` | Sprint 4 — Direcciones y Carrito | ✅ Archivado |
 | `sprint5` | Sprint 5 — Checkout y Pedidos | ✅ Archivado |
 | `sprint6` | Sprint 6 — Pagos MP y Panel FSM | ✅ Archivado |
+| `admin-product-crud` | Sprint 8 — Admin CRUD Productos | ✅ Archivado |
+| `sprint7-order-visualization` | Sprint 7 — Visualización Pedidos | ✅ Archivado |
+| `sprint8-admin-metrics` | Sprint 8 — Admin Metrics | ✅ Archivado |
 
 ### Cambios activos
 
@@ -678,9 +685,11 @@ food-store/
 13. ✅ ~~Sprint 6 — Pagos MercadoPago + Panel FSM de gestión~~
 
 ### Pendiente
-- 🔲 Frontend Admin/Stock: CRUD de productos (ProductForm, ProductListPage, StockManager, etc.)
-- 🔲 Tests unitarios y de integración
-- 🔲 Verificaciones E2E completas
+- 🔲 Tests automatizados (backend: pytest, frontend: Vitest + Testing Library)
+  → Bonus +10 pts del TP
+- 🔲 US-060 — Configuración del Sistema (EPIC 18, baja prioridad)
+- 🔲 Paginación server-side en AdminUsersPage (hoy filtra client-side)
+- 🔲 Eliminar páginas placeholder huérfanas (ProductsPage.tsx, StockPage.tsx)
 
 ---
 
@@ -710,6 +719,9 @@ food-store/
 | order-history-frontend | Frontend | Sprint 5 |
 | payment-integration | Backend | Sprint 6 |
 | order-management-frontend | Frontend | Sprint 6 |
+| order-visualization-backend | Backend | Sprint 7 |
+| stock-product-crud-frontend | Frontend | Sprint 8 |
+| admin-usuarios-backend | Backend | Sprint 8 |
 
 ---
 
