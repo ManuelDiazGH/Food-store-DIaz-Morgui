@@ -29,6 +29,19 @@ class UsuarioRead(BaseModel):
     created_at: datetime
     eliminado_en: Optional[datetime] = None
 
+    @classmethod
+    def from_usuario(cls, usuario: "Usuario") -> "UsuarioRead":
+        """Crea un UsuarioRead desde un modelo Usuario, extrayendo roles como strings."""
+        return cls(
+            id=usuario.id,
+            email=usuario.email,
+            nombre=usuario.nombre,
+            telefono=usuario.telefono,
+            roles=[ur.rol_codigo for ur in usuario.roles],
+            created_at=usuario.created_at,
+            eliminado_en=usuario.eliminado_en,
+        )
+
     model_config = {"from_attributes": True}
 
 
