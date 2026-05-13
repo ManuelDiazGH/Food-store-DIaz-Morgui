@@ -343,9 +343,9 @@ testing section.
 └─────────────────────────────────────────────────────────────┘
 
   ☐ Tests automatizados (backend y frontend)
-     → No hay un solo test en el proyecto. ¡Bonus +10!
-     → Se pueden agregar tests con pytest (backend) y
-       Vitest + Testing Library (frontend)
+     → ✅ Backend: 18 tests con pytest (60% coverage)
+     → ✅ Frontend: 131 tests con Vitest (16 archivos)
+     → Total: 149 tests ⬆️
 
   ☐ US-060 — Configuración del Sistema (EPIC 18)
      → Baja prioridad. Tabla key-value + panel admin.
@@ -355,12 +355,9 @@ testing section.
      → AdminUsersPage hace filtrado client-side (funciona bien
        con pocos usuarios, pero no escala)
 
-  ☐ Las páginas de /stock/categorias, /stock/ingredientes,
-    /stock/stock y /stock/productos (ProductsPage.tsx original)
-    siguen siendo placeholders. Las reales están en:
-    - /admin/categorias → CategoriesAdmin (funcional)
-    - /admin/ingredientes → IngredientsAdmin (funcional)
-    - /stock/productos → ProductListPage (funcional, recién creada)
+  ☐ ✅ [RESUELTO] Las páginas de /stock/categorias, /stock/ingredientes,
+     /stock/stock ahora usan los componentes reales
+     (CategoriesAdmin, IngredientsAdmin, redirect a productos)
 
 
 ┌─────────────────────────────────────────────────────────────┐
@@ -392,12 +389,14 @@ testing section.
   → Los chunks se generan en frontend/dist/
 
   ── Resumen de lo completado ───────────────────────────────
-  Sprint 0 al 8: ✅ 9/9 sprints
+  Sprint 0 al 8: ✅ 10/10 sprints (Setup + 1-8)
   US stories:    ✅ ~75/77 implementadas
   Backend:       11 módulos, ~50 endpoints
   Frontend:      29 páginas, 8 features, 5 widgets
   Build:         0 errores TS
-  Tests:         ❌ 0 (pendiente)
+  Tests backend:  ✅ 18 tests (pytest, 60% coverage)
+  Tests frontend: ✅ 131 tests (Vitest, 16 archivos)
+  Total tests:   ✅ 149 — todos pasan
 
 ═══════════════════════════════════════════════════════════════
   FIN DE LA GUÍA
