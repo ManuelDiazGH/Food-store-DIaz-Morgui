@@ -58,6 +58,8 @@ export interface Producto {
   stock_cantidad: number
   disponible: boolean
   imagen?: string
+  created_at: string
+  eliminado_en?: string
   categorias?: ProductoCategoria[]
   ingredientes?: ProductoIngrediente[]
 }
@@ -72,6 +74,90 @@ export interface ProductoIngrediente {
   producto_id: number
   ingrediente_id: number
   es_removible: boolean
+}
+
+// ── Producto DTOs (Sprint 3) ──────────────────────────────────────
+export interface ProductoCatalogoRead {
+  id: number
+  nombre: string
+  precio_base: number
+  imagen?: string
+  disponible: boolean
+  categorias: string[]
+}
+
+export interface ProductoCategoriaRead {
+  id: number
+  nombre: string
+  es_principal: boolean
+}
+
+export interface ProductoIngredienteRead {
+  id: number
+  nombre: string
+  es_alergeno: boolean
+  es_removible: boolean
+}
+
+export interface ProductoDetalleRead {
+  id: number
+  nombre: string
+  descripcion?: string
+  precio_base: number
+  imagen?: string
+  disponible: boolean
+  hay_stock: boolean
+  categorias: ProductoCategoriaRead[]
+  ingredientes: ProductoIngredienteRead[]
+}
+
+export interface ProductoListResponse {
+  items: ProductoCatalogoRead[]
+  total: number
+  page: number
+  limit: number
+}
+
+export interface ProductoCreate {
+  nombre: string
+  descripcion?: string
+  precio_base: number
+  stock_cantidad: number
+  disponible?: boolean
+  imagen?: string
+}
+
+export interface ProductoUpdate {
+  nombre?: string
+  descripcion?: string
+  precio_base?: number
+  stock_cantidad?: number
+  disponible?: boolean
+  imagen?: string
+}
+
+export interface StockUpdate {
+  cantidad: number
+  tipo: 'incremento' | 'absoluto'
+}
+
+// ── Perfil (Sprint 3) ──────────────────────────────────────────
+export interface PerfilRead {
+  id: number
+  nombre: string
+  email: string
+  telefono?: string
+  fecha_registro: string
+}
+
+export interface PerfilUpdate {
+  nombre: string
+  telefono?: string
+}
+
+export interface PasswordChange {
+  password_actual: string
+  password_nueva: string
 }
 
 // ── Ingrediente ────────────────────────────────────────────────

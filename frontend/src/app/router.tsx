@@ -7,6 +7,8 @@ import { RoleGuard } from '@features/auth/guards/RoleGuard'
 import { ROUTES } from '@shared/config/routes'
 
 const HomePage = lazy(() => import('@pages/HomePage'))
+const CatalogPage = lazy(() => import('@pages/CatalogPage'))
+const ProductDetailPage = lazy(() => import('@pages/ProductDetailPage'))
 const LoginPage = lazy(() => import('@pages/auth/LoginPage'))
 const RegisterPage = lazy(() => import('@pages/auth/RegisterPage'))
 const DashboardPage = lazy(() => import('@pages/DashboardPage'))
@@ -37,6 +39,8 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: ROUTES.HOME, element: <Suspense fallback={<PageLoader />}><HomePage /></Suspense> },
+      { path: ROUTES.CATALOG, element: <Suspense fallback={<PageLoader />}><CatalogPage /></Suspense> },
+      { path: ROUTES.PRODUCT_DETAIL, element: <Suspense fallback={<PageLoader />}><ProductDetailPage /></Suspense> },
       { path: ROUTES.LOGIN, element: <Suspense fallback={<PageLoader />}><LoginPage /></Suspense> },
       { path: ROUTES.REGISTER, element: <Suspense fallback={<PageLoader />}><RegisterPage /></Suspense> },
 
