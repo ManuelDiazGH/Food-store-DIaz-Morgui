@@ -2,7 +2,9 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+from app.core.validators import validate_phone
 
 
 class UsuarioCreate(BaseModel):
@@ -12,11 +14,21 @@ class UsuarioCreate(BaseModel):
     password: str = Field(min_length=8, max_length=128)
     telefono: Optional[str] = Field(default=None, max_length=20)
 
+    @field_validator('telefono')
+    @classmethod
+    def validate_phone_format(cls, v: Optional[str]) -> Optional[str]:
+        return validate_phone(v)
+
 
 class UsuarioUpdate(BaseModel):
     """Request body para actualizar un usuario. Todos los campos opcionales."""
     nombre: Optional[str] = Field(default=None, min_length=2, max_length=100)
     telefono: Optional[str] = Field(default=None, max_length=20)
+
+    @field_validator('telefono')
+    @classmethod
+    def validate_phone_format(cls, v: Optional[str]) -> Optional[str]:
+        return validate_phone(v)
 
 
 class UsuarioRead(BaseModel):

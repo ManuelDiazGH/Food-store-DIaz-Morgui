@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useUpdatePerfil } from '@entities/api/perfilApi'
 import { usePerfil } from '@entities/api/perfilApi'
+import { validatePhone } from '@shared/utils/validators'
 
 export function ProfileEditForm() {
   const { data: perfil } = usePerfil()
@@ -16,6 +17,12 @@ export function ProfileEditForm() {
 
     if (!nombre.trim()) {
       setError('El nombre es obligatorio')
+      return
+    }
+
+    const phoneError = validatePhone(telefono)
+    if (phoneError) {
+      setError(phoneError)
       return
     }
 

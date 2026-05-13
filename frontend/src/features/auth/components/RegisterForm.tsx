@@ -5,6 +5,7 @@ import { Input } from '@shared/ui/Input'
 import { Button } from '@shared/ui/Button'
 import { ROUTES } from '@shared/config/routes'
 import { getErrorMessage, getErrorStatus } from '@shared/utils/errorHandler'
+import { validatePhone } from '@shared/utils/validators'
 
 export function RegisterForm() {
   const navigate = useNavigate()
@@ -44,6 +45,11 @@ export function RegisterForm() {
       newErrors.confirmPassword = 'Confirmá tu contraseña'
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Las contraseñas no coinciden'
+    }
+
+    const phoneError = validatePhone(telefono)
+    if (phoneError) {
+      newErrors.telefono = phoneError
     }
 
     setErrors(newErrors)
