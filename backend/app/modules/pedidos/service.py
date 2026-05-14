@@ -88,6 +88,7 @@ class PedidoService:
         for detalle in detalle_objects:
             detalle.pedido_id = pedido.id
             uow.session.add(detalle)
+        uow.session.flush()  # Obtener IDs de detalles
 
         # Crear historial inicial (PENDIENTE, sin estado_desde)
         historial = HistorialEstadoPedido(
@@ -97,6 +98,11 @@ class PedidoService:
             usuario_id=usuario_id,
         )
         uow.session.add(historial)
+        uow.session.flush()  # Obtener ID del historial
+
+        # Poblar relaciones para evitar lazy-load fuera de sesión
+        pedido.detalles = detalle_objects
+        pedido.historial = [historial]
 
         return pedido
 
