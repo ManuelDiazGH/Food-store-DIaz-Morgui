@@ -65,7 +65,7 @@ class PagoService:
         # Almacenar mp_payment_id devuelto por MP
         mp_payment_id = mp_response.get("id")
         if mp_payment_id:
-            pago.mp_payment_id = int(mp_payment_id)
+            pago.mp_payment_id = str(mp_payment_id)
             uow.session.add(pago)
 
         init_point = mp_response.get("init_point") or mp_response.get("sandbox_init_point", "")

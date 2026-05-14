@@ -333,7 +333,7 @@ class Pago(SQLModel, table=True):
 
     id: int = Field(primary_key=True)
     pedido_id: int = Field(foreign_key="pedido.id")
-    mp_payment_id: Optional[int] = Field(unique=True, default=None)
+    mp_payment_id: Optional[str] = Field(default=None)
     mp_status: str = Field(max_length=30)
     external_reference: str = Field(max_length=100, unique=True)
     idempotency_key: str = Field(max_length=100, unique=True)

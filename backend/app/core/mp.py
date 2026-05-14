@@ -68,7 +68,6 @@ def crear_preferencia_pago(
             }
         ],
         "back_urls": back_urls,
-        "auto_return": "approved",
         "notification_url": "http://localhost:8000/api/v1/pagos/webhook",
     }
 

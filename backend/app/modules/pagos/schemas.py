@@ -14,7 +14,7 @@ class CrearPagoRequest(BaseModel):
 class PagoRead(BaseModel):
     id: int
     pedido_id: int
-    mp_payment_id: Optional[int] = None
+    mp_payment_id: Optional[str] = None
     mp_status: str
     external_reference: str
     idempotency_key: str
@@ -28,7 +28,7 @@ class IniciarPagoResponse(BaseModel):
     """Respuesta al iniciar un pago con MercadoPago."""
     pago: PagoRead
     init_point: str
-    mp_payment_id: Optional[int] = None
+    mp_payment_id: Optional[str] = None
 
 
 class WebhookMPRequest(BaseModel):
