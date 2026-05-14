@@ -263,7 +263,7 @@ export interface DireccionEntrega {
 export interface Pago {
   id: number
   pedido_id: number
-  mp_payment_id?: number
+  mp_payment_id?: string
   mp_status: string
   external_reference: string
   idempotency_key: string

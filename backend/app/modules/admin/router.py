@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.uow import UnitOfWork
 from app.core.dependencies import require_role
@@ -10,6 +10,24 @@ from app.modules.admin.schemas import DashboardStats, MetricasCompletas, PedidoP
 from app.modules.admin.service import AdminService
 
 router = APIRouter(prefix="/api/v1/admin", tags=["Admin"])
+
+
+def _parse_fechas(desde: Optional[str], hasta: Optional[str]) -> tuple[str, str]:
+    """Valida fechas o usa defaults seguros."""
+    if not desde:
+        desde = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
+    if not hasta:
+        hasta = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # Validar formato ISO
+    try:
+        datetime.strptime(desde, "%Y-%m-%d")
+        datetime.strptime(hasta, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Formato de fecha inválido. Usá YYYY-MM-DD",
+        )
+    return desde, hasta
 
 
 @router.get("/dashboard", response_model=DashboardStats,
@@ -27,11 +45,7 @@ def get_metricas_completas(
     hasta: Optional[str] = Query(default=None),
 ):
     """Obtiene métricas completas del sistema. Solo ADMIN."""
-    if not desde:
-        desde = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
-    if not hasta:
-        hasta = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
+    desde, hasta = _parse_fechas(desde, hasta)
     with UnitOfWork() as uow:
         resumen = AdminService.get_metricas_resumen(uow)
         return MetricasCompletas(
@@ -50,11 +64,7 @@ def get_ventas_por_periodo(
     granularidad: str = Query(default="dia"),
 ):
     """Obtiene ventas agrupadas por período. Solo ADMIN."""
-    if not desde:
-        desde = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
-    if not hasta:
-        hasta = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
+    desde, hasta = _parse_fechas(desde, hasta)
     with UnitOfWork() as uow:
         return AdminService.get_ventas_por_periodo(uow, desde, hasta, granularidad)
 
@@ -67,11 +77,7 @@ def get_top_productos(
     hasta: Optional[str] = Query(default=None),
 ):
     """Obtiene los productos más vendidos. Solo ADMIN."""
-    if not desde:
-        desde = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
-    if not hasta:
-        hasta = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
+    desde, hasta = _parse_fechas(desde, hasta)
     with UnitOfWork() as uow:
         return AdminService.get_top_productos(uow, top, desde, hasta)
 
@@ -83,10 +89,6 @@ def get_pedidos_por_estado(
     hasta: Optional[str] = Query(default=None),
 ):
     """Obtiene distribución de pedidos por estado. Solo ADMIN."""
-    if not desde:
-        desde = (datetime.now(timezone.utc) - timedelta(days=30)).strftime("%Y-%m-%d")
-    if not hasta:
-        hasta = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
+    desde, hasta = _parse_fechas(desde, hasta)
     with UnitOfWork() as uow:
         return AdminService.get_pedidos_por_estado(uow, desde, hasta)

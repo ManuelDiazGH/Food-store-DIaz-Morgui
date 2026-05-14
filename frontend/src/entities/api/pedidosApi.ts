@@ -124,7 +124,7 @@ interface IniciarPagoRequest {
 interface IniciarPagoResponse {
   pago: Pago
   init_point: string
-  mp_payment_id?: number
+  mp_payment_id?: string
 }
 
 export function useIniciarPago() {

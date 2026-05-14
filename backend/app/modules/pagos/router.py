@@ -52,7 +52,7 @@ def webhook_mp(body: WebhookMPRequest):
             }
             mp_status = mp_status_map.get(mp_status_raw, mp_status_raw.upper())
 
-            PagoService.process_webhook(uow, int(mp_payment_id), mp_status)
+            PagoService.process_webhook(uow, str(mp_payment_id), mp_status)
             uow.commit()
             return {"status": "ok"}
         except ValueError as e:

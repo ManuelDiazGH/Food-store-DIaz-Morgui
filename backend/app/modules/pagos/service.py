@@ -85,7 +85,7 @@ class PagoService:
         return uow.pagos.get_by_pedido_id(pedido_id)
 
     @staticmethod
-    def process_webhook(uow: UnitOfWork, mp_payment_id: int, mp_status: str) -> Pago:
+    def process_webhook(uow: UnitOfWork, mp_payment_id: str, mp_status: str) -> Pago:
         """Procesa webhook de MercadoPago IPN.
 
         Actualiza el estado del pago y, si el pago fue aprobado,
