@@ -32,6 +32,7 @@ SEED_ESTADOS = [
 ]
 
 SEED_FORMAS_PAGO = [
+    {"codigo": "EFECTIVO", "nombre": "Efectivo", "habilitado": True},
     {"codigo": "MERCADOPAGO", "nombre": "Mercado Pago", "habilitado": True},
     {"codigo": "RAPIPAGO", "nombre": "Rapipago", "habilitado": True},
     {"codigo": "PAGOFACIL", "nombre": "Pago Fácil", "habilitado": True},
