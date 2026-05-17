@@ -1,0 +1,157 @@
+============================================
+  MERCADO PAGO — MODO PRUEBA (DINERO SIMULADO)
+  Paso a paso para habilitar pagos de prueba
+============================================
+
+CONTEXTO ACTUAL:
+  El código backend y frontend están COMPLETOS para MercadoPago.
+  Pero los .env usan tokens de PRODUCCION (APP_USR-*).
+  Para usar dinero simulado necesitás tokens TEST-*.
+
+============================================
+PASO 1 — OBTENER CREDENCIALES DE PRUEBA
+============================================
+  1. Andá a: https://www.mercadopago.com.ar/developers/panel/app
+  2. Creá una aplicación o usá una existente
+  3. En "Credenciales", activá "Usar credenciales de prueba" (toggle)
+  4. Copiá el ACCESS_TOKEN (empieza con TEST-) y la PUBLIC_KEY (TEST-)
+  5. También creá un "usuario de prueba" desde el mismo panel:
+     - Botón "Crear usuario de prueba" (genera un comprador vendedor)
+     - Usá ese usuario de prueba para loguearte en la app foodstore
+     - El usuario de prueba tendrá dinero simulado para pagar
+
+============================================
+PASO 2 — ACTUALIZAR .env DEL BACKEND
+============================================
+  Archivo: backend/.env
+
+  Linea 6 — CAMBIAR:
+    MP_ACCESS_TOKEN=APP_USR-8891283311453658-...
+    ↓
+    MP_ACCESS_TOKEN=TEST-tu-access-token-de-prueba
+
+  Linea 7 — CAMBIAR:
+    MP_PUBLIC_KEY=APP_USR-d6915792-...
+    ↓
+    MP_PUBLIC_KEY=TEST-tu-public-key-de-prueba
+
+============================================
+PASO 3 — ACTUALIZAR .env DEL FRONTEND
+============================================
+  Archivo: frontend/.env
+
+  Linea 2 — CAMBIAR:
+    VITE_MP_PUBLIC_KEY=APP_USR-d6915792-...
+    ↓
+    VITE_MP_PUBLIC_KEY=TEST-tu-public-key-de-prueba
+
+============================================
+PASO 4 — CONFIGURAR WEBHOOK (NGROK)
+============================================
+  PROBLEMA: backend/app/core/mp.py linea 71 tiene:
+    "notification_url": "http://localhost:8000/api/v1/pagos/webhook"
+
+  MercadoPago NO puede llamar a localhost.
+  Necesitás exponer tu servidor con ngrok:
+
+  --- En una terminal aparte ---
+  ngrok http 8000
+
+  --- Copiá la URL que te da ngrok, ej: https://abc123.ngrok.io ---
+
+  --- Configurá esa URL en MercadoPago ---
+  En el panel de desarrollador de MP:
+    Webhook URL → https://abc123.ngrok.io/api/v1/pagos/webhook
+
+  --- OPCION 1: Configurar la URL en el código ---
+  Editar backend/app/core/mp.py: reemplazar
+    "notification_url": "http://localhost:8000/api/v1/pagos/webhook",
+  con
+    "notification_url": settings.MP_WEBHOOK_URL,
+
+  Y agregar en backend/.env:
+    MP_WEBHOOK_URL=https://abc123.ngrok.io/api/v1/pagos/webhook
+
+  --- OPCION 2: Crear el setting en config.py ---
+  Si elegís la opción 1, agregar en backend/app/core/config.py:
+    MP_WEBHOOK_URL: str = "http://localhost:8000/api/v1/pagos/webhook"
+
+============================================
+PASO 5 — CONFIGURAR BACK_URLS (opcional)
+============================================
+  Las back_urls en mp.py lineas 54-58 apuntan a localhost.
+  Con ngrok no hace falta cambiarlas porque el flujo es:
+    Usuario → MP (paga) → MP redirige al browser → localhost:5173
+
+  MP redirige al browser, no al servidor. Como el browser
+  está en tu máquina, localhost funciona bien ACÁ.
+
+  Pero si querés probar desde otro dispositivo, cambiá:
+    http://localhost:5173
+    ↓
+    https://abc123.ngrok.io  (misma URL de ngrok)
+
+============================================
+PASO 6 — REINICIAR SERVIDORES
+============================================
+  backend:  Ctrl+C y volvé a levantar (python -m uvicorn app.main:app --reload)
+  frontend: Ctrl+C y volvé a levantar (npm run dev)
+  ngrok:    Dejalo corriendo en la terminal aparte
+
+============================================
+PASO 7 — PROBAR EL FLUJO COMPLETO
+============================================
+  1. Logueate en foodstore con el usuario de prueba de MP
+  2. Agregá productos al carrito
+  3. Andá al checkout: http://localhost:5173/checkout
+  4. Seleccioná dirección y confirmá pedido
+  5. Te redirige a MercadoPago (sandbox)
+  6. Pagá con tarjeta de prueba:
+     Número:  5031 7557 3453 0604
+     Venc:    11/25
+     CVV:     123
+     Titular: APRO (para aprobar) / OTHE (para rechazar)
+  7. MP te redirige a /orders/{id}?payment=success
+  8. El webhook (ngrok) recibe la notificación IPN
+  9. El pedido pasa a CONFIRMADO automáticamente
+
+============================================
+PASO 8 — VERIFICAR RESULTADOS
+============================================
+  - El badge del pedido debe cambiar de "Pendiente" a "Confirmado"
+  - En el panel admin, el pedido aparece en CONFIRMADO
+  - El pago muestra estado "Pagado" (APPROVED)
+  - Podés iniciar la FSM: EN_PREPARACION → EN_CAMINO → ENTREGADO
+
+============================================
+BUG DETECTADO (cosmético)
+============================================
+  En CheckoutPage.tsx linea 103:
+    forma_pago_codigo: 'EFECTIVO'
+
+  El pedido se crea como "EFECTIVO" pero el usuario paga con MP.
+  No rompe la funcionalidad (se paga igual), pero el pedido
+  figura como "EFECTIVO" en vez de "MERCADOPAGO".
+
+  Para corregirlo => cambiar linea 103 a:
+    forma_pago_codigo: 'MERCADOPAGO',
+
+============================================
+TARJETAS DE PRUEBA MERCADO PAGO
+============================================
+  Mastercard:  5031 7557 3453 0604
+  Visa:        4509 9535 6623 3704
+  American Express: 3711 8030 3257 5221
+
+  Para Mastercard/Visa:
+    Vencimiento: cualquier fecha futura (ej: 11/25)
+    CVV: cualquier 3 dígitos (ej: 123)
+    Titular: "APRO"  → pago aprobado
+             "OTHE"  → pago rechazado
+
+============================================
+REFERENCIAS
+============================================
+  - Documentación MP test: https://www.mercadopago.com.ar/developers/es/docs/your-integrations/test/cards
+  - Panel desarrollador: https://www.mercadopago.com.ar/developers/panel/app
+  - ngrok: https://ngrok.com/download
