@@ -90,7 +90,6 @@ export function useHistorialPedido(id: number) {
 
 export function useCreatePedido() {
   const queryClient = useQueryClient()
-  const user = useAuthStore((s) => s.user)
 
   return useMutation<Pedido, Error, CrearPedidoRequest>({
     mutationFn: async (payload) => {
@@ -98,7 +97,9 @@ export function useCreatePedido() {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.list(user!.id) })
+      // Invalidamos el prefijo ['pedidos'] para que también se refresque el
+      // panel admin/gestor (no solo la lista del usuario actual).
+      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.all })
       // Clear cart after successful order
       useCartStore.getState().clearCart()
     },
@@ -149,7 +150,6 @@ export function usePagoByPedido(pedidoId: number) {
 
 export function useSyncPago(pedidoId: number) {
   const queryClient = useQueryClient()
-  const user = useAuthStore((s) => s.user)
 
   return useMutation<Pago | null, Error>({
     mutationFn: async () => {
@@ -162,9 +162,11 @@ export function useSyncPago(pedidoId: number) {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.detail(pedidoId) })
+      // El sync con MP puede haber auto-transicionado el pedido a CONFIRMADO,
+      // así que invalidamos el prefijo entero ['pedidos'] para refrescar
+      // detalles, listas del cliente y panel admin.
+      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.all })
       queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.pagos(pedidoId) })
-      if (user) queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.list(user.id) })
     },
   })
 }
@@ -194,6 +196,13 @@ export function useAllPedidosPaginated(filters: OrderFilters = {}) {
       const { data } = await api.get<PedidoListResponse>('/api/v1/pedidos', { params })
       return data
     },
+    // Refresh automático cada 30s. La UI del panel lo promete y los operarios
+    // ven los cambios sin tener que recargar la página manualmente.
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+    // Forzamos a "stale" para que invalidateQueries de mutaciones siempre
+    // dispare refetch (el default de 5min ocultaba transiciones recién hechas).
+    staleTime: 0,
   })
 }
 
@@ -223,8 +232,12 @@ export function useTransicionarEstado(pedidoId: number) {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.allPedidos })
+      // Invalidación amplia: el cambio de estado afecta listas (cliente y
+      // panel), el detalle del pedido y su historial. Usamos prefijo
+      // ['pedidos'] para barrer todas las variantes paginadas/filtradas.
+      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.all })
       queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.detail(pedidoId) })
+      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.historial(pedidoId) })
     },
   })
 }
