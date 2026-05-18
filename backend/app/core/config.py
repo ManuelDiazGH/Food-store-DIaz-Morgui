@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     # ── MercadoPago ────────────────────────────────────────────────
     MP_ACCESS_TOKEN: str = ""
     MP_PUBLIC_KEY: str = ""
+    MP_WEBHOOK_BASE_URL: str = "http://localhost:8000"
 
     # ── Seed ───────────────────────────────────────────────────────
     ADMIN_EMAIL: str = "admin@foodstore.com"

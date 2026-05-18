@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '@features/cart/store/cartStore'
 import { useDirecciones } from '@entities/api/direccionesApi'
 import { useCreatePedido, useIniciarPago } from '@entities/api/pedidosApi'
 import { ROUTES } from '@shared/config/routes'
 
 export default function CheckoutPage() {
+  const navigate = useNavigate()
   const { items, totalPrice } = useCartStore()
   const { data: direcciones, isLoading: loadingDir } = useDirecciones()
   const createPedido = useCreatePedido()
@@ -100,7 +101,7 @@ export default function CheckoutPage() {
     }
 
     const payload = {
-      forma_pago_codigo: 'EFECTIVO',
+      forma_pago_codigo: 'MERCADOPAGO',
       direccion_id: selectedDireccionId,
       items: items.map((i) => ({
         producto_id: i.producto.id,
@@ -120,8 +121,9 @@ export default function CheckoutPage() {
             onSuccess: (res) => {
               setPagoInitPoint(res.init_point)
               setPagoLoading(false)
-              // Redirect to MP
-              window.location.href = res.init_point
+              // Abrir MP en nueva pestaña y quedarse en el detalle del pedido
+              window.open(res.init_point, '_blank')
+              navigate(`/orders/${pedido.id}`)
             },
             onError: (_err) => {
               setError('Pedido creado, pero no se pudo iniciar el pago. Podés pagar desde Mis Pedidos.')
@@ -146,7 +148,8 @@ export default function CheckoutPage() {
         onSuccess: (res) => {
           setPagoInitPoint(res.init_point)
           setPagoLoading(false)
-          window.location.href = res.init_point
+          window.open(res.init_point, '_blank')
+          navigate(`/orders/${createdPedidoId}`)
         },
         onError: (err) => {
           setError(err.message || 'Error al iniciar el pago')

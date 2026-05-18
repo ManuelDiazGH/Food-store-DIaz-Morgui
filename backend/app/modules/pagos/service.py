@@ -2,7 +2,7 @@
 import uuid
 
 from app.core.uow import UnitOfWork
-from app.core.mp import crear_preferencia_pago
+from app.core.mp import crear_preferencia_pago, get_mp_sdk
 from app.modules.pagos.schemas import CrearPagoRequest, IniciarPagoResponse
 from app.models.all_models import Pago
 from app.modules.pedidos.service import PedidoService
@@ -49,10 +49,6 @@ class PagoService:
         uow.pagos.create(pago)
         uow.session.flush()
 
-        # Calcular total del pedido para MP
-        total_productos = float(pedido.total - (pedido.costo_envio or 0))
-        costo_envio = float(pedido.costo_envio or 0)
-
         # Crear preferencia en MercadoPago
         mp_response = crear_preferencia_pago(
             external_reference=external_reference,
@@ -68,7 +64,9 @@ class PagoService:
             pago.mp_payment_id = str(mp_payment_id)
             uow.session.add(pago)
 
-        init_point = mp_response.get("init_point") or mp_response.get("sandbox_init_point", "")
+        # En modo test MP devuelve sandbox_init_point (checkout simulado).
+        # En producción solo existe init_point.
+        init_point = mp_response.get("sandbox_init_point") or mp_response.get("init_point", "")
         if not init_point:
             raise RuntimeError("MercadoPago no devolvió un init_point")
 
@@ -83,6 +81,47 @@ class PagoService:
     @staticmethod
     def get_by_pedido(uow: UnitOfWork, pedido_id: int) -> list[Pago]:
         return uow.pagos.get_by_pedido_id(pedido_id)
+
+    @staticmethod
+    def sync_from_mp(uow: UnitOfWork, pedido_id: int) -> Pago | None:
+        """Consulta MP por external_reference y sincroniza el estado del pago local.
+
+        Útil cuando el webhook no llegó (localhost sin ngrok).
+        Si el pago está APPROVED en MP, actualiza el pago y transiciona el pedido a CONFIRMADO.
+        """
+        pagos = uow.pagos.get_by_pedido_id(pedido_id)
+        if not pagos:
+            return None
+
+        pago = sorted(pagos, key=lambda p: p.created_at)[-1]
+
+        # Buscar en MP por external_reference
+        sdk = get_mp_sdk()
+        result = sdk.payment().search({
+            "external_reference": pago.external_reference,
+            "sort": "date_created",
+            "criteria": "desc",
+            "limit": 1,
+        })
+        payments = result.get("response", {}).get("results", [])
+        if not payments:
+            return pago
+
+        mp_payment = payments[0]
+        mp_status_raw = mp_payment.get("status", "").upper()
+        mp_payment_id = str(mp_payment.get("id", ""))
+
+        # Guardar mp_payment_id si aún no estaba
+        if mp_payment_id and not pago.mp_payment_id:
+            pago.mp_payment_id = mp_payment_id
+            uow.session.add(pago)
+            uow.session.flush()
+
+        # Sincronizar estado si cambió
+        if mp_status_raw and mp_status_raw != pago.mp_status:
+            return PagoService.process_webhook(uow, mp_payment_id, mp_status_raw)
+
+        return pago
 
     @staticmethod
     def process_webhook(uow: UnitOfWork, mp_payment_id: str, mp_status: str) -> Pago:
@@ -113,7 +152,7 @@ class PagoService:
         uow.session.flush()
 
         # Si el pago fue aprobado, transicionar el pedido a CONFIRMADO
-        if mp_status == "approved" and old_status != "approved":
+        if mp_status == "APPROVED" and old_status != "APPROVED":
             pedido = uow.pedidos.get_by_id(pago.pedido_id)
             if pedido is not None and pedido.estado_codigo == "PENDIENTE":
                 PedidoService.transicionar_estado(

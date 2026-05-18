@@ -64,3 +64,19 @@ def get_pagos_by_pedido(pedido_id: int):
     """Obtiene los pagos de un pedido."""
     with UnitOfWork() as uow:
         return PagoService.get_by_pedido(uow, pedido_id)
+
+
+@router.post("/pedido/{pedido_id}/sync", response_model=PagoRead | None)
+def sync_pago(pedido_id: int):
+    """Consulta MP para sincronizar el estado del pago sin depender del webhook.
+
+    Útil en desarrollo local (sin ngrok). Si el pago está APPROVED en MP,
+    actualiza el estado local y transiciona el pedido a CONFIRMADO.
+    """
+    with UnitOfWork() as uow:
+        try:
+            pago = PagoService.sync_from_mp(uow, pedido_id)
+            uow.commit()
+            return pago
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e))

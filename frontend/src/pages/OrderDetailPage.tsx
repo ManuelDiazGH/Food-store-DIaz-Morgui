@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { usePedidoDetalle, useHistorialPedido, usePagoByPedido, useIniciarPago } from '@entities/api/pedidosApi'
+import { usePedidoDetalle, useHistorialPedido, usePagoByPedido, useIniciarPago, useTransicionarEstado, useSyncPago } from '@entities/api/pedidosApi'
 import { ROUTES } from '@shared/config/routes'
 
 const STATUS_STYLES: Record<string, string> = {
@@ -49,6 +49,8 @@ export default function OrderDetailPage() {
   const { data: historial } = useHistorialPedido(orderId)
   const { data: pagos } = usePagoByPedido(orderId)
   const iniciarPago = useIniciarPago()
+  const transicionarEstado = useTransicionarEstado(orderId)
+  const syncPago = useSyncPago(orderId)
 
   const [retryLoading, setRetryLoading] = useState(false)
   const [retryError, setRetryError] = useState('')
@@ -56,16 +58,31 @@ export default function OrderDetailPage() {
   // Handle MP callback payment status from URL params
   const paymentStatus = searchParams.get('payment')
   const [callbackMsg, setCallbackMsg] = useState<string | null>(null)
+  const autoConfirmado = useRef(false)
+
+  // Polling: cuando el pedido está PENDIENTE con pago iniciado, sincronizar con MP cada 5s
+  const isPendienteConPago = pedido?.estado_codigo === 'PENDIENTE' && (pagos?.length ?? 0) > 0
+  useEffect(() => {
+    if (!isPendienteConPago) return
+    const interval = setInterval(() => {
+      syncPago.mutate()
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [isPendienteConPago])
 
   useEffect(() => {
     if (paymentStatus === 'success') {
       setCallbackMsg('✅ Pago exitoso. Tu pedido está confirmado.')
+      if (pedido && pedido.estado_codigo === 'PENDIENTE' && !autoConfirmado.current) {
+        autoConfirmado.current = true
+        transicionarEstado.mutate({ estado_hasta: 'CONFIRMADO', observacion: 'Pago confirmado por MercadoPago' })
+      }
     } else if (paymentStatus === 'failure') {
       setCallbackMsg('❌ El pago fue rechazado. Podés reintentarlo.')
     } else if (paymentStatus === 'pending') {
       setCallbackMsg('⏳ El pago está en proceso. Te notificaremos cuando se confirme.')
     }
-  }, [paymentStatus])
+  }, [paymentStatus, pedido?.estado_codigo])
 
   // Get latest payment
   const latestPago = pagos && pagos.length > 0

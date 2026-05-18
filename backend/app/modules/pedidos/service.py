@@ -103,6 +103,7 @@ class PedidoService:
         # Poblar relaciones para evitar lazy-load fuera de sesión
         pedido.detalles = detalle_objects
         pedido.historial = [historial]
+        pedido.pagos = []
 
         return pedido
 

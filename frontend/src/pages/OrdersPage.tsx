@@ -22,6 +22,7 @@ const STATUS_LABELS: Record<string, string> = {
   CANCELADO: 'Cancelado',
 }
 
+
 const ALL_STATUSES: EstadoPedidoCodigo[] = [
   'PENDIENTE', 'CONFIRMADO', 'EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO', 'CANCELADO',
 ]

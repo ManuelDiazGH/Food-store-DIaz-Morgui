@@ -47,6 +47,15 @@ class HistorialEstadoRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class PagoEstadoRead(BaseModel):
+    """Estado de pago incluido en el pedido."""
+    id: int
+    mp_status: str
+    updated_at: Optional[datetime] = None
+
+    model_config = {"from_attributes": True}
+
+
 class PedidoRead(BaseModel):
     id: int
     usuario_id: int
@@ -65,6 +74,7 @@ class PedidoRead(BaseModel):
     created_at: datetime
     detalles: list[DetallePedidoRead] = []
     historial: list[HistorialEstadoRead] = []
+    pagos: list[PagoEstadoRead] = []
 
     model_config = {"from_attributes": True}
 

@@ -59,8 +59,8 @@ export function usePedidos() {
   return useQuery<Pedido[]>({
     queryKey: PEDIDOS_KEYS.list(usuarioId!),
     queryFn: async () => {
-      const { data } = await api.get<Pedido[]>(`/api/v1/pedidos?usuario_id=${usuarioId}`)
-      return data
+      const { data } = await api.get<PedidoListResponse>(`/api/v1/pedidos?usuario_id=${usuarioId}`)
+      return data.items
     },
     enabled: !!usuarioId,
   })
@@ -147,6 +147,23 @@ export function usePagoByPedido(pedidoId: number) {
   })
 }
 
+export function useSyncPago(pedidoId: number) {
+  const queryClient = useQueryClient()
+  const user = useAuthStore((s) => s.user)
+
+  return useMutation<Pago | null, Error>({
+    mutationFn: async () => {
+      const { data } = await api.post<Pago | null>(`/api/v1/pagos/pedido/${pedidoId}/sync`)
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.detail(pedidoId) })
+      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.pagos(pedidoId) })
+      if (user) queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.list(user.id) })
+    },
+  })
+}
+
 // ── Paginated list (Sprint 7) ────────────────────────────────────
 
 export interface OrderFilters {
@@ -181,8 +198,8 @@ export function useAllPedidos() {
   return useQuery<Pedido[]>({
     queryKey: PEDIDOS_KEYS.allPedidos,
     queryFn: async () => {
-      const { data } = await api.get<Pedido[]>('/api/v1/pedidos')
-      return data
+      const { data } = await api.get<PedidoListResponse>('/api/v1/pedidos')
+      return data.items
     },
   })
 }

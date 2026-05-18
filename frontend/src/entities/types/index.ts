@@ -218,6 +218,7 @@ export interface Pedido {
   created_at: string
   detalles?: DetallePedido[]
   historial?: HistorialEstadoPedido[]
+  pagos?: { id: number; mp_status: string; updated_at?: string }[]
   // Snapshot fields (set at order creation)
   direccion_snapshot_alias?: string
   direccion_snapshot_linea1?: string

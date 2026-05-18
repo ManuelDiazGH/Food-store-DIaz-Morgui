@@ -51,10 +51,11 @@ def crear_preferencia_pago(
     sdk = get_mp_sdk()
 
     if back_urls is None:
+        frontend_url = settings.CORS_ORIGINS.split(",")[0].strip()
         back_urls = {
-            "success": f"http://localhost:5173/orders/{pedido_id}?payment=success",
-            "failure": f"http://localhost:5173/orders/{pedido_id}?payment=failure",
-            "pending": f"http://localhost:5173/orders/{pedido_id}?payment=pending",
+            "success": f"{frontend_url}/orders/{pedido_id}?payment=success",
+            "failure": f"{frontend_url}/orders/{pedido_id}?payment=failure",
+            "pending": f"{frontend_url}/orders/{pedido_id}?payment=pending",
         }
 
     preference_data = {
@@ -68,8 +69,13 @@ def crear_preferencia_pago(
             }
         ],
         "back_urls": back_urls,
-        "notification_url": "http://localhost:8000/api/v1/pagos/webhook",
     }
+
+    # Solo incluir notification_url si es una URL pública (no localhost)
+    # MP rechaza la preferencia si la URL no es accesible públicamente vía HTTPS
+    webhook_base = settings.MP_WEBHOOK_BASE_URL
+    if webhook_base and "localhost" not in webhook_base and "127.0.0.1" not in webhook_base:
+        preference_data["notification_url"] = f"{webhook_base}/api/v1/pagos/webhook"
 
     result = sdk.preference().create(preference_data)
 

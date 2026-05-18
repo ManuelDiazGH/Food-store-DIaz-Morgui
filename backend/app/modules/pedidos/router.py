@@ -66,7 +66,8 @@ def get_historial_pedido(id: int):
 def get_pedido(id: int):
     with UnitOfWork() as uow:
         try:
-            return PedidoService.get_by_id(uow, id)
+            pedido = PedidoService.get_by_id(uow, id)
+            return PedidoRead.model_validate(pedido)
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
@@ -81,7 +82,7 @@ def create_pedido(
         try:
             pedido = PedidoService.create(uow, current_user.id, body)
             uow.commit()
-            return pedido
+            return PedidoRead.model_validate(pedido)
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -99,6 +100,6 @@ def transicionar_estado(
                 uow, id, body.estado_hasta, current_user.id, body.observacion
             )
             uow.commit()
-            return pedido
+            return PedidoRead.model_validate(pedido)
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
