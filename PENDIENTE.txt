@@ -1,0 +1,210 @@
+═══════════════════════════════════════════════════════════════
+  LO QUE QUEDA PENDIENTE — Food Store
+  Gaps del FSM de pedidos encontrados vs el spec original
+  Fecha: 2026-05-17
+═══════════════════════════════════════════════════════════════
+
+CONTEXTO:
+  El FSM de pedidos está implementado pero tiene varios gaps
+  respecto a las reglas de negocio del spec (docs/Integrador.txt
+  y docs/Historias_de_usuario.txt). Abajo está todo lo que falta,
+  ordenado por prioridad.
+
+─────────────────────────────────────────────────────────────
+  PASO 1 — Agregar PENDIENTE → CANCELADO al FSM
+  Archivo: backend/app/modules/pedidos/service.py
+  Regla:   RN-FS08, US-043
+─────────────────────────────────────────────────────────────
+
+  PROBLEMA:
+    VALID_TRANSITIONS["PENDIENTE"] = {"CONFIRMADO"}
+    → No permite cancelar desde PENDIENTE. El spec dice que
+      cualquier usuario puede cancelar su propio pedido en
+      estado PENDIENTE.
+
+  SOLUCIÓN:
+    En service.py, línea ~20, cambiar:
+      "PENDIENTE": {"CONFIRMADO"},
+    por:
+      "PENDIENTE": {"CONFIRMADO", "CANCELADO"},
+
+  También agregar (si el spec lo pide):
+      "EN_PREPARACION": {"EN_CAMINO", "CANCELADO"},
+    → RN-FS08 dice que ADMIN puede cancelar desde EN_PREPARACION.
+
+─────────────────────────────────────────────────────────────
+  PASO 2 — Bloquear transición manual PENDIENTE → CONFIRMADO
+  Archivo: backend/app/modules/pedidos/router.py
+  Regla:   RN-FS02
+─────────────────────────────────────────────────────────────
+
+  PROBLEMA:
+    El endpoint PATCH /api/v1/pedidos/{id}/estado (línea ~90)
+    permite que cualquiera con rol PEDIDOS/ADMIN transicione
+    manualmente PENDIENTE → CONFIRMADO.
+    El spec dice que esta transición DEBE ser EXCLUSIVAMENTE
+    automática (por pago aprobado de MercadoPago).
+
+  SOLUCIÓN:
+    En router.py, dentro de transicionar_estado(), agregar
+    una validación ANTES de llamar al service:
+
+      if pedido.estado_codigo == "PENDIENTE" and body.estado_hasta == "CONFIRMADO":
+          raise HTTPException(
+              status_code=400,
+              detail="PENDIENTE → CONFIRMADO es automático (solo por pago aprobado)"
+          )
+
+─────────────────────────────────────────────────────────────
+  PASO 3 — Decrementar stock al confirmar (PENDIENTE → CONFIRMADO)
+  Archivo: backend/app/modules/pedidos/service.py
+  Regla:   RN-FS03, RN-FS04
+─────────────────────────────────────────────────────────────
+
+  PROBLEMA:
+    Cuando un pago se aprueba y el pedido pasa a CONFIRMADO,
+    NO se descuenta el stock de los productos. Si falla el
+    descuento (sin stock), todo debe hacer rollback atómico.
+
+  SOLUCIÓN:
+    Modificar PedidoService.transicionar_estado(). Cuando
+    estado_hasta == "CONFIRMADO":
+
+    1. Recorrer pedido.detalles
+    2. Para cada detalle, buscar el producto y restar cantidad
+    3. Si producto.stock_cantidad < detalle.cantidad:
+       → ValueError("Stock insuficiente para producto X")
+    4. Hacer todo dentro de la misma UoW para que sea atómico
+    5. Si falla, la UoW hace rollback de todo
+
+  Pseudocódigo:
+    if estado_hasta == "CONFIRMADO":
+        for detalle in pedido.detalles:
+            producto = uow.productos.get_by_id(detalle.producto_id)
+            if producto.stock_cantidad < detalle.cantidad:
+                raise ValueError(
+                    f"Stock insuficiente: {producto.nombre} "
+                    f"(disponible: {producto.stock_cantidad}, "
+                    f"necesario: {detalle.cantidad})"
+                )
+            producto.stock_cantidad -= detalle.cantidad
+            uow.productos.update(producto)
+
+─────────────────────────────────────────────────────────────
+  PASO 4 — Restaurar stock al cancelar CONFIRMADO
+  Archivo: backend/app/modules/pedidos/service.py
+  Regla:   RN-FS05
+─────────────────────────────────────────────────────────────
+
+  PROBLEMA:
+    No hay lógica para restaurar stock cuando se cancela un
+    pedido que ya estaba CONFIRMADO (stock ya descontado).
+
+  SOLUCIÓN:
+    En transicionar_estado(), cuando estado_hasta == "CANCELADO"
+    y el pedido viene de CONFIRMADO:
+
+    1. Recorrer pedido.detalles
+    2. Para cada detalle, buscar el producto y SUMAR la cantidad
+    3. Atómico dentro de la misma UoW
+
+  Pseudocódigo:
+    if estado_hasta == "CANCELADO" and estado_actual == "CONFIRMADO":
+        for detalle in pedido.detalles:
+            producto = uow.productos.get_by_id(detalle.producto_id)
+            producto.stock_cantidad += detalle.cantidad
+            uow.productos.update(producto)
+
+  NOTA: Si se cancela desde PENDIENTE, NO hay que restaurar
+        stock porque nunca se descontó.
+
+─────────────────────────────────────────────────────────────
+  PASO 5 — Validar firma del webhook de MercadoPago
+  Archivo: backend/app/modules/pagos/router.py
+  Regla:   RN-PA04, US-046
+─────────────────────────────────────────────────────────────
+
+  PROBLEMA:
+    El endpoint POST /api/v1/pagos/webhook no verifica que la
+    solicitud realmente venga de MercadoPago. Cualquiera podría
+    mandar un POST y modificar estados de pago.
+
+  SOLUCIÓN:
+    MP manda headers x-signature y x-request-id. Se puede usar
+    el SDK de MP para validar o verificar manualmente.
+
+    Opción A (SDK de MP):
+      from mercadopago import SDK
+      # MP SDK ya tiene validación de firma incorporada
+
+    Opción B (manual):
+      - MP envía header "x-signature" con HMAC-SHA256
+      - Verificar contra el secret (MP_WEBHOOK_SECRET en .env)
+      - Si no coincide → 401 Unauthorized
+
+    También validar que el MP_PAYMENT_ID de la notificación
+    realmente existe en MP (ya se hace en sync_from_mp, pero
+    el webhook directo debería hacer lo mismo).
+
+─────────────────────────────────────────────────────────────
+  PASO 6 — Webhook responder 200 inmediato (async)
+  Archivo: backend/app/modules/pagos/router.py
+  Regla:   US-046
+─────────────────────────────────────────────────────────────
+
+  PROBLEMA:
+    El webhook procesa todo sincrónicamente dentro del request.
+    Si MP tarda o hay error, MP puede reintentar y duplicar.
+
+  SOLUCIÓN:
+    1. Recibir el webhook, validar firma
+    2. Responder HTTP 200 INMEDIATAMENTE
+    3. Procesar en background (BackgroundTasks de FastAPI)
+
+  Ejemplo:
+    from fastapi import BackgroundTasks
+
+    @router.post("/webhook")
+    def webhook_mp(body: WebhookMPRequest, bg: BackgroundTasks):
+        bg.add_task(PagoService.process_webhook_async, body)
+        return {"status": "ok"}
+
+  NOTA: Si usás BackgroundTasks, process_webhook necesita su
+        propia UoW (no puede usar la del request porque la
+        sesión ya se cerró). Crear UnitOfWork() adentro.
+
+─────────────────────────────────────────────────────────────
+  RESUMEN — ORDEN RECOMENDADO
+─────────────────────────────────────────────────────────────
+
+  1. PASO 1 — Agregar PENDIENTE → CANCELADO al FSM
+     → 1 línea, sin riesgo
+
+  2. PASO 2 — Bloquear PENDIENTE → CONFIRMADO manual
+     → 4 líneas, validación en el router
+
+  3. PASO 3 — Decrementar stock al confirmar
+     → ~15 líneas, crítico para negocio
+
+  4. PASO 4 — Restaurar stock al cancelar confirmado
+     → ~10 líneas, depende del PASO 3
+
+  5. PASO 5 — Validar firma webhook
+     → ~10 líneas, seguridad
+
+  6. PASO 6 — Webhook async (200 inmediato)
+     → Refactor chico del webhook endpoint
+
+─────────────────────────────────────────────────────────────
+  ARCHIVOS AFECTADOS
+─────────────────────────────────────────────────────────────
+
+  backend/app/modules/pedidos/service.py   → PASOS 1, 3, 4
+  backend/app/modules/pedidos/router.py    → PASO 2
+  backend/app/modules/pagos/router.py      → PASOS 5, 6
+  backend/app/modules/pagos/service.py     → PASO 5, 6
+  backend/.env / backend/app/core/config.py → PASO 5 (secret)
+
+═══════════════════════════════════════════════════════════════
+  Que la fuerza te acompañe 🚀
+═══════════════════════════════════════════════════════════════
