@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePedidos } from '@entities/api/pedidosApi'
-import { ROUTES } from '@shared/config/routes'
+import { ROUTES, orderDetailPath } from '@shared/config/routes'
 import type { EstadoPedidoCodigo } from '@entities/types'
 
 const STATUS_STYLES: Record<string, string> = {
@@ -103,7 +103,7 @@ export default function OrdersPage() {
           {filtered.map((pedido) => (
             <Link
               key={pedido.id}
-              to={`/orders/${pedido.id}`}
+              to={orderDetailPath(pedido.id)}
               className="block bg-white rounded-lg border border-stone-200 p-4 hover:border-brand-300 transition-colors"
             >
               <div className="flex items-center justify-between">

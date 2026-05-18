@@ -14,12 +14,12 @@
  *
  * Requisito US-062: validación de formato de teléfono.
  */
-const PHONE_REGEX = /^(\+54\d{10,12}|\d{6,15})$/
+const PHONE_REGEX = /^(\+54\d{10,12}|\d{8,15})$/
 
 /**
  * Valida formato de teléfono argentino.
  *
- * @param phone - Número de teléfono a validar. Vacío/untilizado es válido (campo opcional).
+ * @param phone - Número de teléfono a validar. Vacío/no utilizado es válido (campo opcional).
  * @returns Mensaje de error si es inválido, undefined si es válido.
  */
 export function validatePhone(phone: string | undefined | null): string | undefined {
@@ -29,7 +29,7 @@ export function validatePhone(phone: string | undefined | null): string | undefi
   const compact = phone.replace(/\s+/g, '')
 
   if (!PHONE_REGEX.test(compact)) {
-    return 'Formato de teléfono inválido. Usá +5491112345678 o número local (6-15 dígitos).'
+    return 'Formato de teléfono inválido. Usá +5491112345678 o número local (8-15 dígitos).'
   }
 
   return undefined

@@ -253,8 +253,10 @@ class Pedido(SQLModel, table=True):
         max_digits=10, decimal_places=2,
         sa_column=Column(Numeric(10, 2), nullable=False),
     )
+    # Costo de envío al momento de crear el pedido. Se setea desde
+    # ``PedidoService.COSTO_ENVIO`` (fuente única de verdad).
     costo_envio: Decimal = Field(
-        max_digits=10, decimal_places=2, default=50.00,
+        max_digits=10, decimal_places=2, default=Decimal("50.00"),
     )
     forma_pago_codigo: str = Field(
         foreign_key="formapago.codigo", max_length=20,

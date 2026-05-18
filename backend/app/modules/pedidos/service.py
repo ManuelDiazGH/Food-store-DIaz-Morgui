@@ -2,42 +2,72 @@
 
 Máquina de estados (FSM):
   PENDIENTE → CONFIRMADO
+  PENDIENTE → CANCELADO
   CONFIRMADO → EN_PREPARACION
   CONFIRMADO → CANCELADO
   EN_PREPARACION → EN_CAMINO
   EN_CAMINO → ENTREGADO
   ENTREGADO (terminal)
   CANCELADO (terminal)
+
+Stock:
+- Al crear el pedido se descuenta el stock atómicamente.
+- Al cancelar (cualquier estado no terminal) se restituye el stock.
 """
-from datetime import datetime, timezone
 from decimal import Decimal
 
 from app.core.uow import UnitOfWork
-from app.modules.pedidos.schemas import CrearPedidoRequest, EstadoUpdateRequest
-from app.models.all_models import Pedido, DetallePedido, HistorialEstadoPedido, DireccionEntrega
+from app.modules.pedidos.schemas import CrearPedidoRequest
+from app.models.all_models import Pedido, DetallePedido, HistorialEstadoPedido
 
 # ── FSM transitions ──────────────────────────────────────────────
+# Nota: se incluye PENDIENTE → CANCELADO para que el cliente pueda
+# abandonar un pedido sin pagar.
 VALID_TRANSITIONS: dict[str, set[str]] = {
-    "PENDIENTE": {"CONFIRMADO"},
+    "PENDIENTE": {"CONFIRMADO", "CANCELADO"},
     "CONFIRMADO": {"EN_PREPARACION", "CANCELADO"},
-    "EN_PREPARACION": {"EN_CAMINO"},
+    "EN_PREPARACION": {"EN_CAMINO", "CANCELADO"},
     "EN_CAMINO": {"ENTREGADO"},
     "ENTREGADO": set(),  # Terminal
-    "CANCELADO": set(),   # Terminal
+    "CANCELADO": set(),  # Terminal
 }
 
-COSTO_ENVIO = Decimal("50.00")
+# ── Costos fijos del negocio ─────────────────────────────────────
+# Fuente única de verdad. El default del modelo y los schemas leen de acá.
+COSTO_ENVIO: Decimal = Decimal("50.00")
 
 
 class PedidoService:
 
     @staticmethod
     def create(uow: UnitOfWork, usuario_id: int, data: CrearPedidoRequest) -> Pedido:
-        """Crea un pedido con snapshots y audit trail."""
+        """Crea un pedido con snapshots, audit trail y descuento de stock atómico.
+
+        Validaciones:
+        - Cada producto existe, no está eliminado y está disponible.
+        - Hay stock suficiente para la cantidad pedida.
+        - Si se especifica ``direccion_id``, la dirección debe pertenecer al
+          ``usuario_id`` autenticado (RN-PE07).
+
+        Efectos colaterales:
+        - Descuenta ``cantidad`` del stock de cada producto.
+        - Crea entry inicial en ``HistorialEstadoPedido`` (PENDIENTE).
+        """
+        # ── Validar dirección (ownership) si se pasa ──
+        if data.direccion_id is not None:
+            direccion = uow.direcciones.get_by_id(data.direccion_id)
+            if direccion is None or direccion.eliminado_en is not None:
+                raise ValueError("Dirección no encontrada")
+            if direccion.usuario_id != usuario_id:
+                raise ValueError("La dirección no pertenece al usuario")
+        else:
+            direccion = None
+
         total = COSTO_ENVIO  # Arrancar con el costo de envío
 
-        # Verificar productos y calcular total
+        # ── Verificar productos, calcular total y reservar stock ──
         detalle_objects: list[DetallePedido] = []
+        productos_a_descontar: list[tuple] = []  # (producto, cantidad)
         for item in data.items:
             producto = uow.productos.get_by_id(item.producto_id)
             if producto is None or producto.eliminado_en is not None:
@@ -45,7 +75,10 @@ class PedidoService:
             if not producto.disponible:
                 raise ValueError(f"Producto '{producto.nombre}' no disponible")
             if producto.stock_cantidad < item.cantidad:
-                raise ValueError(f"Stock insuficiente para '{producto.nombre}'")
+                raise ValueError(
+                    f"Stock insuficiente para '{producto.nombre}' "
+                    f"(disponible: {producto.stock_cantidad}, pedido: {item.cantidad})"
+                )
 
             subtotal = producto.precio_base * item.cantidad
             total += subtotal
@@ -59,8 +92,15 @@ class PedidoService:
                 personalizacion=item.personalizacion,
             )
             detalle_objects.append(detalle)
+            productos_a_descontar.append((producto, item.cantidad))
 
-        # Crear pedido
+        # ── Descontar stock atómicamente (misma transacción) ──
+        for producto, cantidad in productos_a_descontar:
+            producto.stock_cantidad -= cantidad
+            uow.session.add(producto)
+        uow.session.flush()
+
+        # ── Crear pedido ──
         pedido = Pedido(
             usuario_id=usuario_id,
             estado_codigo="PENDIENTE",
@@ -72,25 +112,23 @@ class PedidoService:
         )
 
         # Address snapshot (RN-PE03)
-        if data.direccion_id is not None:
-            direccion = uow.direcciones.get_by_id(data.direccion_id)
-            if direccion is not None:
-                pedido.direccion_snapshot_alias = direccion.alias
-                pedido.direccion_snapshot_linea1 = direccion.linea1
-                pedido.direccion_snapshot_linea2 = direccion.linea2
-                pedido.direccion_snapshot_ciudad = direccion.ciudad
-                pedido.direccion_snapshot_cp = direccion.cp
+        if direccion is not None:
+            pedido.direccion_snapshot_alias = direccion.alias
+            pedido.direccion_snapshot_linea1 = direccion.linea1
+            pedido.direccion_snapshot_linea2 = direccion.linea2
+            pedido.direccion_snapshot_ciudad = direccion.ciudad
+            pedido.direccion_snapshot_cp = direccion.cp
 
         uow.pedidos.create(pedido)
         uow.session.flush()  # Obtener pedido.id
 
-        # Asignar pedido_id a detalles y crearlos
+        # ── Asignar pedido_id a detalles y crearlos ──
         for detalle in detalle_objects:
             detalle.pedido_id = pedido.id
             uow.session.add(detalle)
-        uow.session.flush()  # Obtener IDs de detalles
+        uow.session.flush()
 
-        # Crear historial inicial (PENDIENTE, sin estado_desde)
+        # ── Historial inicial (PENDIENTE, sin estado_desde) ──
         historial = HistorialEstadoPedido(
             pedido_id=pedido.id,
             estado_desde=None,
@@ -98,7 +136,7 @@ class PedidoService:
             usuario_id=usuario_id,
         )
         uow.session.add(historial)
-        uow.session.flush()  # Obtener ID del historial
+        uow.session.flush()
 
         # Poblar relaciones para evitar lazy-load fuera de sesión
         pedido.detalles = detalle_objects
@@ -183,6 +221,10 @@ class PedidoService:
         return uow.pedidos.get_by_usuario(usuario_id, offset=offset, limit=limit)
 
     @staticmethod
+    def count_by_usuario(uow: UnitOfWork, usuario_id: int) -> int:
+        return uow.pedidos.count_by_usuario(usuario_id)
+
+    @staticmethod
     def get_all(uow: UnitOfWork, offset: int = 0, limit: int = 100) -> list[Pedido]:
         return uow.pedidos.get_all(offset=offset, limit=limit)
 
@@ -217,6 +259,8 @@ class PedidoService:
     ) -> Pedido:
         """Transiciona el estado de un pedido validando la FSM.
 
+        Si la transición es a CANCELADO, restituye el stock de los detalles.
+
         Raises:
             ValueError: Si la transición no es válida o el pedido está en estado terminal.
         """
@@ -238,6 +282,10 @@ class PedidoService:
                 f"Transiciones válidas: {', '.join(sorted(validos)) or 'ninguna'}"
             )
 
+        # Si se cancela, restituir stock.
+        if estado_hasta == "CANCELADO":
+            PedidoService._restore_stock(uow, pedido)
+
         # Actualizar estado del pedido
         pedido.estado_codigo = estado_hasta
         uow.pedidos.update(pedido)
@@ -253,3 +301,15 @@ class PedidoService:
         uow.session.add(historial)
 
         return pedido
+
+    @staticmethod
+    def _restore_stock(uow: UnitOfWork, pedido: Pedido) -> None:
+        """Restituye el stock de todos los items de un pedido (al cancelar)."""
+        for detalle in pedido.detalles:
+            producto = uow.productos.get_by_id(detalle.producto_id)
+            if producto is None:
+                # Producto borrado mientras tanto: lo saltamos en silencio.
+                continue
+            producto.stock_cantidad += detalle.cantidad
+            uow.session.add(producto)
+        uow.session.flush()

@@ -133,8 +133,6 @@ class ProductoService:
 
         items = []
         for p in productos:
-            # Obtener nombres de categorías
-            cat_repo = uow.productos  # Usar el mismo repo
             cat_ids = uow.productos.get_categoria_ids(p.id)
             categoria_nombres = []
             for cid in cat_ids:
@@ -148,6 +146,10 @@ class ProductoService:
                 precio_base=p.precio_base,
                 imagen=p.imagen,
                 disponible=p.disponible,
+                hay_stock=p.stock_cantidad > 0,
+                # stock_cantidad solo se expone en vistas de admin/stock.
+                stock_cantidad=p.stock_cantidad if incluir_eliminados else None,
+                eliminado_en=p.eliminado_en if incluir_eliminados else None,
                 categorias=categoria_nombres,
             ))
 
@@ -159,8 +161,17 @@ class ProductoService:
         )
 
     @staticmethod
-    def get_detalle(uow: UnitOfWork, producto_id: int) -> ProductoDetalleRead:
-        """Retorna detalle completo de un producto con categorías e ingredientes."""
+    def get_detalle(
+        uow: UnitOfWork,
+        producto_id: int,
+        *,
+        include_stock_count: bool = False,
+    ) -> ProductoDetalleRead:
+        """Retorna detalle completo de un producto con categorías e ingredientes.
+
+        ``include_stock_count``: cuando es True se expone ``stock_cantidad``
+        (uso interno de roles ADMIN/STOCK; el catálogo público lo deja en None).
+        """
         producto = uow.productos.get_by_id_with_relations(producto_id)
         if producto is None or producto.eliminado_en is not None:
             raise ValueError("Producto no encontrado")
@@ -196,6 +207,7 @@ class ProductoService:
             imagen=producto.imagen,
             disponible=producto.disponible,
             hay_stock=producto.stock_cantidad > 0,
+            stock_cantidad=producto.stock_cantidad if include_stock_count else None,
             categorias=categorias,
             ingredientes=ingredientes,
         )

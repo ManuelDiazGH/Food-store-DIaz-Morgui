@@ -13,7 +13,7 @@ interface MenuItem {
 }
 
 const CLIENT_ITEMS: MenuItem[] = [
-  { to: ROUTES.HOME, label: 'Catálogo' },
+  { to: ROUTES.CATALOG, label: 'Catálogo' },
   { to: ROUTES.CART, label: 'Carrito' },
   { to: ROUTES.ORDERS, label: 'Pedidos' },
   { to: ROUTES.PROFILE, label: 'Perfil' },
@@ -37,7 +37,7 @@ const ADMIN_ITEMS: MenuItem[] = [
 ]
 
 const UNAUTH_ITEMS: MenuItem[] = [
-  { to: ROUTES.HOME, label: 'Catálogo' },
+  { to: ROUTES.CATALOG, label: 'Catálogo' },
 ]
 
 function getMenuItems(roles: RolCodigo[]): MenuItem[] {

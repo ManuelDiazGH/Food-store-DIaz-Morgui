@@ -80,10 +80,7 @@ export default function OrderDetailPanelPage() {
     )
   }
 
-  const validTransitions = getValidTransitions(pedido.estado_codigo)
-  const allActions = pedido.estado_codigo === 'PENDIENTE'
-    ? [...validTransitions, 'CANCELADO']
-    : validTransitions
+  const allActions = getValidTransitions(pedido.estado_codigo)
 
   const addressParts = [
     pedido.direccion_snapshot_linea1,
@@ -138,8 +135,11 @@ export default function OrderDetailPanelPage() {
           <div className="bg-white rounded-lg border border-stone-200 p-6">
             <h2 className="text-lg font-semibold text-stone-900 mb-4">Datos del Cliente</h2>
             <div className="text-sm text-stone-700 space-y-1">
-              <p><span className="font-medium text-stone-900">Nombre:</span> {pedido.usuario?.nombre || `Usuario #${pedido.usuario_id}`}</p>
-              <p><span className="font-medium text-stone-900">Email:</span> {pedido.usuario?.nombre ? `${pedido.usuario_id}@email.com` : '—'}</p>
+              <p><span className="font-medium text-stone-900">Nombre:</span> {pedido.usuario?.nombre ?? `Usuario #${pedido.usuario_id}`}</p>
+              <p><span className="font-medium text-stone-900">Email:</span> {pedido.usuario?.email ?? '—'}</p>
+              {pedido.usuario?.telefono && (
+                <p><span className="font-medium text-stone-900">Teléfono:</span> {pedido.usuario.telefono}</p>
+              )}
               <p><span className="font-medium text-stone-900">ID Usuario:</span> #{pedido.usuario_id}</p>
               <p><span className="font-medium text-stone-900">Forma de pago:</span> {pedido.forma_pago_codigo}</p>
             </div>
@@ -170,11 +170,11 @@ export default function OrderDetailPanelPage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-stone-600">
                 <span>Subtotal</span>
-                <span>${(Number(pedido.total) - 50).toFixed(2)}</span>
+                <span>${(Number(pedido.total) - Number(pedido.costo_envio)).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Envío</span>
-                <span>$50.00</span>
+                <span>${Number(pedido.costo_envio).toFixed(2)}</span>
               </div>
               <div className="border-t border-stone-200 pt-2 flex justify-between">
                 <span className="font-semibold text-stone-900">Total</span>

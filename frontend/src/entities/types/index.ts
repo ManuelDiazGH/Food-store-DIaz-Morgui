@@ -112,6 +112,10 @@ export interface ProductoCatalogoRead {
   precio_base: number
   imagen?: string
   disponible: boolean
+  hay_stock?: boolean
+  /** Solo presente en vistas de admin/stock (incluir_eliminados=true). */
+  stock_cantidad?: number
+  eliminado_en?: string
   categorias: string[]
 }
 
@@ -136,6 +140,8 @@ export interface ProductoDetalleRead {
   imagen?: string
   disponible: boolean
   hay_stock: boolean
+  /** Solo presente cuando el solicitante tiene rol ADMIN o STOCK. */
+  stock_cantidad?: number
   categorias: ProductoCategoriaRead[]
   ingredientes: ProductoIngredienteRead[]
 }
@@ -208,7 +214,7 @@ export type EstadoPedidoCodigo =
 export interface Pedido {
   id: number
   usuario_id: number
-  usuario?: { id: number; nombre: string }
+  usuario?: { id: number; nombre: string; email: string; telefono?: string }
   estado_codigo: EstadoPedidoCodigo
   total: number
   costo_envio: number

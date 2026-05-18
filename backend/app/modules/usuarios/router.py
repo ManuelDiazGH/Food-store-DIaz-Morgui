@@ -12,20 +12,27 @@ from app.models.all_models import Usuario
 router = APIRouter(prefix="/api/v1/usuarios", tags=["Usuarios"])
 
 
-@router.get("", response_model=list[UsuarioRead])
+@router.get("", response_model=list[UsuarioRead],
+            dependencies=[Depends(require_role("ADMIN"))])
 def list_usuarios(
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=100, ge=1, le=100),
 ):
-    """Lista todos los usuarios activos (soft delete filtrado)."""
+    """Lista todos los usuarios activos (soft delete filtrado). Solo ADMIN."""
     with UnitOfWork() as uow:
         usuarios = UsuarioService.get_all(uow, offset=offset, limit=limit)
         return [UsuarioRead.from_usuario(u) for u in usuarios]
 
 
 @router.get("/{id}", response_model=UsuarioRead)
-def get_usuario(id: int):
-    """Obtiene un usuario por ID."""
+def get_usuario(
+    id: int,
+    current_user: Annotated[Usuario, Depends(get_current_user)],
+):
+    """Obtiene un usuario por ID. ADMIN ve a cualquiera; un usuario solo a sí mismo."""
+    is_admin = "ADMIN" in [ur.rol_codigo for ur in current_user.roles]
+    if current_user.id != id and not is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Sin permisos")
     with UnitOfWork() as uow:
         try:
             usuario = UsuarioService.get_by_id(uow, id)

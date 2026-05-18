@@ -8,7 +8,7 @@ Configura:
 """
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -93,7 +93,9 @@ def create_app() -> FastAPI:
     @app.exception_handler(Exception)
     async def rfc7807_handler(request: Request, exc: Exception):
         """Middleware de errores global con formato RFC 7807."""
-        status_code = getattr(exc, "status_code", 500)
+        if isinstance(exc, HTTPException):
+            raise exc
+        status_code = 500
         detail = str(exc) if str(exc) else "Internal Server Error"
 
         # Las respuestas generadas por exception_handler en FastAPI/Starlette

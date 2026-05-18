@@ -71,12 +71,17 @@ class AuthService:
         """
         usuario = uow.auth.get_active_by_email(email)
 
-        # RN-AU08: No revelar si el email existe
-        if usuario is None or not verify_password(password, usuario.password_hash):
+        # RN-AU08: No diferenciar email inexistente / contraseña incorrecta /
+        # cuenta desactivada. Cualquiera de los tres devuelve el mismo error
+        # para no permitir enumerar cuentas válidas.
+        credenciales_ok = (
+            usuario is not None
+            and verify_password(password, usuario.password_hash)
+            and usuario.activo
+        )
+        if not credenciales_ok:
             raise ValueError("Credenciales inválidas")
-
-        if not usuario.activo:
-            raise ValueError("Cuenta desactivada")
+        assert usuario is not None  # type narrowing
 
         # Generar access token
         roles = [ur.rol_codigo for ur in usuario.roles]

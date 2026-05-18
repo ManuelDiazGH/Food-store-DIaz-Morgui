@@ -3,12 +3,16 @@ import { useTransicionarEstado } from '@entities/api/pedidosApi'
 
 /**
  * Returns the set of valid next states for a given current state.
- * Matches the FSM defined in PedidoService.
+ * Matches the FSM defined in PedidoService (backend).
+ *
+ * Cualquier estado no terminal puede cancelarse — lo que evita que el operador
+ * vea botones que el backend va a rechazar.
  */
 export function getValidTransitions(estadoActual: string): string[] {
   const transitions: Record<string, string[]> = {
+    PENDIENTE: ['CONFIRMADO', 'CANCELADO'],
     CONFIRMADO: ['EN_PREPARACION', 'CANCELADO'],
-    EN_PREPARACION: ['EN_CAMINO'],
+    EN_PREPARACION: ['EN_CAMINO', 'CANCELADO'],
     EN_CAMINO: ['ENTREGADO'],
   }
   return transitions[estadoActual] ?? []

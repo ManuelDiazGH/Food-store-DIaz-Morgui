@@ -16,6 +16,9 @@ from app.models.all_models import Usuario
 
 # ── Security scheme ─────────────────────────────────────────────────
 _bearer_scheme = HTTPBearer()
+# Variante "opcional": no falla con 401 cuando no hay Authorization header.
+# Útil en endpoints públicos que cambian de comportamiento si hay sesión.
+_bearer_scheme_optional = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
@@ -63,6 +66,25 @@ def get_current_user(
         _ = usuario.refresh_tokens  # noqa: F841
 
     return usuario
+
+
+def get_current_user_optional(
+    credentials: Annotated[
+        HTTPAuthorizationCredentials | None, Depends(_bearer_scheme_optional)
+    ] = None,
+) -> Usuario | None:
+    """Versión opcional de ``get_current_user``.
+
+    Retorna ``None`` si no hay Authorization header.
+    Si hay token pero es inválido/expirado, igual retorna ``None``
+    en vez de tirar 401 — el endpoint decide qué hacer.
+    """
+    if credentials is None:
+        return None
+    try:
+        return get_current_user(credentials)
+    except HTTPException:
+        return None
 
 
 def require_role(*allowed_roles: str):

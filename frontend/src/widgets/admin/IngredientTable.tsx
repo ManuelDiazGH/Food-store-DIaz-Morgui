@@ -1,5 +1,5 @@
-/** IngredientTable — Paginated table of ingredients with allergen filter. */
-import { useState } from 'react'
+/** IngredientTable — Tabla de ingredientes con filtro de alérgenos. */
+import { useMemo, useState } from 'react'
 import { DataTable, type Column } from '@shared/ui/DataTable'
 import { useIngredients } from '@features/admin/api/ingredientes'
 import type { IngredienteRead } from '@entities/api/ingredientes'
@@ -9,16 +9,24 @@ interface IngredientTableProps {
   onDelete: (ingredient: IngredienteRead) => void
 }
 
+const PAGE_SIZE = 20
+
 export function IngredientTable({ onEdit, onDelete }: IngredientTableProps) {
   const [alergenoOnly, setAlergenoOnly] = useState(false)
   const [page, setPage] = useState(1)
-  const limit = 20
 
+  // Cargamos hasta 100 ingredientes (límite del backend) y paginamos en cliente.
+  // Si en el futuro hubiera más, mover paginación a server-side.
   const { data: ingredients = [], isLoading } = useIngredients({
     alergeno: alergenoOnly || undefined,
-    offset: (page - 1) * limit,
-    limit,
+    offset: 0,
+    limit: 100,
   })
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE
+    return ingredients.slice(start, start + PAGE_SIZE)
+  }, [ingredients, page])
 
   const columns: Column<IngredienteRead>[] = [
     {
@@ -93,10 +101,10 @@ export function IngredientTable({ onEdit, onDelete }: IngredientTableProps) {
       ) : (
         <DataTable
           columns={columns}
-          data={ingredients}
+          data={paginated}
           total={ingredients.length}
           page={page}
-          limit={limit}
+          limit={PAGE_SIZE}
           onPageChange={setPage}
           emptyMessage="No hay ingredientes para mostrar"
         />

@@ -1,5 +1,5 @@
 """Schemas de Productos — Pydantic v2."""
-from datetime import datetime
+from datetime import datetime  # noqa: F401  (usado en ProductoCatalogoRead.eliminado_en)
 from decimal import Decimal
 from typing import Literal, Optional
 
@@ -64,22 +64,32 @@ class ProductoIngredienteRead(BaseModel):
 # ── Schemas Sprint 3 — Catálogo público ─────────────────────────────
 
 class ProductoCatalogoRead(BaseModel):
-    """Respuesta para listado público del catálogo.
-    No expone stock_cantidad (solo disponible booleano)."""
+    """Respuesta para listado del catálogo.
+
+    ``hay_stock``: para el catálogo público (siempre presente).
+    ``stock_cantidad``: solo poblado en vistas de admin/stock (``incluir_eliminados=true``),
+    en el resto se omite por privacidad.
+    """
     id: int
     nombre: str
     precio_base: Decimal
     imagen: Optional[str] = None
     disponible: bool
+    hay_stock: bool = True
+    stock_cantidad: Optional[int] = None
     categorias: list[str] = []
+    eliminado_en: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
 
 
 class ProductoDetalleRead(BaseModel):
     """Respuesta para detalle de producto.
+
     Incluye relaciones con categorías e ingredientes.
-    hay_stock es booleano (no revela cantidad exacta)."""
+    ``hay_stock`` es booleano (catálogo público).
+    ``stock_cantidad`` se expone solo a roles ADMIN/STOCK.
+    """
     id: int
     nombre: str
     descripcion: Optional[str] = None
@@ -87,6 +97,7 @@ class ProductoDetalleRead(BaseModel):
     imagen: Optional[str] = None
     disponible: bool
     hay_stock: bool
+    stock_cantidad: Optional[int] = None
     categorias: list[ProductoCategoriaRead] = []
     ingredientes: list[ProductoIngredienteRead] = []
 

@@ -211,11 +211,11 @@ export default function OrderDetailPage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-stone-600">
                 <span>Subtotal</span>
-                <span>${(Number(pedido.total) - 50).toFixed(2)}</span>
+                <span>${(Number(pedido.total) - Number(pedido.costo_envio)).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Envío</span>
-                <span>$50.00</span>
+                <span>${Number(pedido.costo_envio).toFixed(2)}</span>
               </div>
               <div className="border-t border-stone-200 pt-2 flex justify-between">
                 <span className="font-semibold text-stone-900">Total</span>

@@ -3,8 +3,15 @@
 Configurado con MP_ACCESS_TOKEN desde settings.
 Usa el SDK oficial de MercadoPago para crear preferencias de pago.
 """
+import hashlib
+import hmac
+import logging
+from typing import Optional
+
 import mercadopago
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 # Singleton del SDK de MercadoPago
 # Se inicializa una sola vez con el access token
@@ -22,6 +29,17 @@ def get_mp_sdk() -> mercadopago.SDK:
             )
         _sdk = mercadopago.SDK(settings.MP_ACCESS_TOKEN)
     return _sdk
+
+
+def _frontend_url() -> str:
+    """URL base del frontend para back_urls.
+
+    Usa ``FRONTEND_URL`` si está seteada; si no, cae al primer
+    origen de ``CORS_ORIGINS`` por compatibilidad.
+    """
+    if settings.FRONTEND_URL:
+        return settings.FRONTEND_URL.rstrip("/")
+    return settings.CORS_ORIGINS.split(",")[0].strip().rstrip("/")
 
 
 def crear_preferencia_pago(
@@ -51,7 +69,7 @@ def crear_preferencia_pago(
     sdk = get_mp_sdk()
 
     if back_urls is None:
-        frontend_url = settings.CORS_ORIGINS.split(",")[0].strip()
+        frontend_url = _frontend_url()
         back_urls = {
             "success": f"{frontend_url}/orders/{pedido_id}?payment=success",
             "failure": f"{frontend_url}/orders/{pedido_id}?payment=failure",
@@ -84,3 +102,69 @@ def crear_preferencia_pago(
         raise RuntimeError(f"Error al crear preferencia de pago: {error_detail}")
 
     return result["response"]
+
+
+# ── Webhook signature verification ──────────────────────────────────
+
+def _parse_signature_header(x_signature: str) -> tuple[Optional[str], Optional[str]]:
+    """Parsea ``x-signature: ts=...,v1=...`` y retorna (ts, v1) o (None, None)."""
+    ts: Optional[str] = None
+    v1: Optional[str] = None
+    for part in x_signature.split(","):
+        key, _, value = part.strip().partition("=")
+        if key == "ts":
+            ts = value
+        elif key == "v1":
+            v1 = value
+    return ts, v1
+
+
+def verify_webhook_signature(
+    *,
+    x_signature: Optional[str],
+    x_request_id: Optional[str],
+    data_id: str,
+) -> bool:
+    """Valida firma HMAC-SHA256 del webhook de MercadoPago.
+
+    Manifest oficial:
+        id:{data.id};request-id:{x-request-id};ts:{ts};
+
+    El header ``x-signature`` viene como ``ts=...,v1=<hmac>``.
+
+    Política:
+    - Si ``MP_WEBHOOK_SECRET`` está vacío:
+        * En producción se considera inválido (debería estar configurado).
+        * En desarrollo se loguea y se acepta (para no romper testing local sin ngrok).
+    - Si está configurado, se valida con ``hmac.compare_digest``.
+    """
+    secret = settings.MP_WEBHOOK_SECRET
+
+    if not secret:
+        if settings.is_production():
+            logger.warning("MP_WEBHOOK_SECRET no configurado en producción — webhook rechazado")
+            return False
+        logger.warning("MP_WEBHOOK_SECRET no configurado — aceptando webhook en dev sin validar firma")
+        return True
+
+    if not x_signature or not x_request_id or not data_id:
+        logger.warning("Webhook MP sin headers de firma requeridos")
+        return False
+
+    ts, v1 = _parse_signature_header(x_signature)
+    if not ts or not v1:
+        logger.warning("Header x-signature mal formado")
+        return False
+
+    manifest = f"id:{data_id};request-id:{x_request_id};ts:{ts};"
+    expected = hmac.new(
+        secret.encode("utf-8"),
+        manifest.encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+
+    if not hmac.compare_digest(expected, v1):
+        logger.warning("Firma del webhook MP no coincide")
+        return False
+
+    return True

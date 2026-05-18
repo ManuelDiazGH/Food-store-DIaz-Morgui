@@ -20,13 +20,15 @@ export function ProductIngredientSelect({ selected, onChange }: ProductIngredien
 
   const isSelected = (id: number) => selected.some((s) => s.ingrediente_id === id)
 
-  const getRemovible = (id: number) => selected.find((s) => s.ingrediente_id === id)?.es_removible ?? false
+  const getRemovible = (id: number) => selected.find((s) => s.ingrediente_id === id)?.es_removible ?? true
 
   const toggleIngredient = (id: number) => {
     if (isSelected(id)) {
       onChange(selected.filter((s) => s.ingrediente_id !== id))
     } else {
-      onChange([...selected, { ingrediente_id: id, es_removible: false }])
+      // Default: removible (coincide con el seed y la expectativa del cliente
+      // de poder pedir "sin X"). El admin lo desmarca para ingredientes fijos.
+      onChange([...selected, { ingrediente_id: id, es_removible: true }])
     }
   }
 

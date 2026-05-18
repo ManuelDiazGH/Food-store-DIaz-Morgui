@@ -33,7 +33,8 @@ def list_pedidos(
     with UnitOfWork() as uow:
         if usuario_id:
             items = PedidoService.get_by_usuario(uow, usuario_id, offset=(page - 1) * limit, limit=limit)
-            return PedidoListResponse(items=items, total=len(items), page=page, limit=limit)
+            total = PedidoService.count_by_usuario(uow, usuario_id)
+            return PedidoListResponse(items=items, total=total, page=page, limit=limit)
         items, total = PedidoService.listar_pedidos(
             uow, q=q, estado=estado, desde=desde, hasta=hasta, page=page, limit=limit,
         )
@@ -93,8 +94,33 @@ def transicionar_estado(
     body: EstadoUpdateRequest,
     current_user: Annotated[Usuario, Depends(get_current_user)],
 ):
-    """Transiciona el estado de un pedido (FSM validada)."""
+    """Transiciona el estado de un pedido (FSM validada).
+
+    Permisos:
+    - ADMIN o PEDIDOS: cualquier transición.
+    - CLIENT: solo puede CANCELAR su propio pedido (cualquier estado no terminal).
+    """
+    user_roles = [ur.rol_codigo for ur in current_user.roles]
+    is_staff = any(r in user_roles for r in ("ADMIN", "PEDIDOS"))
+
     with UnitOfWork() as uow:
+        pedido_existente = uow.pedidos.get_by_id(id)
+        if pedido_existente is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pedido no encontrado")
+
+        if not is_staff:
+            # CLIENT: solo dueño y solo CANCELADO.
+            if pedido_existente.usuario_id != current_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="No tenés permiso sobre este pedido",
+                )
+            if body.estado_hasta != "CANCELADO":
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Solo podés cancelar tu pedido",
+                )
+
         try:
             pedido = PedidoService.transicionar_estado(
                 uow, id, body.estado_hasta, current_user.id, body.observacion

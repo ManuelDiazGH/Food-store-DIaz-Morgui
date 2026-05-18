@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Pedido } from '@entities/types'
 import { useOrderActions, getValidTransitions } from '../hooks/useOrderActions'
+import { orderPanelDetailPath } from '@shared/config/routes'
 import { StateTransitionButton } from './StateTransitionButton'
 import { TransitionModal } from './TransitionModal'
 
@@ -81,20 +82,16 @@ export function OrderTable({ pedidos }: OrderTableProps) {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {pedidos.map((pedido) => {
-              const validTransitions = getValidTransitions(pedido.estado_codigo)
-              // Add CANCELADO for PENDIENTE
-              const allActions = pedido.estado_codigo === 'PENDIENTE'
-                ? ['CANCELADO']
-                : validTransitions
+              const allActions = getValidTransitions(pedido.estado_codigo)
 
               return (
                 <tr key={pedido.id} className="hover:bg-stone-50 transition-colors">
                     <td className="px-4 py-3">
-                    <Link to={`/orders-panel/${pedido.id}`} className="font-medium text-brand-600 hover:underline">
+                    <Link to={orderPanelDetailPath(pedido.id)} className="font-medium text-brand-600 hover:underline">
                       #{pedido.id}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-stone-700">{pedido.usuario?.nombre || `Usuario #${pedido.usuario_id}`}</td>
+                  <td className="px-4 py-3 text-stone-700">{pedido.usuario?.nombre ?? `Usuario #${pedido.usuario_id}`}</td>
                   <td className="px-4 py-3 text-stone-500">
                     {new Date(pedido.created_at).toLocaleDateString('es-AR', {
                       day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',

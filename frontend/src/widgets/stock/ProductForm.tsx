@@ -9,7 +9,8 @@ export interface ProductFormData {
   nombre: string
   descripcion: string
   precio_base: number
-  stock_cantidad: number
+  /** Solo se envía cuando se crea el producto (en edición se gestiona aparte vía StockManager). */
+  stock_cantidad?: number
   imagen: string
   disponible: boolean
   categoria_ids: number[]
@@ -42,7 +43,8 @@ export function ProductForm({ open, onClose, onSubmit, initialData, loading }: P
       setNombre(initialData.nombre)
       setDescripcion(initialData.descripcion ?? '')
       setPrecioBase(String(initialData.precio_base))
-      setStockCantidad(String(0))
+      // En edición el stock NO se setea desde acá: se gestiona en StockManager.
+      setStockCantidad('')
       setImagen(initialData.imagen ?? '')
       setDisponible(initialData.disponible)
       setCategoriaIds(initialData.categorias?.map((c) => c.id) ?? [])
@@ -91,7 +93,8 @@ export function ProductForm({ open, onClose, onSubmit, initialData, loading }: P
       nombre: nombre.trim(),
       descripcion: descripcion.trim(),
       precio_base: precio,
-      stock_cantidad: isEditing ? 0 : parseInt(stockCantidad, 10),
+      // En edición no se manda stock_cantidad para no pisar el valor real.
+      ...(isEditing ? {} : { stock_cantidad: parseInt(stockCantidad, 10) }),
       imagen: imagen.trim(),
       disponible,
       categoria_ids: categoriaIds,

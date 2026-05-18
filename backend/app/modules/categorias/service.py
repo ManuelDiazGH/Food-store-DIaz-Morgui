@@ -12,8 +12,7 @@ class CategoriaService:
         if existing:
             raise ValueError("Ya existe una categoría con ese nombre")
 
-        # Validar que padre_id no crearía ciclo (una categoría no puede ser su propio padre)
-        if data.padre_id is not None and data.padre_id == 0:
+        if data.padre_id == 0:
             raise ValueError("padre_id no puede ser 0")
 
         categoria = Categoria(

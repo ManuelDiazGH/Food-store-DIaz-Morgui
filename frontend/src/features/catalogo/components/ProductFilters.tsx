@@ -74,7 +74,7 @@ export function ProductFilters({ onFilterChange, currentFilters }: ProductFilter
           <option value="">Todas las categorías</option>
           {flatCategories.map((cat) => (
             <option key={cat.id} value={cat.id}>
-              {'  '.repeat(cat.level)}{cat.nombre}
+              {'  '.repeat(cat.level)}{cat.nombre}
             </option>
           ))}
         </select>

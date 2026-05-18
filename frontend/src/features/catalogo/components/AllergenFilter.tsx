@@ -12,7 +12,7 @@ export function AllergenFilter({ selectedIds, onChange }: AllergenFilterProps) {
     queryKey: ['ingredientes', 'alergenos'],
     queryFn: async () => {
       const { data } = await api.get<Ingrediente[]>('/api/v1/ingredientes', {
-        params: { esAlergeno: true },
+        params: { alergeno: true },
       })
       return data.filter((i) => i.es_alergeno)
     },

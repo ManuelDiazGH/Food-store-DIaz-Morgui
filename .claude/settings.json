@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(engram --help)",
+      "Bash(engram sync --status)"
+    ]
+  }
+}

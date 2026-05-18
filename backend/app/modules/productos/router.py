@@ -9,7 +9,7 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.core.uow import UnitOfWork
-from app.core.dependencies import get_current_user, require_role
+from app.core.dependencies import get_current_user, get_current_user_optional, require_role
 from app.modules.productos.schemas import (
     ProductoCatalogoRead,
     ProductoCategoriasUpdate,
@@ -31,18 +31,18 @@ router = APIRouter(prefix="/api/v1/productos", tags=["Productos"])
 
 @router.get("", response_model=ProductoListResponse)
 def list_productos(
+    current_user: Annotated[Optional[Usuario], Depends(get_current_user_optional)] = None,
     categoria: Optional[int] = Query(default=None, alias="categoria", description="Filtrar por categoría ID"),
     busqueda: Optional[str] = Query(default=None, description="Buscar por nombre (ILIKE)"),
     excluir_alergenos: Optional[str] = Query(default=None, description="IDs de alérgenos a excluir, separados por coma"),
     page: int = Query(default=1, ge=1, description="Número de página"),
     limit: int = Query(default=20, ge=1, le=100, description="Items por página"),
     incluir_eliminados: bool = Query(default=False, description="Incluir productos eliminados (solo ADMIN/STOCK)"),
-    current_user: Optional[Annotated[Usuario, Depends(get_current_user)]] = None,
 ):
     """Lista productos del catálogo con filtros y paginación.
 
-    Público: solo productos disponibles y no eliminados.
-    ADMIN/STOCK con ?incluir_eliminados=true: ve todos.
+    Público: solo productos disponibles, con stock > 0 y no eliminados.
+    ADMIN/STOCK con ?incluir_eliminados=true: ve todos (incluso eliminados y agotados).
     """
     # Parsear alérgenos
     alergenos_list = None
@@ -84,11 +84,23 @@ def list_productos(
 # ── GET /productos/:id — Detalle con relaciones ────────────────────
 
 @router.get("/{id}", response_model=ProductoDetalleRead)
-def get_producto(id: int):
-    """Detalle de producto con categorías, ingredientes y alérgenos."""
+def get_producto(
+    id: int,
+    current_user: Annotated[Optional[Usuario], Depends(get_current_user_optional)] = None,
+):
+    """Detalle de producto con categorías, ingredientes y alérgenos.
+
+    Si el usuario está autenticado y tiene rol ADMIN o STOCK, también se
+    incluye ``stock_cantidad`` (oculto para el público).
+    """
+    include_stock = False
+    if current_user is not None:
+        user_roles = [ur.rol_codigo for ur in current_user.roles]
+        include_stock = any(r in user_roles for r in ("ADMIN", "STOCK"))
+
     with UnitOfWork() as uow:
         try:
-            return ProductoService.get_detalle(uow, id)
+            return ProductoService.get_detalle(uow, id, include_stock_count=include_stock)
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 

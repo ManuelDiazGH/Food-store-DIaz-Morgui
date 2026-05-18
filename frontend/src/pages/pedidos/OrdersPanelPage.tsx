@@ -58,7 +58,7 @@ export default function OrdersPanelPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-stone-900"> Panel de Pedidos</h1>
+        <h1 className="text-2xl font-bold text-stone-900">Panel de Pedidos</h1>
         <span className="text-xs text-stone-400">Actualización automática cada 30s</span>
       </div>
 
@@ -110,7 +110,7 @@ export default function OrdersPanelPage() {
       {/* Empty state */}
       {!isLoading && !error && pedidos.length === 0 && (
         <div className="text-center py-16 bg-white rounded-lg border border-stone-200">
-          <span className="text-5xl block mb-4"></span>
+          <span className="text-5xl block mb-4">📋</span>
           <p className="text-stone-500">
             No hay pedidos{filters.estado ? ` en estado "${STATUS_LABELS[filters.estado]}"` : ''}
             {filters.q ? ` con "${filters.q}"` : ''}

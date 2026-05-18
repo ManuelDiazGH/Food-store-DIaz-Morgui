@@ -3,7 +3,7 @@
 Carga:
 - 4 Roles: ADMIN, STOCK, PEDIDOS, CLIENT
 - 6 Estados de pedido: PENDIENTE, CONFIRMADO, EN_PREPARACION, EN_CAMINO, ENTREGADO, CANCELADO
-- 3 Formas de pago: MERCADOPAGO, RAPIPAGO, PAGOFACIL
+- 4 Formas de pago: EFECTIVO, MERCADOPAGO, RAPIPAGO, PAGOFACIL
 - 1 Usuario admin: admin@foodstore.com / admin123
 """
 from sqlmodel import Session, select

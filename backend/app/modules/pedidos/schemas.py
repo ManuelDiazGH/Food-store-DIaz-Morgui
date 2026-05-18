@@ -56,11 +56,23 @@ class PagoEstadoRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class UsuarioMini(BaseModel):
+    """Sub-vista del usuario embebida en el pedido (para panel de admin/pedidos)."""
+    id: int
+    nombre: str
+    email: str
+    telefono: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+
+
 class PedidoRead(BaseModel):
     id: int
     usuario_id: int
+    usuario: Optional[UsuarioMini] = None
     estado_codigo: str
     total: Decimal
+    # El valor real viene del Pedido; el default es solo para retro-compat de tests.
     costo_envio: Decimal = Decimal("50.00")
     forma_pago_codigo: str
     direccion_id: Optional[int] = None

@@ -22,7 +22,7 @@ function ProductCreatePageInner() {
         nombre: data.nombre,
         descripcion: data.descripcion || undefined,
         precio_base: data.precio_base,
-        stock_cantidad: data.stock_cantidad,
+        stock_cantidad: data.stock_cantidad ?? 0,
         imagen: data.imagen || undefined,
         disponible: data.disponible,
       })

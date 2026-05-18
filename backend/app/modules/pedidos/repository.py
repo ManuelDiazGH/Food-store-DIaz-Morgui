@@ -2,6 +2,7 @@
 
 Incluye queries específicos para FSM, audit trail y búsqueda con filtros.
 """
+from datetime import datetime, time, timezone
 from typing import Optional
 
 from sqlalchemy import func
@@ -11,17 +12,42 @@ from app.core.base_repository import BaseRepository
 from app.models.all_models import Pedido, DetallePedido, HistorialEstadoPedido, EstadoPedido, Usuario
 
 
+def _parse_iso_date_start(s: str) -> datetime:
+    """Parsea 'YYYY-MM-DD' (o ISO completo) a inicio del día UTC."""
+    dt = datetime.fromisoformat(s)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
+def _parse_iso_date_end(s: str) -> datetime:
+    """Parsea 'YYYY-MM-DD' a 23:59:59.999999 UTC para que el día quede incluido."""
+    base = datetime.fromisoformat(s)
+    if base.tzinfo is None:
+        base = base.replace(tzinfo=timezone.utc)
+    # Si el caller ya pasó un timestamp con hora distinta a 00:00:00 lo respetamos.
+    if base.time() != time(0, 0, 0):
+        return base
+    return datetime.combine(base.date(), time.max, tzinfo=timezone.utc)
+
+
 class PedidoRepository(BaseRepository[Pedido]):
 
     def get_by_usuario(self, usuario_id: int, offset: int = 0, limit: int = 100) -> list[Pedido]:
-        """Retorna pedidos de un usuario."""
+        """Retorna pedidos de un usuario, ordenados del más reciente al más viejo."""
         stmt = (
             select(Pedido)
             .where(Pedido.usuario_id == usuario_id)
+            .order_by(Pedido.created_at.desc())
             .offset(offset)
             .limit(limit)
         )
         return list(self.session.exec(stmt).all())
+
+    def count_by_usuario(self, usuario_id: int) -> int:
+        """Cuenta total de pedidos de un usuario (para paginación)."""
+        stmt = select(func.count()).select_from(Pedido).where(Pedido.usuario_id == usuario_id)
+        return self.session.exec(stmt).one() or 0
 
     def search(
         self,
@@ -61,12 +87,15 @@ class PedidoRepository(BaseRepository[Pedido]):
             count_stmt = count_stmt.where(Pedido.estado_codigo == estado)
 
         if desde:
-            stmt = stmt.where(Pedido.created_at >= desde)
-            count_stmt = count_stmt.where(Pedido.created_at >= desde)
+            desde_dt = _parse_iso_date_start(desde)
+            stmt = stmt.where(Pedido.created_at >= desde_dt)
+            count_stmt = count_stmt.where(Pedido.created_at >= desde_dt)
 
         if hasta:
-            stmt = stmt.where(Pedido.created_at <= hasta)
-            count_stmt = count_stmt.where(Pedido.created_at <= hasta)
+            # Fin de día inclusivo: "2026-05-18" cubre todo el 18 de mayo.
+            hasta_dt = _parse_iso_date_end(hasta)
+            stmt = stmt.where(Pedido.created_at <= hasta_dt)
+            count_stmt = count_stmt.where(Pedido.created_at <= hasta_dt)
 
         total = self.session.exec(count_stmt).one()
 

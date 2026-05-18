@@ -1,9 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useCartStore } from '@features/cart/store/cartStore'
 import { useDirecciones } from '@entities/api/direccionesApi'
 import { useCreatePedido, useIniciarPago } from '@entities/api/pedidosApi'
-import { ROUTES } from '@shared/config/routes'
+import { ROUTES, orderDetailPath } from '@shared/config/routes'
+import { COSTO_ENVIO_PREVIEW } from '@shared/config/pricing'
+
+const FORMAS_PAGO = [
+  { codigo: 'MERCADOPAGO', label: 'Mercado Pago' },
+  { codigo: 'EFECTIVO', label: 'Efectivo (al recibir)' },
+  { codigo: 'RAPIPAGO', label: 'Rapipago' },
+  { codigo: 'PAGOFACIL', label: 'Pago Fácil' },
+] as const
 
 export default function CheckoutPage() {
   const navigate = useNavigate()
@@ -13,16 +21,18 @@ export default function CheckoutPage() {
   const iniciarPago = useIniciarPago()
 
   const [selectedDireccionId, setSelectedDireccionId] = useState<number | null>(null)
+  const [formaPago, setFormaPago] = useState<string>('MERCADOPAGO')
   const [error, setError] = useState('')
   const [createdPedidoId, setCreatedPedidoId] = useState<number | null>(null)
   const [pagoInitPoint, setPagoInitPoint] = useState<string | null>(null)
   const [pagoLoading, setPagoLoading] = useState(false)
 
-  // Pre-select default address
-  const defaultDir = direcciones?.find((d) => d.es_principal)
-  if (!selectedDireccionId && defaultDir) {
-    setSelectedDireccionId(defaultDir.id)
-  }
+  // Pre-seleccionar dirección principal cuando llegan los datos.
+  useEffect(() => {
+    if (selectedDireccionId !== null) return
+    const defaultDir = direcciones?.find((d) => d.es_principal)
+    if (defaultDir) setSelectedDireccionId(defaultDir.id)
+  }, [direcciones, selectedDireccionId])
 
   // Empty cart — redirect to catalog
   if (items.length === 0 && !createdPedidoId) {
@@ -80,7 +90,7 @@ export default function CheckoutPage() {
 
         <div className="flex justify-center gap-4 mt-6">
           <Link
-            to={`/orders/${createdPedidoId}`}
+            to={orderDetailPath(createdPedidoId)}
             className="px-6 py-3 text-sm font-semibold text-white bg-brand-600 rounded-lg hover:bg-brand-700"
           >
             Ver detalle del pedido
@@ -105,7 +115,7 @@ export default function CheckoutPage() {
     }
 
     const payload = {
-      forma_pago_codigo: 'MERCADOPAGO',
+      forma_pago_codigo: formaPago,
       direccion_id: selectedDireccionId,
       items: items.map((i) => ({
         producto_id: i.producto.id,
@@ -117,17 +127,20 @@ export default function CheckoutPage() {
     createPedido.mutate(payload, {
       onSuccess: (pedido) => {
         setCreatedPedidoId(pedido.id)
-        // Auto-initiate payment after order creation
+        // Solo iniciamos el flujo de MP cuando la forma de pago es MercadoPago.
+        if (formaPago !== 'MERCADOPAGO') {
+          navigate(orderDetailPath(pedido.id))
+          return
+        }
         setPagoLoading(true)
         iniciarPago.mutate(
-          { pedido_id: pedido.id, forma_pago_codigo: 'MERCADOPAGO' },
+          { pedido_id: pedido.id, forma_pago_codigo: formaPago },
           {
             onSuccess: (res) => {
               setPagoInitPoint(res.init_point)
               setPagoLoading(false)
-              // Abrir MP en nueva pestaña y quedarse en el detalle del pedido
               window.open(res.init_point, '_blank')
-              navigate(`/orders/${pedido.id}`)
+              navigate(orderDetailPath(pedido.id))
             },
             onError: (_err) => {
               setError('Pedido creado, pero no se pudo iniciar el pago. Podés pagar desde Mis Pedidos.')
@@ -153,7 +166,7 @@ export default function CheckoutPage() {
           setPagoInitPoint(res.init_point)
           setPagoLoading(false)
           window.open(res.init_point, '_blank')
-          navigate(`/orders/${createdPedidoId}`)
+          navigate(orderDetailPath(createdPedidoId))
         },
         onError: (err) => {
           setError(err.message || 'Error al iniciar el pago')
@@ -183,6 +196,32 @@ export default function CheckoutPage() {
                     ${(item.producto.precio_base * item.cantidad).toFixed(2)}
                   </span>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Payment method selection */}
+          <div className="bg-white rounded-lg border border-stone-200 p-6">
+            <h2 className="text-lg font-semibold text-stone-900 mb-4">Forma de pago</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {FORMAS_PAGO.map((fp) => (
+                <label
+                  key={fp.codigo}
+                  className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                    formaPago === fp.codigo
+                      ? 'border-brand-300 bg-brand-50'
+                      : 'border-stone-200 hover:border-stone-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="forma_pago"
+                    checked={formaPago === fp.codigo}
+                    onChange={() => setFormaPago(fp.codigo)}
+                    className="text-brand-600 focus:ring-brand-500"
+                  />
+                  <span className="text-sm text-stone-700">{fp.label}</span>
+                </label>
               ))}
             </div>
           </div>
@@ -249,12 +288,12 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-sm text-stone-600">
                 <span>Envío</span>
-                <span>$50.00</span>
+                <span>${COSTO_ENVIO_PREVIEW.toFixed(2)}</span>
               </div>
               <div className="border-t border-stone-200 pt-3 flex justify-between">
                 <span className="text-base font-semibold text-stone-900">Total</span>
                 <span className="text-xl font-bold text-brand-600">
-                  ${(totalPrice() + 50).toFixed(2)}
+                  ${(totalPrice() + COSTO_ENVIO_PREVIEW).toFixed(2)}
                 </span>
               </div>
             </div>

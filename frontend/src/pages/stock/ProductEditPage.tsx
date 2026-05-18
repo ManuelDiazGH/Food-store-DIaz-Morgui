@@ -73,6 +73,8 @@ function ProductEditPageInner() {
     )
   }
 
+  const currentStock = product.stock_cantidad
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <ZustandToastContainer />
@@ -109,7 +111,11 @@ function ProductEditPageInner() {
           </button>
         </div>
         <p className="text-sm text-stone-600">
-          Stock actual: <span className="font-semibold">{product.hay_stock ? 'Con stock' : 'Sin stock'}</span>
+          Stock actual:{' '}
+          <span className="font-semibold">
+            {currentStock ?? (product.hay_stock ? 'Con stock' : 'Sin stock')}
+            {currentStock !== undefined && ' unidades'}
+          </span>
         </p>
       </div>
 
@@ -117,7 +123,7 @@ function ProductEditPageInner() {
         open={showStockManager}
         onClose={() => setShowStockManager(false)}
         onSubmit={handleStockSubmit}
-        currentStock={0}
+        currentStock={currentStock ?? 0}
         productName={product.nombre}
       />
     </div>

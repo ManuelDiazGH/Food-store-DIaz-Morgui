@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCartStore } from '@features/cart/store/cartStore'
 import { ROUTES } from '@shared/config/routes'
+import { COSTO_ENVIO_PREVIEW } from '@shared/config/pricing'
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, totalPrice } = useCartStore()
@@ -125,16 +126,18 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between text-sm text-stone-600">
                 <span>Costo de envío</span>
-                <span className="text-stone-400">A calcular</span>
+                <span>${COSTO_ENVIO_PREVIEW.toFixed(2)}</span>
               </div>
               <div className="border-t border-stone-200 pt-3 flex justify-between">
                 <span className="text-base font-semibold text-stone-900">Total</span>
-                <span className="text-xl font-bold text-brand-600">${totalPrice().toFixed(2)}</span>
+                <span className="text-xl font-bold text-brand-600">
+                  ${(totalPrice() + COSTO_ENVIO_PREVIEW).toFixed(2)}
+                </span>
               </div>
             </div>
 
             <Link
-              to="/checkout"
+              to={ROUTES.CHECKOUT}
               className="block w-full mt-6 py-3 text-sm font-semibold text-center text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
             >
               Proceder al checkout

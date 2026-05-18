@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom'
 import { useAuthStore } from '@features/auth/store/authStore'
 import { useMe } from '@entities/api/authApi'
+import { ROUTES } from '@shared/config/routes'
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user)
@@ -7,10 +9,10 @@ export default function DashboardPage() {
   const displayName = meData?.nombre ?? user?.nombre ?? 'Usuario'
 
   const cards = [
-    { label: 'Mis Pedidos', desc: 'Ver historial de pedidos', to: '/orders' },
-    { label: 'Mi Carrito', desc: 'Productos seleccionados', to: '/cart' },
-    { label: 'Mis Direcciones', desc: 'Gestionar direcciones de entrega', to: '/addresses' },
-    { label: 'Mi Perfil', desc: 'Editar datos personales', to: '/profile' },
+    { label: 'Mis Pedidos', desc: 'Ver historial de pedidos', to: ROUTES.ORDERS },
+    { label: 'Mi Carrito', desc: 'Productos seleccionados', to: ROUTES.CART },
+    { label: 'Mis Direcciones', desc: 'Gestionar direcciones de entrega', to: ROUTES.ADDRESSES },
+    { label: 'Mi Perfil', desc: 'Editar datos personales', to: ROUTES.PROFILE },
   ]
 
   return (
@@ -24,14 +26,14 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card) => (
-          <a
+          <Link
             key={card.to}
-            href={card.to}
+            to={card.to}
             className="block rounded-xl bg-white p-6 shadow-sm hover:shadow-md hover:ring-2 hover:ring-brand-200 transition-all"
           >
             <h3 className="font-semibold text-stone-900">{card.label}</h3>
             <p className="text-sm text-stone-500 mt-1">{card.desc}</p>
-          </a>
+          </Link>
         ))}
       </div>
     </div>
