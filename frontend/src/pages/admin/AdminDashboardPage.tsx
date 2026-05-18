@@ -39,12 +39,18 @@ export default function AdminDashboardPage() {
 
   const metrics = useDashboardMetrics(desde, hasta)
   const ventas = useVentasPorPeriodo(desde, hasta, granularidad)
-  const topProductos = useTopProductos(10)
-  const pedidosEstado = usePedidosPorEstado()
+  const topProductos = useTopProductos(10, desde, hasta)
+  const pedidosEstado = usePedidosPorEstado(desde, hasta)
 
-  const loading = metrics.isLoading || ventas.isLoading || topProductos.isLoading || pedidosEstado.isLoading
+  // Solo bloqueamos en el primer load. En refetches por cambio de filtro,
+  // mostramos la data anterior para evitar un spinner full-page que tape todo.
+  const initialLoading =
+    (metrics.isLoading && !metrics.data) ||
+    (ventas.isLoading && !ventas.data) ||
+    (topProductos.isLoading && !topProductos.data) ||
+    (pedidosEstado.isLoading && !pedidosEstado.data)
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <Spinner size="lg" />
@@ -64,7 +70,7 @@ export default function AdminDashboardPage() {
       {/* Metric cards */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-stone-500">Usuarios</p>
+          <p className="text-sm font-medium text-stone-500">Clientes</p>
           <p className="mt-1 text-3xl font-bold text-stone-900">{m?.total_usuarios ?? 0}</p>
         </div>
         <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
@@ -193,7 +199,7 @@ export default function AdminDashboardPage() {
           ) : (
             <div className="space-y-3">
               <div className="flex justify-between border-b border-stone-100 pb-2">
-                <span className="text-sm text-stone-600">Usuarios registrados</span>
+                <span className="text-sm text-stone-600">Clientes activos</span>
                 <span className="font-semibold">{m?.total_usuarios ?? 0}</span>
               </div>
               <div className="flex justify-between border-b border-stone-100 pb-2">

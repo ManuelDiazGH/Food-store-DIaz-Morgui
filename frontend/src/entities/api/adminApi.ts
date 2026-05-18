@@ -32,22 +32,30 @@ export function useVentasPorPeriodo(desde?: string, hasta?: string, granularidad
   })
 }
 
-export function useTopProductos(top?: number) {
+export function useTopProductos(top?: number, desde?: string, hasta?: string) {
   return useQuery<TopProducto[]>({
-    queryKey: ['admin', 'top-productos', top],
+    queryKey: ['admin', 'top-productos', top, desde, hasta],
     queryFn: async () => {
-      const params = top ? `?top=${top}` : ''
-      const { data } = await api.get<TopProducto[]>(`/api/v1/admin/metricas/productos-top${params}`)
+      const params = new URLSearchParams()
+      if (top) params.set('top', String(top))
+      if (desde) params.set('desde', desde)
+      if (hasta) params.set('hasta', hasta)
+      const qs = params.toString()
+      const { data } = await api.get<TopProducto[]>(`/api/v1/admin/metricas/productos-top${qs ? `?${qs}` : ''}`)
       return data
     },
   })
 }
 
-export function usePedidosPorEstado() {
+export function usePedidosPorEstado(desde?: string, hasta?: string) {
   return useQuery<PedidoPorEstado[]>({
-    queryKey: ['admin', 'pedidos-estado'],
+    queryKey: ['admin', 'pedidos-estado', desde, hasta],
     queryFn: async () => {
-      const { data } = await api.get<PedidoPorEstado[]>('/api/v1/admin/metricas/pedidos-por-estado')
+      const params = new URLSearchParams()
+      if (desde) params.set('desde', desde)
+      if (hasta) params.set('hasta', hasta)
+      const qs = params.toString()
+      const { data } = await api.get<PedidoPorEstado[]>(`/api/v1/admin/metricas/pedidos-por-estado${qs ? `?${qs}` : ''}`)
       return data
     },
   })
