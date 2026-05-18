@@ -97,9 +97,12 @@ export function useCreatePedido() {
       return data
     },
     onSuccess: () => {
-      // Invalidamos el prefijo ['pedidos'] para que también se refresque el
-      // panel admin/gestor (no solo la lista del usuario actual).
-      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.all })
+      // refetchType:'all' fuerza refetch incluso de queries inactivas
+      // (p.ej. la lista del panel admin si el cliente crea desde otra pestaña).
+      queryClient.invalidateQueries({
+        queryKey: PEDIDOS_KEYS.all,
+        refetchType: 'all',
+      })
       // Clear cart after successful order
       useCartStore.getState().clearCart()
     },
@@ -163,9 +166,12 @@ export function useSyncPago(pedidoId: number) {
     },
     onSuccess: () => {
       // El sync con MP puede haber auto-transicionado el pedido a CONFIRMADO,
-      // así que invalidamos el prefijo entero ['pedidos'] para refrescar
-      // detalles, listas del cliente y panel admin.
-      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.all })
+      // así que invalidamos el prefijo entero ['pedidos'] forzando refetch
+      // de queries inactivas (panel admin si no está visible).
+      queryClient.invalidateQueries({
+        queryKey: PEDIDOS_KEYS.all,
+        refetchType: 'all',
+      })
       queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.pagos(pedidoId) })
     },
   })
@@ -196,12 +202,14 @@ export function useAllPedidosPaginated(filters: OrderFilters = {}) {
       const { data } = await api.get<PedidoListResponse>('/api/v1/pedidos', { params })
       return data
     },
-    // Refresh automático cada 30s. La UI del panel lo promete y los operarios
-    // ven los cambios sin tener que recargar la página manualmente.
-    refetchInterval: 30_000,
+    // Refresh automático cada 10s. Es un panel operativo y los gestores
+    // esperan ver los cambios casi al instante (transiciones, pedidos nuevos).
+    refetchInterval: 10_000,
     refetchIntervalInBackground: false,
-    // Forzamos a "stale" para que invalidateQueries de mutaciones siempre
-    // dispare refetch (el default de 5min ocultaba transiciones recién hechas).
+    // Cuando el gestor vuelve a la pestaña, refrescamos los datos.
+    refetchOnWindowFocus: true,
+    // staleTime: 0 + refetchOnMount default → toda navegación al panel
+    // ejecuta una refetch fresca, así no se ven datos pre-transición.
     staleTime: 0,
   })
 }
@@ -231,13 +239,20 @@ export function useTransicionarEstado(pedidoId: number) {
       const { data } = await api.patch<Pedido>(`/api/v1/pedidos/${pedidoId}/estado`, payload)
       return data
     },
-    onSuccess: () => {
-      // Invalidación amplia: el cambio de estado afecta listas (cliente y
-      // panel), el detalle del pedido y su historial. Usamos prefijo
-      // ['pedidos'] para barrer todas las variantes paginadas/filtradas.
-      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.all })
-      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.detail(pedidoId) })
-      queryClient.invalidateQueries({ queryKey: PEDIDOS_KEYS.historial(pedidoId) })
+    onSuccess: (updatedPedido) => {
+      // 1. Update directo de la cache del detalle con la response.
+      // Si el operario está mirando el detalle del pedido recién transicionado,
+      // el cambio aparece al instante sin esperar un refetch.
+      queryClient.setQueryData(PEDIDOS_KEYS.detail(pedidoId), updatedPedido)
+
+      // 2. Invalidamos todo el árbol ['pedidos'] forzando refetch incluso de
+      // queries inactivas (refetchType: 'all'). Esto cubre el caso de que el
+      // gestor transicione el pedido en el detalle y vuelva al panel filtrado
+      // por "En preparación": la lista ya está fresca cuando llega.
+      queryClient.invalidateQueries({
+        queryKey: PEDIDOS_KEYS.all,
+        refetchType: 'all',
+      })
     },
   })
 }
