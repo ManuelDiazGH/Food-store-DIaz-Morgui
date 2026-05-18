@@ -58,11 +58,8 @@ class PagoService:
             pedido_id=pedido.id,
         )
 
-        # Almacenar mp_payment_id devuelto por MP
-        mp_payment_id = mp_response.get("id")
-        if mp_payment_id:
-            pago.mp_payment_id = str(mp_payment_id)
-            uow.session.add(pago)
+        # mp_payment_id queda None hasta que llegue el pago real (vía sync/webhook).
+        # El "id" que devuelve preference().create() es el preference_id, NO el payment_id.
 
         # En modo test MP devuelve sandbox_init_point (checkout simulado).
         # En producción solo existe init_point.
@@ -75,7 +72,7 @@ class PagoService:
         return IniciarPagoResponse(
             pago=PagoRead.model_validate(pago),
             init_point=init_point,
-            mp_payment_id=mp_payment_id,
+            mp_payment_id=None,
         )
 
     @staticmethod
@@ -111,8 +108,11 @@ class PagoService:
         mp_status_raw = mp_payment.get("status", "").upper()
         mp_payment_id = str(mp_payment.get("id", ""))
 
-        # Guardar mp_payment_id si aún no estaba
-        if mp_payment_id and not pago.mp_payment_id:
+        # Siempre sincronizar mp_payment_id con el payment_id real de MP.
+        # Antes del primer sync puede estar vacío o tener un valor stale (p.ej. preference_id de
+        # versiones previas). Sobrescribir es seguro porque (pedido_id, external_reference) ya
+        # identifican unívocamente al pago local.
+        if mp_payment_id and mp_payment_id != pago.mp_payment_id:
             pago.mp_payment_id = mp_payment_id
             uow.session.add(pago)
             uow.session.flush()
