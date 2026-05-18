@@ -69,9 +69,12 @@ def update_usuario(
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT,
                dependencies=[Depends(require_role("ADMIN"))])
 def delete_usuario(id: int):
-    """Soft delete de un usuario. Solo ADMIN."""
+    """Soft delete de un usuario. Solo ADMIN. No permite borrar al admin principal."""
     with UnitOfWork() as uow:
-        deleted = UsuarioService.delete(uow, id)
+        try:
+            deleted = UsuarioService.delete(uow, id)
+        except PermissionError as e:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
         if not deleted:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
         uow.commit()
@@ -91,13 +94,15 @@ def assign_role(id: int, body: UsuarioRolCreate):
 
 
 @router.patch("/{id}/estado", response_model=UsuarioRead,
-              dependencies=[Depends(require_role("ADMIN"))])
+               dependencies=[Depends(require_role("ADMIN"))])
 def toggle_usuario_estado(id: int, body: ToggleActivoRequest):
-    """Activa o desactiva un usuario. Solo ADMIN."""
+    """Activa o desactiva un usuario. Solo ADMIN. No permite desactivar al admin principal."""
     with UnitOfWork() as uow:
         try:
             usuario = UsuarioService.toggle_activo(uow, id, body.activo)
             uow.commit()
             return UsuarioRead.from_usuario(usuario)
+        except PermissionError as e:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
         except ValueError as e:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))

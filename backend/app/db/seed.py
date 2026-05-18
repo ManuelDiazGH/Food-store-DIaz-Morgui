@@ -68,7 +68,7 @@ def seed():
                 session.add(FormaPago(**f))
         session.commit()
 
-        # Admin user (idempotent by email)
+        # Admin user (idempotent by email — restaura si fue soft-deleteado)
         existing_admin = session.exec(
             select(Usuario).where(Usuario.email == settings.ADMIN_EMAIL)
         ).first()
@@ -80,14 +80,43 @@ def seed():
             )
             session.add(admin)
             session.flush()
-            # Assign ADMIN role
             session.add(UsuarioRol(usuario_id=admin.id, rol_codigo="ADMIN"))
             session.commit()
-            print(f"✅ Admin creado: {settings.ADMIN_EMAIL}")
+            print(f"[OK] Admin creado: {settings.ADMIN_EMAIL}")
+        elif existing_admin.eliminado_en is not None:
+            # Admin fue soft-deleteado → restaurarlo
+            existing_admin.eliminado_en = None
+            existing_admin.activo = True
+            existing_admin.password_hash = hash_password(settings.ADMIN_PASSWORD)
+            session.add(existing_admin)
+            # Asegurar rol ADMIN
+            admin_rol = session.exec(
+                select(UsuarioRol).where(
+                    UsuarioRol.usuario_id == existing_admin.id,
+                    UsuarioRol.rol_codigo == "ADMIN",
+                )
+            ).first()
+            if not admin_rol:
+                session.add(UsuarioRol(usuario_id=existing_admin.id, rol_codigo="ADMIN"))
+            session.commit()
+            print(f"[RESTORE] Admin restaurado: {settings.ADMIN_EMAIL}")
         else:
-            print(f"ℹ️  Admin ya existe: {settings.ADMIN_EMAIL}")
+            # Admin existe y está activo — asegurar que tenga rol ADMIN y esté activo
+            if not existing_admin.activo:
+                existing_admin.activo = True
+                session.add(existing_admin)
+            admin_rol = session.exec(
+                select(UsuarioRol).where(
+                    UsuarioRol.usuario_id == existing_admin.id,
+                    UsuarioRol.rol_codigo == "ADMIN",
+                )
+            ).first()
+            if not admin_rol:
+                session.add(UsuarioRol(usuario_id=existing_admin.id, rol_codigo="ADMIN"))
+            session.commit()
+            print(f"[INFO] Admin ya existe: {settings.ADMIN_EMAIL}")
 
-        print("✅ Seed completado — datos iniciales cargados exitosamente.")
+        print("[OK] Seed completado -- datos iniciales cargados exitosamente.")
 
 
 if __name__ == "__main__":

@@ -4,6 +4,9 @@ from app.core.security import hash_password
 from app.modules.usuarios.schemas import UsuarioCreate, UsuarioUpdate, UsuarioRead, UsuarioRolCreate
 from app.models.all_models import Usuario, UsuarioRol
 
+# Admin harcodeado — no se puede borrar ni desactivar
+HARDCODED_ADMIN_EMAIL = "admin@foodstore.com"
+
 
 class UsuarioService:
     """Servicio de usuarios — stateless, recibe UoW por inyección."""
@@ -57,10 +60,14 @@ class UsuarioService:
 
     @staticmethod
     def toggle_activo(uow: UnitOfWork, usuario_id: int, activo: bool) -> Usuario:
-        """Activa o desactiva un usuario. Si se desactiva, invalida sus refresh tokens."""
+        """Activa o desactiva un usuario. Si se desactiva, invalida sus refresh tokens.
+        No permite desactivar al admin harcodeado."""
         usuario = uow.usuarios.get_by_id(usuario_id)
         if usuario is None or usuario.eliminado_en is not None:
             raise ValueError("Usuario no encontrado")
+
+        if not activo and usuario.email == HARDCODED_ADMIN_EMAIL:
+            raise PermissionError("No se puede desactivar al administrador principal del sistema")
 
         usuario.activo = activo
         result = uow.usuarios.update(usuario)
@@ -73,7 +80,14 @@ class UsuarioService:
 
     @staticmethod
     def delete(uow: UnitOfWork, id: int) -> bool:
-        """Soft delete de un usuario."""
+        """Soft delete de un usuario. No permite borrar al admin harcodeado."""
+        usuario = uow.usuarios.get_by_id(id)
+        if usuario is None or usuario.eliminado_en is not None:
+            return False
+
+        if usuario.email == HARDCODED_ADMIN_EMAIL:
+            raise PermissionError("No se puede eliminar al administrador principal del sistema")
+
         return uow.usuarios.delete(id)
 
     @staticmethod
