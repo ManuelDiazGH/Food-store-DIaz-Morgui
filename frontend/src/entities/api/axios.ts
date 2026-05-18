@@ -95,11 +95,17 @@ api.interceptors.response.use(
       }
     }
 
+    // Requests con `silent: true` en su config no disparan toasts globales
+    // (útil para polling en background que no debe molestar al usuario).
+    const silent = Boolean((originalRequest as { silent?: boolean } | undefined)?.silent)
+
     const status = error.response?.status
-    if (status && status !== 401) {
-      dispatchApiError(status, error)
-    } else if (!error.response) {
-      dispatchApiError(0, error)
+    if (!silent) {
+      if (status && status !== 401) {
+        dispatchApiError(status, error)
+      } else if (!error.response) {
+        dispatchApiError(0, error)
+      }
     }
 
     return Promise.reject(error)

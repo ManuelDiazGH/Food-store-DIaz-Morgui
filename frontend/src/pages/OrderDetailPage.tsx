@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { usePedidoDetalle, useHistorialPedido, usePagoByPedido, useIniciarPago, useTransicionarEstado, useSyncPago } from '@entities/api/pedidosApi'
+import { usePedidoDetalle, useHistorialPedido, usePagoByPedido, useIniciarPago, useSyncPago } from '@entities/api/pedidosApi'
 import { ROUTES } from '@shared/config/routes'
 
 const STATUS_STYLES: Record<string, string> = {
@@ -49,7 +49,6 @@ export default function OrderDetailPage() {
   const { data: historial } = useHistorialPedido(orderId)
   const { data: pagos } = usePagoByPedido(orderId)
   const iniciarPago = useIniciarPago()
-  const transicionarEstado = useTransicionarEstado(orderId)
   const syncPago = useSyncPago(orderId)
 
   const [retryLoading, setRetryLoading] = useState(false)
@@ -58,31 +57,30 @@ export default function OrderDetailPage() {
   // Handle MP callback payment status from URL params
   const paymentStatus = searchParams.get('payment')
   const [callbackMsg, setCallbackMsg] = useState<string | null>(null)
-  const autoConfirmado = useRef(false)
 
-  // Polling: cuando el pedido está PENDIENTE con pago iniciado, sincronizar con MP cada 5s
+  // Polling: cuando el pedido está PENDIENTE con pago iniciado, sincronizar con MP.
+  // Disparamos un sync inmediato + intervalo cada 5s para no esperar a la primera
+  // confirmación. El sync es silent (no dispara toast de error en background).
   const isPendienteConPago = pedido?.estado_codigo === 'PENDIENTE' && (pagos?.length ?? 0) > 0
+  const syncMutate = syncPago.mutate
   useEffect(() => {
     if (!isPendienteConPago) return
-    const interval = setInterval(() => {
-      syncPago.mutate()
-    }, 5000)
+    syncMutate()
+    const interval = setInterval(() => syncMutate(), 5000)
     return () => clearInterval(interval)
-  }, [isPendienteConPago])
+  }, [isPendienteConPago, syncMutate])
 
   useEffect(() => {
     if (paymentStatus === 'success') {
       setCallbackMsg('Pago exitoso. Tu pedido está confirmado.')
-      if (pedido && pedido.estado_codigo === 'PENDIENTE' && !autoConfirmado.current) {
-        autoConfirmado.current = true
-        transicionarEstado.mutate({ estado_hasta: 'CONFIRMADO', observacion: 'Pago confirmado por MercadoPago' })
-      }
+      // El sync con MP es la fuente de verdad de la confirmación (no la URL).
+      // El polling de arriba se encarga de transicionar el pedido cuando MP marca APPROVED.
     } else if (paymentStatus === 'failure') {
       setCallbackMsg('El pago fue rechazado. Podés reintentarlo.')
     } else if (paymentStatus === 'pending') {
       setCallbackMsg('El pago está en proceso. Te notificaremos cuando se confirme.')
     }
-  }, [paymentStatus, pedido?.estado_codigo])
+  }, [paymentStatus])
 
   // Get latest payment
   const latestPago = pagos && pagos.length > 0

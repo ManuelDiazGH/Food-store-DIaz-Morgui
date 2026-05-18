@@ -153,7 +153,12 @@ export function useSyncPago(pedidoId: number) {
 
   return useMutation<Pago | null, Error>({
     mutationFn: async () => {
-      const { data } = await api.post<Pago | null>(`/api/v1/pagos/pedido/${pedidoId}/sync`)
+      // silent: true → polling en background, no debe disparar toasts globales.
+      const { data } = await api.post<Pago | null>(
+        `/api/v1/pagos/pedido/${pedidoId}/sync`,
+        undefined,
+        { silent: true } as never,
+      )
       return data
     },
     onSuccess: () => {

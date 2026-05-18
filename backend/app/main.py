@@ -95,6 +95,18 @@ def create_app() -> FastAPI:
         """Middleware de errores global con formato RFC 7807."""
         status_code = getattr(exc, "status_code", 500)
         detail = str(exc) if str(exc) else "Internal Server Error"
+
+        # Las respuestas generadas por exception_handler en FastAPI/Starlette
+        # NO pasan por el CORS middleware, así que el header Access-Control-Allow-Origin
+        # se pierde y el browser bloquea la respuesta con un "CORS error" engañoso.
+        # Lo agregamos manualmente cuando el Origin está en la lista permitida.
+        headers: dict[str, str] = {}
+        origin = request.headers.get("origin")
+        if origin and origin in origins:
+            headers["Access-Control-Allow-Origin"] = origin
+            headers["Access-Control-Allow-Credentials"] = "true"
+            headers["Vary"] = "Origin"
+
         return JSONResponse(
             status_code=status_code,
             content={
@@ -104,6 +116,7 @@ def create_app() -> FastAPI:
                 "detail": detail,
                 "instance": str(request.url),
             },
+            headers=headers,
         )
 
     # ── Health check ──────────────────────────────────────────────
