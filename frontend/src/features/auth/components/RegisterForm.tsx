@@ -156,11 +156,11 @@ export function RegisterForm() {
         Creá tu cuenta
       </Button>
 
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-stone-600">
         ¿Ya tenés cuenta?{' '}
         <Link
           to={ROUTES.LOGIN}
-          className="font-medium text-orange-600 hover:text-orange-700 transition-colors"
+          className="font-medium text-brand-600 hover:text-brand-700 transition-colors"
         >
           Ingresá
         </Link>

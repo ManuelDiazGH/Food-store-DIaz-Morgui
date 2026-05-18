@@ -55,26 +55,26 @@ export function AssignRoleDialog({
         className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+        <h2 className="mb-4 text-lg font-semibold text-stone-900">
           Asignar Rol a {userName}
         </h2>
 
         <div className="mb-4">
-          <p className="mb-2 text-sm text-gray-600">Roles actuales:</p>
+          <p className="mb-2 text-sm text-stone-600">Roles actuales:</p>
           <div className="flex flex-wrap gap-2">
             {currentRoles.length > 0 ? (
               currentRoles.map((role) => (
                 <RoleBadge key={role} role={role} />
               ))
             ) : (
-              <span className="text-sm text-gray-400">Sin roles asignados</span>
+              <span className="text-sm text-stone-400">Sin roles asignados</span>
             )}
           </div>
         </div>
 
         {rolesToAdd.length > 0 && (
           <div className="mb-4">
-            <p className="mb-2 text-sm text-gray-600">Roles disponibles:</p>
+            <p className="mb-2 text-sm text-stone-600">Roles disponibles:</p>
             <div className="flex flex-wrap gap-2">
               {rolesToAdd.map((role) => (
                 <Button
@@ -93,7 +93,7 @@ export function AssignRoleDialog({
         )}
 
         {rolesToAdd.length === 0 && (
-          <p className="mb-4 text-sm text-gray-500">
+          <p className="mb-4 text-sm text-stone-500">
             Este usuario ya tiene todos los roles disponibles.
           </p>
         )}

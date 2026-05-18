@@ -1,4 +1,4 @@
-/** DataTable — Reusable paginated table component with Tailwind CSS. */
+/** DataTable — Reusable paginated table. Minimalist. */
 import type { ReactNode } from 'react'
 
 export interface Column<T> {
@@ -30,36 +30,36 @@ export function DataTable<T>({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-stone-100">
+        <thead>
           <tr>
             {columns.map((col) => (
               <th
                 key={String(col.key)}
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-4 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider"
               >
                 {col.label}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="divide-y divide-stone-100">
           {data.length === 0 ? (
             <tr>
               <td
                 colSpan={columns.length}
-                className="px-4 py-8 text-center text-gray-400"
+                className="px-4 py-12 text-center text-stone-400"
               >
                 {emptyMessage}
               </td>
             </tr>
           ) : (
             data.map((row, idx) => (
-              <tr key={idx} className="hover:bg-gray-50">
+              <tr key={idx} className="hover:bg-stone-50 transition-colors">
                 {columns.map((col) => (
                   <td
                     key={String(col.key)}
-                    className="px-4 py-3 text-sm text-gray-700 whitespace-nowrap"
+                    className="px-4 py-3 text-sm text-stone-700 whitespace-nowrap"
                   >
                     {col.render
                       ? col.render(row)
@@ -73,8 +73,8 @@ export function DataTable<T>({
       </table>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-          <p className="text-sm text-gray-500">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-stone-100">
+          <p className="text-sm text-stone-500">
             Mostrando {(page - 1) * limit + 1} a{' '}
             {Math.min(page * limit, total)} de {total} resultados
           </p>
@@ -82,17 +82,17 @@ export function DataTable<T>({
             <button
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
-              className="px-3 py-1 text-sm rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-1 text-sm rounded-lg border border-stone-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 transition-colors"
             >
               Anterior
             </button>
-            <span className="px-3 py-1 text-sm text-gray-600">
-              Página {page} de {totalPages}
+            <span className="px-3 py-1 text-sm text-stone-500">
+              {page} / {totalPages}
             </span>
             <button
               onClick={() => onPageChange(page + 1)}
               disabled={page >= totalPages}
-              className="px-3 py-1 text-sm rounded border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-1 text-sm rounded-lg border border-stone-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-50 transition-colors"
             >
               Siguiente
             </button>

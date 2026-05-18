@@ -51,11 +51,11 @@ export default function DireccionesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Mis Direcciones</h1>
+        <h1 className="text-2xl font-bold text-stone-900">Mis Direcciones</h1>
         {!showForm && editingId == null && (
           <button
             onClick={() => setShowForm(true)}
-            className="px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
           >
             + Nueva dirección
           </button>
@@ -64,8 +64,8 @@ export default function DireccionesPage() {
 
       {/* Create/Edit Form */}
       {(showForm || editingId != null) && (
-        <div className="mb-6 p-4 bg-white rounded-lg border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="mb-6 p-4 bg-white rounded-lg border border-stone-200">
+          <h2 className="text-lg font-semibold text-stone-900 mb-4">
             {editingId ? 'Editar dirección' : 'Nueva dirección'}
           </h2>
           <DireccionForm
@@ -82,7 +82,7 @@ export default function DireccionesPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="text-center py-12 text-gray-400">Cargando direcciones...</div>
+        <div className="text-center py-12 text-stone-400">Cargando direcciones...</div>
       )}
 
       {/* Error */}
@@ -91,7 +91,7 @@ export default function DireccionesPage() {
           <p className="text-red-500 mb-2">Error al cargar direcciones</p>
           <button
             onClick={() => window.location.reload()}
-            className="text-orange-600 hover:underline text-sm"
+            className="text-brand-600 hover:underline text-sm"
           >
             Reintentar
           </button>
@@ -100,11 +100,11 @@ export default function DireccionesPage() {
 
       {/* Empty state */}
       {!isLoading && !error && direcciones?.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-          <p className="text-gray-500 mb-4">No tenés direcciones guardadas</p>
+        <div className="text-center py-12 bg-white rounded-lg border border-stone-200">
+          <p className="text-stone-500 mb-4">No tenés direcciones guardadas</p>
           <button
             onClick={() => setShowForm(true)}
-            className="px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors"
           >
             Agregar mi primera dirección
           </button>
@@ -133,14 +133,14 @@ export default function DireccionesPage() {
       {confirmDeleteId != null && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Eliminar dirección</h3>
-            <p className="text-sm text-gray-600 mb-6">
+            <h3 className="text-lg font-semibold text-stone-900 mb-2">Eliminar dirección</h3>
+            <p className="text-sm text-stone-600 mb-6">
               ¿Estás seguro de eliminar esta dirección? Esta acción no se puede deshacer.
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setConfirmDeleteId(null)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 transition-colors"
                 disabled={deleteDireccion.isPending}
               >
                 Cancelar

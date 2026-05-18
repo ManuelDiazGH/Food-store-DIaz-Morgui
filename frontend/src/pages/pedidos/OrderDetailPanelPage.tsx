@@ -62,7 +62,7 @@ export default function OrderDetailPanelPage() {
   }
 
   if (isLoading) {
-    return <div className="text-center py-12 text-gray-400">Cargando pedido...</div>
+    return <div className="text-center py-12 text-stone-400">Cargando pedido...</div>
   }
 
   if (error || !pedido) {
@@ -73,7 +73,7 @@ export default function OrderDetailPanelPage() {
             ? 'Pedido no encontrado'
             : 'Error al cargar el pedido'}
         </p>
-        <Link to={ROUTES.ORDERS_PANEL} className="text-orange-600 hover:underline text-sm">
+        <Link to={ROUTES.ORDERS_PANEL} className="text-brand-600 hover:underline text-sm">
           Volver al panel
         </Link>
       </div>
@@ -94,13 +94,13 @@ export default function OrderDetailPanelPage() {
     <div>
       <Link
         to={ROUTES.ORDERS_PANEL}
-        className="text-orange-600 hover:underline mb-4 inline-block text-sm"
+        className="text-brand-600 hover:underline mb-4 inline-block text-sm"
       >
         ← Volver al panel
       </Link>
 
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Pedido #{pedido.id}</h1>
+        <h1 className="text-2xl font-bold text-stone-900">Pedido #{pedido.id}</h1>
         <span className={`px-3 py-1.5 text-sm font-medium rounded-full ${STATUS_STYLES[pedido.estado_codigo] || ''}`}>
           {STATUS_LABELS[pedido.estado_codigo] || pedido.estado_codigo}
         </span>
@@ -110,14 +110,14 @@ export default function OrderDetailPanelPage() {
         {/* Left: items + customer + address */}
         <div className="lg:col-span-2 space-y-6">
           {/* Products */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Productos</h2>
+          <div className="bg-white rounded-lg border border-stone-200 p-6">
+            <h2 className="text-lg font-semibold text-stone-900 mb-4">Productos</h2>
             <div className="space-y-3">
               {pedido.detalles?.map((detalle) => (
-                <div key={detalle.id} className="flex justify-between items-start py-2 border-b border-gray-100 last:border-0">
+                <div key={detalle.id} className="flex justify-between items-start py-2 border-b border-stone-100 last:border-0">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{detalle.nombre_snapshot}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm font-medium text-stone-900">{detalle.nombre_snapshot}</p>
+                    <p className="text-xs text-stone-500">
                       ${Number(detalle.precio_snapshot).toFixed(2)} x {detalle.cantidad}
                     </p>
                     {detalle.personalizacion && detalle.personalizacion.length > 0 && (
@@ -126,7 +126,7 @@ export default function OrderDetailPanelPage() {
                       </p>
                     )}
                   </div>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-stone-900">
                     ${(Number(detalle.precio_snapshot) * detalle.cantidad).toFixed(2)}
                   </p>
                 </div>
@@ -135,29 +135,29 @@ export default function OrderDetailPanelPage() {
           </div>
 
           {/* Customer data */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Datos del Cliente</h2>
-            <div className="text-sm text-gray-700 space-y-1">
-              <p><span className="font-medium text-gray-900">Nombre:</span> {pedido.usuario?.nombre || `Usuario #${pedido.usuario_id}`}</p>
-              <p><span className="font-medium text-gray-900">Email:</span> {pedido.usuario?.nombre ? `${pedido.usuario_id}@email.com` : '—'}</p>
-              <p><span className="font-medium text-gray-900">ID Usuario:</span> #{pedido.usuario_id}</p>
-              <p><span className="font-medium text-gray-900">Forma de pago:</span> {pedido.forma_pago_codigo}</p>
+          <div className="bg-white rounded-lg border border-stone-200 p-6">
+            <h2 className="text-lg font-semibold text-stone-900 mb-4">Datos del Cliente</h2>
+            <div className="text-sm text-stone-700 space-y-1">
+              <p><span className="font-medium text-stone-900">Nombre:</span> {pedido.usuario?.nombre || `Usuario #${pedido.usuario_id}`}</p>
+              <p><span className="font-medium text-stone-900">Email:</span> {pedido.usuario?.nombre ? `${pedido.usuario_id}@email.com` : '—'}</p>
+              <p><span className="font-medium text-stone-900">ID Usuario:</span> #{pedido.usuario_id}</p>
+              <p><span className="font-medium text-stone-900">Forma de pago:</span> {pedido.forma_pago_codigo}</p>
             </div>
           </div>
 
           {/* Delivery address */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Dirección de entrega</h2>
+          <div className="bg-white rounded-lg border border-stone-200 p-6">
+            <h2 className="text-lg font-semibold text-stone-900 mb-2">Dirección de entrega</h2>
             {addressParts ? (
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-stone-700">
                 {pedido.direccion_snapshot_alias && (
-                  <p className="font-medium text-gray-900">{pedido.direccion_snapshot_alias}</p>
+                  <p className="font-medium text-stone-900">{pedido.direccion_snapshot_alias}</p>
                 )}
                 <p>{addressParts}</p>
                 <p>{pedido.direccion_snapshot_ciudad}, CP {pedido.direccion_snapshot_cp}</p>
               </div>
             ) : (
-              <p className="text-sm text-gray-400">Sin dirección especificada</p>
+              <p className="text-sm text-stone-400">Sin dirección especificada</p>
             )}
           </div>
         </div>
@@ -165,46 +165,46 @@ export default function OrderDetailPanelPage() {
         {/* Right: summary + payment + FSM actions + timeline */}
         <div className="lg:col-span-1 space-y-6">
           {/* Summary */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Resumen</h2>
+          <div className="bg-white rounded-lg border border-stone-200 p-6">
+            <h2 className="text-lg font-semibold text-stone-900 mb-4">Resumen</h2>
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-stone-600">
                 <span>Subtotal</span>
                 <span>${(Number(pedido.total) - 50).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-stone-600">
                 <span>Envío</span>
                 <span>$50.00</span>
               </div>
-              <div className="border-t border-gray-200 pt-2 flex justify-between">
-                <span className="font-semibold text-gray-900">Total</span>
-                <span className="text-lg font-bold text-orange-600">${Number(pedido.total).toFixed(2)}</span>
+              <div className="border-t border-stone-200 pt-2 flex justify-between">
+                <span className="font-semibold text-stone-900">Total</span>
+                <span className="text-lg font-bold text-brand-600">${Number(pedido.total).toFixed(2)}</span>
               </div>
             </div>
           </div>
 
           {/* Payment status */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Pago</h2>
+          <div className="bg-white rounded-lg border border-stone-200 p-6">
+            <h2 className="text-lg font-semibold text-stone-900 mb-4">Pago</h2>
             {pagos && pagos.length > 0 ? (
-              <div className="text-sm text-gray-700 space-y-1">
+              <div className="text-sm text-stone-700 space-y-1">
                 {pagos.map((pago) => (
                   <div key={pago.id}>
-                    <p><span className="font-medium text-gray-900">Estado:</span> {pago.mp_status}</p>
-                    <p className="text-xs text-gray-500">ID: {pago.mp_payment_id || '—'}</p>
+                    <p><span className="font-medium text-stone-900">Estado:</span> {pago.mp_status}</p>
+                    <p className="text-xs text-stone-500">ID: {pago.mp_payment_id || '—'}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-400">Sin pago registrado</p>
+              <p className="text-sm text-stone-400">Sin pago registrado</p>
             )}
           </div>
 
           {/* FSM Actions */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones</h2>
+          <div className="bg-white rounded-lg border border-stone-200 p-6">
+            <h2 className="text-lg font-semibold text-stone-900 mb-4">Acciones</h2>
             {allActions.length === 0 ? (
-              <p className="text-sm text-gray-400">Estado terminal — sin acciones disponibles</p>
+              <p className="text-sm text-stone-400">Estado terminal — sin acciones disponibles</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {allActions.map((estadoHasta) => (
@@ -221,28 +221,28 @@ export default function OrderDetailPanelPage() {
           </div>
 
           {/* Status history timeline */}
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Historial de estados</h2>
+          <div className="bg-white rounded-lg border border-stone-200 p-6">
+            <h2 className="text-lg font-semibold text-stone-900 mb-4">Historial de estados</h2>
             {(!historial || historial.length === 0) ? (
-              <p className="text-sm text-gray-400">Sin historial</p>
+              <p className="text-sm text-stone-400">Sin historial</p>
             ) : (
               <div className="space-y-4">
                 {[...historial].reverse().map((entry) => (
-                  <div key={entry.id} className="relative pl-6 border-l-2 border-gray-200">
-                    <div className="absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full bg-orange-500" />
+                  <div key={entry.id} className="relative pl-6 border-l-2 border-stone-200">
+                    <div className="absolute left-[-5px] top-1 w-2.5 h-2.5 rounded-full bg-brand-500" />
                     <div>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-stone-500">
                         {new Date(entry.created_at).toLocaleString('es-AR')}
                       </p>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-stone-900">
                         {entry.estado_desde ? STATUS_LABELS[entry.estado_desde] || entry.estado_desde : '—'}
                         {' → '}
                         {STATUS_LABELS[entry.estado_hasta] || entry.estado_hasta}
                       </p>
                       {entry.observacion && (
-                        <p className="text-xs text-gray-500 mt-0.5">{entry.observacion}</p>
+                        <p className="text-xs text-stone-500 mt-0.5">{entry.observacion}</p>
                       )}
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-stone-400 mt-0.5">
                         Usuario #{entry.usuario_id || '—'}
                       </p>
                     </div>

@@ -47,45 +47,45 @@ export function PasswordChangeForm() {
       {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
 
       <div>
-        <label htmlFor="passwordActual" className="block text-sm font-medium text-gray-700 mb-1">Contraseña actual</label>
+        <label htmlFor="passwordActual" className="block text-sm font-medium text-stone-700 mb-1">Contraseña actual</label>
         <input
           id="passwordActual"
           type="password"
           value={passwordActual}
           onChange={(e) => setPasswordActual(e.target.value)}
           placeholder="Tu contraseña actual"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-brand-500 focus:border-brand-500"
         />
       </div>
 
       <div>
-        <label htmlFor="passwordNueva" className="block text-sm font-medium text-gray-700 mb-1">Nueva contraseña</label>
+        <label htmlFor="passwordNueva" className="block text-sm font-medium text-stone-700 mb-1">Nueva contraseña</label>
         <input
           id="passwordNueva"
           type="password"
           value={passwordNueva}
           onChange={(e) => setPasswordNueva(e.target.value)}
           placeholder="Mínimo 8 caracteres"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-brand-500 focus:border-brand-500"
         />
       </div>
 
       <div>
-        <label htmlFor="passwordConfirm" className="block text-sm font-medium text-gray-700 mb-1">Confirmar nueva contraseña</label>
+        <label htmlFor="passwordConfirm" className="block text-sm font-medium text-stone-700 mb-1">Confirmar nueva contraseña</label>
         <input
           id="passwordConfirm"
           type="password"
           value={passwordConfirm}
           onChange={(e) => setPasswordConfirm(e.target.value)}
           placeholder="Repetir nueva contraseña"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-brand-500 focus:border-brand-500"
         />
       </div>
 
       <button
         type="submit"
         disabled={changePassword.isPending}
-        className="px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors"
+        className="px-4 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 disabled:opacity-50 transition-colors"
       >
         {changePassword.isPending ? 'Cambiando...' : 'Cambiar contraseña'}
       </button>

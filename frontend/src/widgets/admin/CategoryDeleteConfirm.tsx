@@ -29,7 +29,7 @@ export function CategoryDeleteConfirm({
               No se puede eliminar la categoría <strong>"{categoryName}"</strong> porque tiene
               subcategorías activas.
             </p>
-            <p className="text-gray-500">
+            <p className="text-stone-500">
               Reasigne o elimine las subcategorías primero.
             </p>
           </div>

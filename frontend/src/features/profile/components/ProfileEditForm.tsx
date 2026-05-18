@@ -44,43 +44,43 @@ export function ProfileEditForm() {
       {error && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
 
       <div>
-        <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+        <label htmlFor="nombre" className="block text-sm font-medium text-stone-700 mb-1">Nombre</label>
         <input
           id="nombre"
           type="text"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
           placeholder="Tu nombre"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-brand-500 focus:border-brand-500"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <label className="block text-sm font-medium text-stone-700 mb-1">Email</label>
         <input
           value={perfil?.email ?? ''}
           disabled
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-not-allowed"
+          className="w-full px-3 py-2 border border-stone-200 rounded-lg bg-stone-50 text-stone-400 cursor-not-allowed"
         />
-        <p className="text-xs text-gray-400 mt-1">El email es tu identificador y no se puede cambiar</p>
+        <p className="text-xs text-stone-400 mt-1">El email es tu identificador y no se puede cambiar</p>
       </div>
 
       <div>
-        <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+        <label htmlFor="telefono" className="block text-sm font-medium text-stone-700 mb-1">Teléfono</label>
         <input
           id="telefono"
           type="tel"
           value={telefono}
           onChange={(e) => setTelefono(e.target.value)}
           placeholder="+54911..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-brand-500 focus:border-brand-500"
         />
       </div>
 
       <button
         type="submit"
         disabled={updatePerfil.isPending}
-        className="px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors"
+        className="px-4 py-2 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 disabled:opacity-50 transition-colors"
       >
         {updatePerfil.isPending ? 'Guardando...' : 'Guardar cambios'}
       </button>

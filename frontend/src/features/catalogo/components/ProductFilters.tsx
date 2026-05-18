@@ -53,23 +53,23 @@ export function ProductFilters({ onFilterChange, currentFilters }: ProductFilter
     <div className="space-y-4">
       {/* Search */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+        <label className="block text-sm font-medium text-stone-700 mb-1">Buscar</label>
         <input
           type="text"
           value={search}
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder="Buscar producto..."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-brand-500 focus:border-brand-500"
         />
       </div>
 
       {/* Category filter */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+        <label className="block text-sm font-medium text-stone-700 mb-1">Categoría</label>
         <select
           value={selectedCategory ?? ''}
           onChange={(e) => handleCategoryChange(e.target.value ? Number(e.target.value) : undefined)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-brand-500 focus:border-brand-500"
         >
           <option value="">Todas las categorías</option>
           {flatCategories.map((cat) => (
@@ -84,7 +84,7 @@ export function ProductFilters({ onFilterChange, currentFilters }: ProductFilter
       {(currentFilters.busqueda || currentFilters.categoria) && (
         <button
           onClick={handleClearFilters}
-          className="text-sm text-orange-600 hover:text-orange-700"
+          className="text-sm text-brand-600 hover:text-brand-700"
         >
           Limpiar filtros
         </button>

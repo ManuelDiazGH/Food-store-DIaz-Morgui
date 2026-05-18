@@ -105,11 +105,11 @@ export function LoginForm() {
         Ingresá
       </Button>
 
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-stone-600">
         ¿No tenés cuenta?{' '}
         <Link
           to={ROUTES.REGISTER}
-          className="font-medium text-orange-600 hover:text-orange-700 transition-colors"
+          className="font-medium text-brand-600 hover:text-brand-700 transition-colors"
         >
           Registrate
         </Link>

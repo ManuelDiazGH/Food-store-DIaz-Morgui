@@ -59,7 +59,7 @@ export function IngredientForm({ open, onClose, onSubmit, initialData }: Ingredi
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-stone-900 mb-4">
           {isEditing ? 'Editar ingrediente' : 'Nuevo ingrediente'}
         </h2>
 
@@ -85,13 +85,13 @@ export function IngredientForm({ open, onClose, onSubmit, initialData }: Ingredi
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-sm font-medium text-stone-700 bg-white border border-stone-300 rounded-lg hover:bg-stone-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
             >
               {isEditing ? 'Guardar cambios' : 'Crear ingrediente'}
             </button>

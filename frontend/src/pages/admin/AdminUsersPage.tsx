@@ -46,10 +46,10 @@ function ConfirmDialog({ userName, onConfirm, onCancel, loading }: ConfirmDialog
         className="mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-2 text-lg font-semibold text-gray-900">
+        <h3 className="mb-2 text-lg font-semibold text-stone-900">
           Confirmar eliminación
         </h3>
-        <p className="mb-6 text-sm text-gray-600">
+        <p className="mb-6 text-sm text-stone-600">
           ¿Estás seguro de que querés eliminar al usuario <strong>{userName}</strong>? Esta acción no se puede deshacer.
         </p>
         <div className="flex justify-end gap-3">
@@ -102,7 +102,7 @@ function EditUserModal({ user, onClose, onSuccess }: EditModalProps) {
         className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-4 text-lg font-semibold text-gray-900">
+        <h3 className="mb-4 text-lg font-semibold text-stone-900">
           Editar usuario
         </h3>
         <div className="space-y-4">
@@ -146,11 +146,11 @@ interface UserRowMobileProps {
 
 function UserCardMobile({ user, onAssignRole, onEdit, onDelete, onToggle }: UserRowMobileProps) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
       <div className="mb-2 flex items-start justify-between">
         <div>
-          <p className="font-medium text-gray-900">{user.nombre}</p>
-          <p className="text-sm text-gray-500">{user.email}</p>
+          <p className="font-medium text-stone-900">{user.nombre}</p>
+          <p className="text-sm text-stone-500">{user.email}</p>
         </div>
         <div className="flex flex-wrap gap-1">
           {user.roles.map((role) => (
@@ -158,7 +158,7 @@ function UserCardMobile({ user, onAssignRole, onEdit, onDelete, onToggle }: User
           ))}
         </div>
       </div>
-      <div className="mb-3 space-y-1 text-sm text-gray-600">
+      <div className="mb-3 space-y-1 text-sm text-stone-600">
         {user.telefono && <p>Tel: {user.telefono}</p>}
         <p>Registro: {formatDate(user.created_at)}</p>
         <p>
@@ -265,7 +265,7 @@ export default function AdminUsersPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
+        <h1 className="text-2xl font-bold text-stone-900">Gestión de Usuarios</h1>
         <div className="flex gap-3 w-full sm:w-auto">
           <div className="w-full sm:w-48">
             <Input
@@ -275,7 +275,7 @@ export default function AdminUsersPage() {
             />
           </div>
           <select
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-300"
+            className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 focus:outline-none focus:ring-2 focus:ring-brand-300"
             value={roleFilter}
             onChange={(e) => { setRoleFilter(e.target.value); setPage(0) }}
           >
@@ -288,34 +288,34 @@ export default function AdminUsersPage() {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white py-12 text-center shadow-sm">
-          <p className="text-gray-500">
+        <div className="rounded-lg border border-stone-200 bg-white py-12 text-center shadow-sm">
+          <p className="text-stone-500">
             {search || roleFilter ? 'No se encontraron usuarios con esa búsqueda' : 'No hay usuarios registrados'}
           </p>
         </div>
       ) : (
         <>
           {/* Desktop table */}
-          <div className="hidden overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm md:block">
+          <div className="hidden overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm md:block">
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-gray-200 bg-gray-50">
+              <thead className="border-b border-stone-200 bg-stone-50">
                 <tr>
-                  <th className="px-4 py-3 font-medium text-gray-600">Nombre</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Email</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Roles</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Teléfono</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Estado</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Fecha registro</th>
-                  <th className="px-4 py-3 font-medium text-gray-600">Acciones</th>
+                  <th className="px-4 py-3 font-medium text-stone-600">Nombre</th>
+                  <th className="px-4 py-3 font-medium text-stone-600">Email</th>
+                  <th className="px-4 py-3 font-medium text-stone-600">Roles</th>
+                  <th className="px-4 py-3 font-medium text-stone-600">Teléfono</th>
+                  <th className="px-4 py-3 font-medium text-stone-600">Estado</th>
+                  <th className="px-4 py-3 font-medium text-stone-600">Fecha registro</th>
+                  <th className="px-4 py-3 font-medium text-stone-600">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {paginated.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium text-gray-900">
+                  <tr key={user.id} className="hover:bg-stone-50">
+                    <td className="px-4 py-3 font-medium text-stone-900">
                       {user.nombre}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{user.email}</td>
+                    <td className="px-4 py-3 text-stone-600">{user.email}</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {user.roles.map((role) => (
@@ -323,7 +323,7 @@ export default function AdminUsersPage() {
                         ))}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-stone-600">
                       {user.telefono || '—'}
                     </td>
                     <td className="px-4 py-3">
@@ -335,7 +335,7 @@ export default function AdminUsersPage() {
                         {user.activo !== false ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-stone-600">
                       {formatDate(user.created_at)}
                     </td>
                     <td className="px-4 py-3">
@@ -394,7 +394,7 @@ export default function AdminUsersPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-stone-500">
                 {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, filtered.length)} de {filtered.length} usuarios
               </p>
               <div className="flex gap-2">

@@ -32,8 +32,8 @@ export function AllergenFilter({ selectedIds, onChange }: AllergenFilterProps) {
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        ⚠️ Excluir alérgenos
+      <label className="block text-sm font-medium text-stone-700 mb-1">
+        Excluir alérgenos
       </label>
       <div className="space-y-2 max-h-48 overflow-y-auto">
         {alergenos.map((ingr) => (
@@ -42,9 +42,9 @@ export function AllergenFilter({ selectedIds, onChange }: AllergenFilterProps) {
               type="checkbox"
               checked={selectedIds.includes(ingr.id)}
               onChange={() => handleToggle(ingr.id)}
-              className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+              className="rounded border-stone-300 text-red-600 focus:ring-red-400"
             />
-            <span className="text-sm text-gray-700">{ingr.nombre}</span>
+            <span className="text-sm text-stone-700">{ingr.nombre}</span>
           </label>
         ))}
       </div>

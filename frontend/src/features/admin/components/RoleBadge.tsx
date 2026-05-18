@@ -21,7 +21,7 @@ const ROLE_CONFIG: Record<RolCodigo, { label: string; className: string }> = {
 
 const FALLBACK: { label: string; className: string } = {
   label: 'Desconocido',
-  className: 'bg-gray-100 text-gray-800',
+  className: 'bg-stone-100 text-stone-800',
 }
 
 interface RoleBadgeProps {

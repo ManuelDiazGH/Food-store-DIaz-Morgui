@@ -14,25 +14,25 @@ export function DireccionCard({ direccion, onEdit, onDelete, onSetPrincipal }: D
     <div
       className={`relative rounded-lg border p-4 transition-colors ${
         direccion.es_principal
-          ? 'border-orange-300 bg-orange-50'
-          : 'border-gray-200 bg-white hover:border-gray-300'
+          ? 'border-brand-300 bg-brand-50'
+          : 'border-stone-200 bg-white hover:border-stone-300'
       }`}
     >
       {/* Default badge */}
       {direccion.es_principal && (
-        <span className="absolute top-2 right-2 px-2 py-0.5 bg-orange-600 text-white text-xs font-medium rounded-full">
+        <span className="absolute top-2 right-2 px-2 py-0.5 bg-brand-600 text-white text-xs font-medium rounded-full">
           Principal
         </span>
       )}
 
       {/* Alias */}
       {direccion.alias && (
-        <h3 className="text-sm font-semibold text-gray-900 mb-1 pr-20">{direccion.alias}</h3>
+        <h3 className="text-sm font-semibold text-stone-900 mb-1 pr-20">{direccion.alias}</h3>
       )}
 
       {/* Address */}
-      <p className="text-sm text-gray-700">{fullAddress}</p>
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-stone-700">{fullAddress}</p>
+      <p className="text-sm text-stone-500">
         {direccion.ciudad}, CP {direccion.cp}
       </p>
 
@@ -41,14 +41,14 @@ export function DireccionCard({ direccion, onEdit, onDelete, onSetPrincipal }: D
         {!direccion.es_principal && (
           <button
             onClick={() => onSetPrincipal(direccion.id)}
-            className="text-xs px-2 py-1 rounded border border-orange-300 text-orange-700 hover:bg-orange-100 transition-colors"
+            className="text-xs px-2 py-1 rounded border border-brand-300 text-brand-700 hover:bg-brand-100 transition-colors"
           >
             Establecer como principal
           </button>
         )}
         <button
           onClick={() => onEdit(direccion.id)}
-          className="text-xs px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
+          className="text-xs px-2 py-1 rounded border border-stone-300 text-stone-600 hover:bg-stone-100 transition-colors"
         >
           Editar
         </button>

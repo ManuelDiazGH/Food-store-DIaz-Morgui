@@ -30,7 +30,7 @@ export function ProductTable({
       key: 'nombre',
       label: 'Nombre',
       render: (row) => (
-        <span className="font-medium text-gray-900">{row.nombre}</span>
+        <span className="font-medium text-stone-900">{row.nombre}</span>
       ),
     },
     {
@@ -63,7 +63,7 @@ export function ProductTable({
             Sí
           </span>
         ) : (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-stone-100 text-stone-600">
             No
           </span>
         ),
@@ -72,7 +72,7 @@ export function ProductTable({
       key: 'categorias',
       label: 'Categorías',
       render: (row) => (
-        <span className="text-gray-600">
+        <span className="text-stone-600">
           {row.categorias?.length ? row.categorias.join(', ') : '—'}
         </span>
       ),
@@ -107,7 +107,7 @@ export function ProductTable({
 
   if (loading) {
     return (
-      <div className="text-center py-8 text-gray-400">Cargando...</div>
+      <div className="text-center py-8 text-stone-400">Cargando...</div>
     )
   }
 

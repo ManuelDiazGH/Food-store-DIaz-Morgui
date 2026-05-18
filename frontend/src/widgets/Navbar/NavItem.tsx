@@ -12,10 +12,10 @@ export function NavItem({ to, icon, children }: NavItemProps) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+        `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
           isActive
-            ? 'text-orange-600 bg-orange-50'
-            : 'text-gray-600 hover:text-orange-600 hover:bg-gray-50'
+            ? 'text-brand-700 bg-brand-50'
+            : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
         }`
       }
     >

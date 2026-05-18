@@ -1,5 +1,4 @@
-/** FormField — Reusable form field component with Tailwind CSS. */
-
+/** FormField — Reusable form field with Tailwind. Minimalist. */
 
 type FormFieldProps =
   | {
@@ -41,16 +40,16 @@ export function FormField(props: FormFieldProps) {
             type="checkbox"
             checked={props.value}
             onChange={(e) => props.onChange(e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="w-4 h-4 rounded border-stone-300 text-brand-600 focus:ring-brand-500"
           />
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-stone-700">
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </span>
         </label>
       ) : (
         <>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-stone-700 mb-1">
             {label}
             {required && <span className="text-red-500 ml-1">*</span>}
           </label>
@@ -67,7 +66,7 @@ export function FormField(props: FormFieldProps) {
                   props.onChange(val)
                 }
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             >
               <option value="">{props.placeholder || 'Seleccionar...'}</option>
               {props.options.map((opt) => (
@@ -82,12 +81,12 @@ export function FormField(props: FormFieldProps) {
               value={props.value}
               onChange={(e) => props.onChange(e.target.value)}
               placeholder={props.placeholder}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
             />
           )}
         </>
       )}
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   )
 }

@@ -25,7 +25,7 @@ export function IngredientTable({ onEdit, onDelete }: IngredientTableProps) {
       key: 'nombre',
       label: 'Nombre',
       render: (row) => (
-        <span className="font-medium text-gray-900">{row.nombre}</span>
+        <span className="font-medium text-stone-900">{row.nombre}</span>
       ),
     },
     {
@@ -37,7 +37,7 @@ export function IngredientTable({ onEdit, onDelete }: IngredientTableProps) {
             Sí
           </span>
         ) : (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-stone-100 text-stone-600">
             No
           </span>
         ),
@@ -82,14 +82,14 @@ export function IngredientTable({ onEdit, onDelete }: IngredientTableProps) {
               setAlergenoOnly(e.target.checked)
               setPage(1)
             }}
-            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="w-4 h-4 rounded border-stone-300 text-blue-600 focus:ring-brand-500"
           />
-          <span className="text-sm text-gray-600">Solo alérgenos</span>
+          <span className="text-sm text-stone-600">Solo alérgenos</span>
         </label>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8 text-gray-400">Cargando...</div>
+        <div className="text-center py-8 text-stone-400">Cargando...</div>
       ) : (
         <DataTable
           columns={columns}

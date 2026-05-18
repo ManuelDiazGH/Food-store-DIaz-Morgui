@@ -24,7 +24,7 @@ export function ProductGrid({ filters = {} }: ProductGridProps) {
   const { data, isLoading, error } = useProductos({ ...filters, page: currentPage, limit: 20 })
 
   if (isLoading) {
-    return <div className="text-center py-12 text-gray-400">Cargando productos...</div>
+    return <div className="text-center py-12 text-stone-400">Cargando productos...</div>
   }
 
   if (error) {
@@ -32,7 +32,7 @@ export function ProductGrid({ filters = {} }: ProductGridProps) {
   }
 
   if (!data || data.items.length === 0) {
-    return <div className="text-center py-12 text-gray-500">No se encontraron productos</div>
+    return <div className="text-center py-12 text-stone-500">No se encontraron productos</div>
   }
 
   function handleCardClick(product: { id: number }) {
@@ -52,7 +52,7 @@ export function ProductGrid({ filters = {} }: ProductGridProps) {
           {Array.from({ length: Math.ceil(data.total / data.limit) }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
-              className={`px-3 py-1 rounded ${page === data.page ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              className={`px-3 py-1 rounded ${page === data.page ? 'bg-brand-600 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
               onClick={() => setCurrentPage(page)}
             >
               {page}

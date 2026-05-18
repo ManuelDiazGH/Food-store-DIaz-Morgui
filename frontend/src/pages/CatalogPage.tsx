@@ -24,12 +24,12 @@ export default function CatalogPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Catálogo de Productos</h1>
+      <h1 className="text-3xl font-bold text-stone-900 mb-8">Catálogo de Productos</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Sidebar filters */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-6">
+          <div className="bg-white rounded-lg border border-stone-200 p-4 space-y-6">
             <ProductFilters
               onFilterChange={setFilters}
               currentFilters={filters}

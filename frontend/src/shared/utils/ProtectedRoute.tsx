@@ -26,9 +26,9 @@ export function ProtectedRoute({ requiredRoles, children }: ProtectedRouteProps)
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="text-center">
-          <h1 className="text-6xl font-bold text-gray-300">403</h1>
-          <p className="mt-2 text-lg text-gray-600">No tenés permisos para acceder a esta página.</p>
-          <p className="mt-1 text-sm text-gray-400">
+          <h1 className="text-6xl font-bold text-stone-300">403</h1>
+          <p className="mt-2 text-lg text-stone-600">No tenés permisos para acceder a esta página.</p>
+          <p className="mt-1 text-sm text-stone-400">
             Se requiere uno de los siguientes roles: {requiredRoles.join(', ')}
           </p>
           <a

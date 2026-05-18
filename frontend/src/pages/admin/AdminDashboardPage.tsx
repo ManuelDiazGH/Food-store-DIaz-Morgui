@@ -59,25 +59,25 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Dashboard Administrativo</h1>
+      <h1 className="mb-6 text-2xl font-bold text-stone-900">Dashboard Administrativo</h1>
 
       {/* Metric cards */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Usuarios</p>
-          <p className="mt-1 text-3xl font-bold text-gray-900">{m?.total_usuarios ?? 0}</p>
+        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-stone-500">Usuarios</p>
+          <p className="mt-1 text-3xl font-bold text-stone-900">{m?.total_usuarios ?? 0}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Pedidos</p>
-          <p className="mt-1 text-3xl font-bold text-gray-900">{m?.total_pedidos ?? 0}</p>
+        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-stone-500">Pedidos</p>
+          <p className="mt-1 text-3xl font-bold text-stone-900">{m?.total_pedidos ?? 0}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Productos</p>
-          <p className="mt-1 text-3xl font-bold text-gray-900">{m?.total_productos ?? 0}</p>
+        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-stone-500">Productos</p>
+          <p className="mt-1 text-3xl font-bold text-stone-900">{m?.total_productos ?? 0}</p>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <p className="text-sm font-medium text-gray-500">Ventas totales</p>
-          <p className="mt-1 text-3xl font-bold text-gray-900">
+        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-medium text-stone-500">Ventas totales</p>
+          <p className="mt-1 text-3xl font-bold text-stone-900">
             {formatCurrency(m?.total_ventas ?? 0)}
           </p>
         </div>
@@ -86,29 +86,29 @@ export default function AdminDashboardPage() {
       {/* Filters */}
       <div className="mb-6 flex flex-wrap gap-4">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-600">Desde:</label>
+          <label className="text-sm font-medium text-stone-600">Desde:</label>
           <input
             type="date"
             value={desde}
             onChange={(e) => setDesde(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+            className="rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
           />
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-600">Hasta:</label>
+          <label className="text-sm font-medium text-stone-600">Hasta:</label>
           <input
             type="date"
             value={hasta}
             onChange={(e) => setHasta(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+            className="rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
           />
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-600">Granularidad:</label>
+          <label className="text-sm font-medium text-stone-600">Granularidad:</label>
           <select
             value={granularidad}
             onChange={(e) => setGranularidad(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+            className="rounded-lg border border-stone-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
           >
             <option value="dia">Día</option>
             <option value="semana">Semana</option>
@@ -120,10 +120,10 @@ export default function AdminDashboardPage() {
       {/* Charts grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Line chart — ventas */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900">Ventas por período</h3>
+        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-stone-900">Ventas por período</h3>
           {ventasData.length === 0 ? (
-            <p className="py-8 text-center text-sm text-gray-400">Sin datos de ventas</p>
+            <p className="py-8 text-center text-sm text-stone-400">Sin datos de ventas</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={ventasData}>
@@ -139,10 +139,10 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Bar chart — top productos */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900">Top 10 productos</h3>
+        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-stone-900">Top 10 productos</h3>
           {topData.length === 0 ? (
-            <p className="py-8 text-center text-sm text-gray-400">Sin datos de productos</p>
+            <p className="py-8 text-center text-sm text-stone-400">Sin datos de productos</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={topData} layout="vertical">
@@ -158,10 +158,10 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Pie chart — estados */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900">Pedidos por estado</h3>
+        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-stone-900">Pedidos por estado</h3>
           {estadoData.length === 0 ? (
-            <p className="py-8 text-center text-sm text-gray-400">Sin datos de pedidos</p>
+            <p className="py-8 text-center text-sm text-stone-400">Sin datos de pedidos</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -186,34 +186,34 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Summary table */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-4 text-lg font-semibold text-gray-900">Resumen de métricas</h3>
+        <div className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+          <h3 className="mb-4 text-lg font-semibold text-stone-900">Resumen de métricas</h3>
           {estadoData.length === 0 && ventasData.length === 0 ? (
-            <p className="py-8 text-center text-sm text-gray-400">Sin datos</p>
+            <p className="py-8 text-center text-sm text-stone-400">Sin datos</p>
           ) : (
             <div className="space-y-3">
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-sm text-gray-600">Usuarios registrados</span>
+              <div className="flex justify-between border-b border-stone-100 pb-2">
+                <span className="text-sm text-stone-600">Usuarios registrados</span>
                 <span className="font-semibold">{m?.total_usuarios ?? 0}</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-sm text-gray-600">Pedidos totales</span>
+              <div className="flex justify-between border-b border-stone-100 pb-2">
+                <span className="text-sm text-stone-600">Pedidos totales</span>
                 <span className="font-semibold">{m?.total_pedidos ?? 0}</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-sm text-gray-600">Productos en catálogo</span>
+              <div className="flex justify-between border-b border-stone-100 pb-2">
+                <span className="text-sm text-stone-600">Productos en catálogo</span>
                 <span className="font-semibold">{m?.total_productos ?? 0}</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-sm text-gray-600">Ventas totales</span>
+              <div className="flex justify-between border-b border-stone-100 pb-2">
+                <span className="text-sm text-stone-600">Ventas totales</span>
                 <span className="font-semibold">{formatCurrency(m?.total_ventas ?? 0)}</span>
               </div>
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-sm text-gray-600">Productos en top 10</span>
+              <div className="flex justify-between border-b border-stone-100 pb-2">
+                <span className="text-sm text-stone-600">Productos en top 10</span>
                 <span className="font-semibold">{topData.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Período de datos</span>
+                <span className="text-sm text-stone-600">Período de datos</span>
                 <span className="font-semibold">{desde} a {hasta}</span>
               </div>
             </div>

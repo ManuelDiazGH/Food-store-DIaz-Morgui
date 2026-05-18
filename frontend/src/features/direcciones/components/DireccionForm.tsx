@@ -54,8 +54,8 @@ export function DireccionForm({ initialData, onSubmit, onCancel, isLoading }: Di
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="alias" className="block text-sm font-medium text-gray-700 mb-1">
-          Alias <span className="text-gray-400">(opcional)</span>
+        <label htmlFor="alias" className="block text-sm font-medium text-stone-700 mb-1">
+          Alias <span className="text-stone-400">(opcional)</span>
         </label>
         <input
           id="alias"
@@ -63,12 +63,12 @@ export function DireccionForm({ initialData, onSubmit, onCancel, isLoading }: Di
           value={alias}
           onChange={(e) => setAlias(e.target.value)}
           placeholder="Ej: Casa, Trabajo, etc."
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm"
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-brand-500 focus:border-brand-500 text-sm"
         />
       </div>
 
       <div>
-        <label htmlFor="linea1" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="linea1" className="block text-sm font-medium text-stone-700 mb-1">
           Calle y número *
         </label>
         <input
@@ -77,16 +77,16 @@ export function DireccionForm({ initialData, onSubmit, onCancel, isLoading }: Di
           value={linea1}
           onChange={(e) => setLinea1(e.target.value)}
           placeholder="Ej: Av. Siempre Viva 123"
-          className={`w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm ${
-            errors.linea1 ? 'border-red-400' : 'border-gray-300'
+          className={`w-full px-3 py-2 border rounded-lg focus:ring-brand-500 focus:border-brand-500 text-sm ${
+            errors.linea1 ? 'border-red-400' : 'border-stone-300'
           }`}
         />
         {errors.linea1 && <p className="text-xs text-red-500 mt-1">{errors.linea1}</p>}
       </div>
 
       <div>
-        <label htmlFor="linea2" className="block text-sm font-medium text-gray-700 mb-1">
-          Piso / Depto <span className="text-gray-400">(opcional)</span>
+        <label htmlFor="linea2" className="block text-sm font-medium text-stone-700 mb-1">
+          Piso / Depto <span className="text-stone-400">(opcional)</span>
         </label>
         <input
           id="linea2"
@@ -94,13 +94,13 @@ export function DireccionForm({ initialData, onSubmit, onCancel, isLoading }: Di
           value={linea2}
           onChange={(e) => setLinea2(e.target.value)}
           placeholder="Ej: Piso 3, Depto B"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm"
+          className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-brand-500 focus:border-brand-500 text-sm"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="ciudad" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="ciudad" className="block text-sm font-medium text-stone-700 mb-1">
             Ciudad *
           </label>
           <input
@@ -109,14 +109,14 @@ export function DireccionForm({ initialData, onSubmit, onCancel, isLoading }: Di
             value={ciudad}
             onChange={(e) => setCiudad(e.target.value)}
             placeholder="Ej: Buenos Aires"
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm ${
-              errors.ciudad ? 'border-red-400' : 'border-gray-300'
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-brand-500 focus:border-brand-500 text-sm ${
+              errors.ciudad ? 'border-red-400' : 'border-stone-300'
             }`}
           />
           {errors.ciudad && <p className="text-xs text-red-500 mt-1">{errors.ciudad}</p>}
         </div>
         <div>
-          <label htmlFor="cp" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="cp" className="block text-sm font-medium text-stone-700 mb-1">
             Código Postal *
           </label>
           <input
@@ -125,8 +125,8 @@ export function DireccionForm({ initialData, onSubmit, onCancel, isLoading }: Di
             value={cp}
             onChange={(e) => setCp(e.target.value)}
             placeholder="Ej: 1425"
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm ${
-              errors.cp ? 'border-red-400' : 'border-gray-300'
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-brand-500 focus:border-brand-500 text-sm ${
+              errors.cp ? 'border-red-400' : 'border-stone-300'
             }`}
           />
           {errors.cp && <p className="text-xs text-red-500 mt-1">{errors.cp}</p>}
@@ -139,9 +139,9 @@ export function DireccionForm({ initialData, onSubmit, onCancel, isLoading }: Di
           type="checkbox"
           checked={esPrincipal}
           onChange={(e) => setEsPrincipal(e.target.checked)}
-          className="rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+          className="rounded border-stone-300 text-brand-600 focus:ring-brand-500"
         />
-        <label htmlFor="es_principal" className="text-sm text-gray-700">
+        <label htmlFor="es_principal" className="text-sm text-stone-700">
           Establecer como dirección principal
         </label>
       </div>
@@ -150,7 +150,7 @@ export function DireccionForm({ initialData, onSubmit, onCancel, isLoading }: Di
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          className="px-4 py-2 text-sm font-medium text-stone-700 bg-stone-100 rounded-lg hover:bg-stone-200 transition-colors"
           disabled={isLoading}
         >
           Cancelar
@@ -158,7 +158,7 @@ export function DireccionForm({ initialData, onSubmit, onCancel, isLoading }: Di
         <button
           type="submit"
           disabled={isLoading}
-          className="px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors"
+          className="px-4 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-50 transition-colors"
         >
           {isLoading ? 'Guardando...' : initialData ? 'Guardar cambios' : 'Agregar dirección'}
         </button>

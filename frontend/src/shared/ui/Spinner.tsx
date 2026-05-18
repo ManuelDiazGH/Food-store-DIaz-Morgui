@@ -1,5 +1,5 @@
 type SpinnerSize = 'sm' | 'md' | 'lg'
-type SpinnerColor = 'orange' | 'white' | 'gray'
+type SpinnerColor = 'green' | 'white' | 'stone'
 
 interface SpinnerProps {
   size?: SpinnerSize
@@ -14,12 +14,12 @@ const sizeMap: Record<SpinnerSize, string> = {
 }
 
 const colorMap: Record<SpinnerColor, string> = {
-  orange: 'border-orange-600',
+  green: 'border-brand-600',
   white: 'border-white',
-  gray: 'border-gray-400',
+  stone: 'border-stone-400',
 }
 
-export function Spinner({ size = 'md', color = 'orange', className = '' }: SpinnerProps) {
+export function Spinner({ size = 'md', color = 'green', className = '' }: SpinnerProps) {
   return (
     <div
       role="status"

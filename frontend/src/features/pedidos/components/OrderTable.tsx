@@ -70,7 +70,7 @@ export function OrderTable({ pedidos }: OrderTableProps) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <tr className="border-b border-stone-200 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">
               <th className="px-4 py-3">Pedido</th>
               <th className="px-4 py-3">Cliente</th>
               <th className="px-4 py-3">Fecha</th>
@@ -88,14 +88,14 @@ export function OrderTable({ pedidos }: OrderTableProps) {
                 : validTransitions
 
               return (
-                <tr key={pedido.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={pedido.id} className="hover:bg-stone-50 transition-colors">
                     <td className="px-4 py-3">
-                    <Link to={`/orders-panel/${pedido.id}`} className="font-medium text-orange-600 hover:underline">
+                    <Link to={`/orders-panel/${pedido.id}`} className="font-medium text-brand-600 hover:underline">
                       #{pedido.id}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-gray-700">{pedido.usuario?.nombre || `Usuario #${pedido.usuario_id}`}</td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-stone-700">{pedido.usuario?.nombre || `Usuario #${pedido.usuario_id}`}</td>
+                  <td className="px-4 py-3 text-stone-500">
                     {new Date(pedido.created_at).toLocaleDateString('es-AR', {
                       day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
                     })}
@@ -105,10 +105,10 @@ export function OrderTable({ pedidos }: OrderTableProps) {
                       {STATUS_LABELS[pedido.estado_codigo] || pedido.estado_codigo}
                     </span>
                   </td>
-                  <td className="px-4 py-3 font-medium text-gray-900">${Number(pedido.total).toFixed(2)}</td>
+                  <td className="px-4 py-3 font-medium text-stone-900">${Number(pedido.total).toFixed(2)}</td>
                   <td className="px-4 py-3">
                     {isActionDisabled(pedido.estado_codigo) ? (
-                      <span className="text-xs text-gray-400">—</span>
+                      <span className="text-xs text-stone-400">—</span>
                     ) : (
                       <div className="flex gap-1.5 flex-wrap">
                         {allActions.map((estadoHasta) => (

@@ -48,14 +48,14 @@ function ProductCreatePageInner() {
       <div className="mb-6">
         <button
           onClick={() => navigate(ROUTES.PRODUCTS)}
-          className="text-sm text-gray-600 hover:text-gray-900"
+          className="text-sm text-stone-600 hover:text-stone-900"
         >
           &larr; Volver a lista
         </button>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">Nuevo Producto</h1>
+        <h1 className="text-2xl font-bold text-stone-900 mt-2">Nuevo Producto</h1>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-lg border border-stone-200 p-6">
         <ProductForm
           open={true}
           onClose={() => navigate(ROUTES.PRODUCTS)}

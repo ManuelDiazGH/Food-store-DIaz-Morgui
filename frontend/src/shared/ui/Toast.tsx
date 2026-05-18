@@ -23,17 +23,17 @@ const MAX_TOASTS = 5
 const AUTO_DISMISS_MS = 4000
 
 const typeStyles: Record<ToastType, string> = {
-  success: 'bg-green-600 text-white',
-  error: 'bg-red-600 text-white',
-  warning: 'bg-yellow-500 text-white',
-  info: 'bg-blue-600 text-white',
+  success: 'bg-brand-600 text-white',
+  error:   'bg-red-600 text-white',
+  warning: 'bg-amber-600 text-white',
+  info:    'bg-blue-600 text-white',
 }
 
 const typeIcons: Record<ToastType, string> = {
   success: '\u2713',
-  error: '\u2717',
+  error:   '\u2717',
   warning: '\u26A0',
-  info: '\u2139',
+  info:    '\u2139',
 }
 
 let toastCounter = 0
@@ -69,9 +69,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const contextValue = useCallback((): ToastContextValue => ({
     success: (msg: string) => addToast('success', msg),
-    error: (msg: string) => addToast('error', msg),
+    error:   (msg: string) => addToast('error', msg),
     warning: (msg: string) => addToast('warning', msg),
-    info: (msg: string) => addToast('info', msg),
+    info:    (msg: string) => addToast('info', msg),
   }), [addToast])
 
   const [value] = useState(contextValue)
@@ -140,7 +140,7 @@ export function ApiErrorListener() {
   return null
 }
 
-// Zustand-based toast store for use outside React components (mutations, etc.)
+/* ── Zustand-based toast store (for mutations outside React tree) ─── */
 import { create as zustandCreate } from 'zustand'
 
 export type { ToastType }
@@ -173,22 +173,21 @@ export const useToastStore = zustandCreate<ToastStoreState>((set) => ({
   },
 }))
 
-// Zustand-based ToastContainer for use with useToastStore
 export function ZustandToastContainer() {
   const { toasts, removeToast } = useToastStore()
 
   const typeStylesMap: Record<ToastType, string> = {
-    success: 'bg-green-600 text-white',
-    error: 'bg-red-600 text-white',
-    warning: 'bg-yellow-500 text-white',
-    info: 'bg-blue-600 text-white',
+    success: 'bg-brand-600 text-white',
+    error:   'bg-red-600 text-white',
+    warning: 'bg-amber-600 text-white',
+    info:    'bg-blue-600 text-white',
   }
 
   const typeIconsMap: Record<ToastType, string> = {
-    success: '✓',
-    error: '✕',
-    warning: '⚠',
-    info: 'ℹ',
+    success: '\u2713',
+    error:   '\u2717',
+    warning: '\u26A0',
+    info:    '\u2139',
   }
 
   return (
@@ -196,7 +195,7 @@ export function ZustandToastContainer() {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`flex items-center gap-2 px-4 py-3 rounded-lg text-white text-sm shadow-lg ${typeStylesMap[toast.type]}`}
+          className={`flex items-center gap-2 px-4 py-3 rounded-lg text-white text-sm shadow-lg cursor-pointer ${typeStylesMap[toast.type]}`}
           onClick={() => removeToast(toast.id)}
         >
           <span className="font-bold">{typeIconsMap[toast.type]}</span>

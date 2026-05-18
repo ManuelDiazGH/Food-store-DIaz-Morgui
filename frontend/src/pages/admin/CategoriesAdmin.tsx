@@ -98,13 +98,13 @@ function CategoriesAdminInner() {
       <ZustandToastContainer />
 
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Categorías</h1>
+        <h1 className="text-2xl font-bold text-stone-900">Categorías</h1>
         <button
           onClick={() => {
             setEditingCategory(null)
             setShowForm(true)
           }}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           + Nueva categoría
         </button>
@@ -112,12 +112,12 @@ function CategoriesAdminInner() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tree panel */}
-        <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-4">
-          <h2 className="text-sm font-medium text-gray-500 uppercase mb-3">
+        <div className="lg:col-span-2 bg-white rounded-lg border border-stone-200 p-4">
+          <h2 className="text-sm font-medium text-stone-500 uppercase mb-3">
             Árbol de categorías
           </h2>
           {treeLoading ? (
-            <div className="text-center py-8 text-gray-400">Cargando...</div>
+            <div className="text-center py-8 text-stone-400">Cargando...</div>
           ) : (
             <CategoryTree
               tree={tree}
@@ -130,27 +130,27 @@ function CategoriesAdminInner() {
         </div>
 
         {/* Detail panel */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <h2 className="text-sm font-medium text-gray-500 uppercase mb-3">
+        <div className="bg-white rounded-lg border border-stone-200 p-4">
+          <h2 className="text-sm font-medium text-stone-500 uppercase mb-3">
             Detalle
           </h2>
           {selectedCategory ? (
             <div className="space-y-3">
               <div>
-                <span className="text-xs text-gray-500">Nombre</span>
-                <p className="text-sm font-medium text-gray-900">
+                <span className="text-xs text-stone-500">Nombre</span>
+                <p className="text-sm font-medium text-stone-900">
                   {selectedCategory.nombre}
                 </p>
               </div>
               <div>
-                <span className="text-xs text-gray-500">Descripción</span>
-                <p className="text-sm text-gray-700">
+                <span className="text-xs text-stone-500">Descripción</span>
+                <p className="text-sm text-stone-700">
                   {selectedCategory.descripcion || '—'}
                 </p>
               </div>
               <div>
-                <span className="text-xs text-gray-500">ID</span>
-                <p className="text-sm text-gray-700">{selectedCategory.id}</p>
+                <span className="text-xs text-stone-500">ID</span>
+                <p className="text-sm text-stone-700">{selectedCategory.id}</p>
               </div>
               <div className="pt-3 flex gap-2">
                 <button
@@ -168,7 +168,7 @@ function CategoriesAdminInner() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-stone-400">
               Seleccioná una categoría del árbol
             </p>
           )}

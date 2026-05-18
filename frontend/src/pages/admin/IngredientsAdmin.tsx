@@ -56,19 +56,19 @@ function IngredientsAdminInner() {
       <ZustandToastContainer />
 
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Ingredientes</h1>
+        <h1 className="text-2xl font-bold text-stone-900">Ingredientes</h1>
         <button
           onClick={() => {
             setEditingItem(null)
             setShowForm(true)
           }}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           + Nuevo ingrediente
         </button>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white rounded-lg border border-stone-200 p-4">
         <IngredientTable onEdit={handleEdit} onDelete={handleDelete} />
       </div>
 

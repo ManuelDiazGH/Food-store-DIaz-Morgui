@@ -58,8 +58,8 @@ export default function OrdersPanelPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900"> Panel de Pedidos</h1>
-        <span className="text-xs text-gray-400">Actualización automática cada 30s</span>
+        <h1 className="text-2xl font-bold text-stone-900"> Panel de Pedidos</h1>
+        <span className="text-xs text-stone-400">Actualización automática cada 30s</span>
       </div>
 
       {/* Search bar */}
@@ -76,7 +76,7 @@ export default function OrdersPanelPage() {
             className={`px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${
               (st === 'TODOS' && !filters.estado) || filters.estado === st
                 ? 'bg-gray-900 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
             }`}
           >
             {STATUS_LABELS[st]}
@@ -86,7 +86,7 @@ export default function OrdersPanelPage() {
 
       {/* Results info */}
       {!isLoading && !error && (
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-stone-500 mb-4">
           {total} resultado{total !== 1 ? 's' : ''}
           {page > 1 && ` — Página ${page} de ${totalPages}`}
         </p>
@@ -94,14 +94,14 @@ export default function OrdersPanelPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="text-center py-12 text-gray-400">Cargando pedidos...</div>
+        <div className="text-center py-12 text-stone-400">Cargando pedidos...</div>
       )}
 
       {/* Error */}
       {error && (
         <div className="text-center py-12">
           <p className="text-red-500 mb-2">Error al cargar pedidos</p>
-          <button onClick={() => window.location.reload()} className="text-orange-600 hover:underline text-sm">
+          <button onClick={() => window.location.reload()} className="text-brand-600 hover:underline text-sm">
             Reintentar
           </button>
         </div>
@@ -109,9 +109,9 @@ export default function OrdersPanelPage() {
 
       {/* Empty state */}
       {!isLoading && !error && pedidos.length === 0 && (
-        <div className="text-center py-16 bg-white rounded-lg border border-gray-200">
+        <div className="text-center py-16 bg-white rounded-lg border border-stone-200">
           <span className="text-5xl block mb-4"></span>
-          <p className="text-gray-500">
+          <p className="text-stone-500">
             No hay pedidos{filters.estado ? ` en estado "${STATUS_LABELS[filters.estado]}"` : ''}
             {filters.q ? ` con "${filters.q}"` : ''}
           </p>
@@ -120,7 +120,7 @@ export default function OrdersPanelPage() {
 
       {/* Table */}
       {!isLoading && !error && pedidos.length > 0 && (
-        <div className="bg-white rounded-lg border border-gray-200">
+        <div className="bg-white rounded-lg border border-stone-200">
           <OrderTable pedidos={pedidos} />
         </div>
       )}
@@ -131,19 +131,19 @@ export default function OrdersPanelPage() {
           <button
             onClick={() => handlePageChange(page - 1)}
             disabled={page <= 1}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm font-medium text-stone-700 bg-white border border-stone-300 rounded-lg hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Anterior
           </button>
 
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-stone-600">
             Página {page} de {totalPages}
           </span>
 
           <button
             onClick={() => handlePageChange(page + 1)}
             disabled={page >= totalPages}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-sm font-medium text-stone-700 bg-white border border-stone-300 rounded-lg hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Siguiente
           </button>

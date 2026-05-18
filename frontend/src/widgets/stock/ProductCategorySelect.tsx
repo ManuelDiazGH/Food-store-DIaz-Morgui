@@ -22,13 +22,13 @@ export function ProductCategorySelect({ selectedIds, onChange }: ProductCategory
   }
 
   if (isLoading) {
-    return <div className="text-sm text-gray-400">Cargando categorías...</div>
+    return <div className="text-sm text-stone-400">Cargando categorías...</div>
   }
 
   return (
-    <div className="space-y-1 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-2">
+    <div className="space-y-1 max-h-48 overflow-y-auto border border-stone-200 rounded-lg p-2">
       {categorias.length === 0 && (
-        <p className="text-sm text-gray-400">No hay categorías disponibles</p>
+        <p className="text-sm text-stone-400">No hay categorías disponibles</p>
       )}
       {categorias.map((cat) => (
         <label key={cat.id} className="flex items-center gap-2 cursor-pointer py-1">
@@ -36,9 +36,9 @@ export function ProductCategorySelect({ selectedIds, onChange }: ProductCategory
             type="checkbox"
             checked={selectedIds.includes(cat.id)}
             onChange={() => toggle(cat.id)}
-            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            className="w-4 h-4 rounded border-stone-300 text-blue-600 focus:ring-brand-500"
           />
-          <span className="text-sm text-gray-700">{cat.nombre}</span>
+          <span className="text-sm text-stone-700">{cat.nombre}</span>
         </label>
       ))}
     </div>

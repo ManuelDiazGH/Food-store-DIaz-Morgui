@@ -80,15 +80,15 @@ function ProductEditPageInner() {
       <div className="mb-6">
         <button
           onClick={() => navigate(ROUTES.PRODUCTS)}
-          className="text-sm text-gray-600 hover:text-gray-900"
+          className="text-sm text-stone-600 hover:text-stone-900"
         >
           &larr; Volver a lista
         </button>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">Editar Producto</h1>
+        <h1 className="text-2xl font-bold text-stone-900 mt-2">Editar Producto</h1>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Datos básicos</h2>
+      <div className="bg-white rounded-lg border border-stone-200 p-6 mb-6">
+        <h2 className="text-lg font-semibold text-stone-900 mb-4">Datos básicos</h2>
         <ProductForm
           open={true}
           onClose={() => navigate(ROUTES.PRODUCTS)}
@@ -98,17 +98,17 @@ function ProductEditPageInner() {
         />
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white rounded-lg border border-stone-200 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Stock</h2>
+          <h2 className="text-lg font-semibold text-stone-900">Stock</h2>
           <button
             onClick={() => setShowStockManager(true)}
-            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700"
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
           >
             Gestionar Stock
           </button>
         </div>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-stone-600">
           Stock actual: <span className="font-semibold">{product.hay_stock ? 'Con stock' : 'Sin stock'}</span>
         </p>
       </div>

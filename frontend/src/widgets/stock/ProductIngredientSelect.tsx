@@ -39,13 +39,13 @@ export function ProductIngredientSelect({ selected, onChange }: ProductIngredien
   }
 
   if (isLoading) {
-    return <div className="text-sm text-gray-400">Cargando ingredientes...</div>
+    return <div className="text-sm text-stone-400">Cargando ingredientes...</div>
   }
 
   return (
-    <div className="space-y-1 max-h-48 overflow-y-auto border border-gray-200 rounded-md p-2">
+    <div className="space-y-1 max-h-48 overflow-y-auto border border-stone-200 rounded-lg p-2">
       {ingredientes.length === 0 && (
-        <p className="text-sm text-gray-400">No hay ingredientes disponibles</p>
+        <p className="text-sm text-stone-400">No hay ingredientes disponibles</p>
       )}
       {ingredientes.map((ing) => (
         <div key={ing.id} className="flex items-center gap-2 py-1">
@@ -54,9 +54,9 @@ export function ProductIngredientSelect({ selected, onChange }: ProductIngredien
               type="checkbox"
               checked={isSelected(ing.id)}
               onChange={() => toggleIngredient(ing.id)}
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="w-4 h-4 rounded border-stone-300 text-blue-600 focus:ring-brand-500"
             />
-            <span className="text-sm text-gray-700">
+            <span className="text-sm text-stone-700">
               {ing.nombre}
               {ing.es_alergeno && (
                 <span className="ml-1 text-xs text-red-500">(alérgeno)</span>
@@ -64,12 +64,12 @@ export function ProductIngredientSelect({ selected, onChange }: ProductIngredien
             </span>
           </label>
           {isSelected(ing.id) && (
-            <label className="flex items-center gap-1 cursor-pointer text-xs text-gray-500">
+            <label className="flex items-center gap-1 cursor-pointer text-xs text-stone-500">
               <input
                 type="checkbox"
                 checked={getRemovible(ing.id)}
                 onChange={() => toggleRemovible(ing.id)}
-                className="w-3 h-3 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="w-3 h-3 rounded border-stone-300 text-blue-600 focus:ring-brand-500"
               />
               Removible
             </label>
