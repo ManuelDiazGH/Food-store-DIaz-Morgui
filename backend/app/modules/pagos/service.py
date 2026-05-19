@@ -30,7 +30,7 @@ class PagoService:
         if pedido is None:
             raise ValueError("Pedido no encontrado")
 
-        if pedido.estado_codigo not in ("PENDIENTE",):
+        if pedido.estado_codigo not in {"PENDIENTE"}:
             raise ValueError(
                 f"El pedido está en estado '{pedido.estado_codigo}' y no puede pagarse"
             )

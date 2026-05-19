@@ -60,6 +60,7 @@ export function ProductDetail({ productId }: ProductDetailProps) {
           producto_id: product.id,
           ingrediente_id: i.id,
           es_removible: i.es_removible,
+          nombre: i.nombre,
         })),
       },
       cantidad,

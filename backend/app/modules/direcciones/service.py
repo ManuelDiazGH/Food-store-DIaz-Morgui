@@ -19,8 +19,8 @@ class DireccionService:
         )
         # Si es principal, desactivar las demás
         if data.es_principal:
-            Direcciones = uow.direcciones.get_by_usuario(usuario_id)
-            for d in Direcciones:
+            direcciones = uow.direcciones.get_by_usuario(usuario_id)
+            for d in direcciones:
                 d.es_principal = False
                 uow.session.add(d)
 

@@ -14,7 +14,11 @@ export function CartDrawer() {
 
   function formatItemExclusions(item: (typeof items)[0]): string | null {
     if (!item.personalizacion || item.personalizacion.length === 0) return null
-    return `Sin ${item.personalizacion.length} ingrediente${item.personalizacion.length > 1 ? 's' : ''}`
+    const names = item.personalizacion
+      .map((id) => item.producto.ingredientes?.find((i) => i.ingrediente_id === id)?.nombre)
+      .filter(Boolean) as string[]
+    if (names.length === 0) return `Sin ${item.personalizacion.length} ingrediente${item.personalizacion.length > 1 ? 's' : ''}`
+    return `Sin ${names.join(', ')}`
   }
 
   return (

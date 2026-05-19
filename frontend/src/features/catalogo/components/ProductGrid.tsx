@@ -39,6 +39,18 @@ export function ProductGrid({ filters = {} }: ProductGridProps) {
     navigate(ROUTES.PRODUCT_DETAIL.replace(':id', String(product.id)))
   }
 
+  function getPageRange(current: number, total: number): (number | '...')[] {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+    const pages: (number | '...')[] = [1]
+    if (current > 3) pages.push('...')
+    for (let p = Math.max(2, current - 2); p <= Math.min(total - 1, current + 2); p++) {
+      pages.push(p)
+    }
+    if (current < total - 2) pages.push('...')
+    pages.push(total)
+    return pages
+  }
+
   return (
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -49,15 +61,19 @@ export function ProductGrid({ filters = {} }: ProductGridProps) {
       {/* Pagination */}
       {data.total > data.limit && (
         <div className="flex justify-center mt-8 gap-2">
-          {Array.from({ length: Math.ceil(data.total / data.limit) }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              className={`px-3 py-1 rounded ${page === data.page ? 'bg-brand-600 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
-              onClick={() => setCurrentPage(page)}
-            >
-              {page}
-            </button>
-          ))}
+          {getPageRange(data.page, Math.ceil(data.total / data.limit)).map((page, idx) =>
+            page === '...' ? (
+              <span key={`ellipsis-${idx}`} className="px-3 py-1 text-stone-400 select-none">...</span>
+            ) : (
+              <button
+                key={page}
+                className={`px-3 py-1 rounded ${page === data.page ? 'bg-brand-600 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </button>
+            )
+          )}
         </div>
       )}
     </div>
